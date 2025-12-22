@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggregated Cost</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+
+<style>
+/* SAME CSS AS DIAGNOSIS — DO NOT CHANGE */
+:root {
+  --primary-purple: #65336e;
+  --dark-purple: #542d6b;
+  --light-blue: #80c6ff;
+  --text-light: #eee;
+  --card: #65336e;
+}
+
+body {
+  background-color: #eee;
+  color: #333;
+  font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar {
+  height: 70px;
+  background: var(--primary-purple);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  position: fixed;
+  width: calc(100% - 48px);
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgb(101 51 110);
+  border-bottom: 0.2px solid rgb(101 51 110);
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-image {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+}
+
+.user {
+  display: flex;
+  gap: 10px;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 69px;
+  left: 0;
+  width: 200px;
+  height: calc(100% - 70px);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  z-index: 999;
+}
+
+.sidebar-btn {
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.sidebar-btn:hover, .sidebar-btn.active {
+  background: var(--dark-purple);
+  transform: translateY(-2px);
+}
+
+.sidebar-btn-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding-left: 0px;
+  margin-bottom: 10px;
+}
+
+.submenu.open {
+  max-height: 200px;
+}
+
+.submenu-btn {
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  padding: 8px 44px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.submenu-btn:hover, .submenu-btn.active {
+  background: var(--dark-purple);
+  transform: translateX(5px);
+}
+
+.chevron {
+  transition: transform 0.3s;
+}
+
+.chevron.rotate {
+  transform: rotate(90deg);
+}
+
+/* PAGE CONTENT AREA */
+.page-container {
+  margin-left: 220px;
+  margin-top: 90px;
+  max-width: 1100px;
+  padding: 24px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.styled-table th {
+  background-color: #65336e;
+  color: white;
+}
+
+.pagination {
+  margin-top: 15px;
+  display: flex;
+  gap: 6px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background: #65336e;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:hover {
+  background: #542d6b;
+}
+
+.title-text {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-light);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAVBAR -->
+<div class="toolbar">
+  <div class="logo">
+    <img src="/static/aspire.svg" class="logo-image">
+    <span class="title-text">Aggregated Cost</span>
+  </div>
+  <div class="user">
+     {% include "navbar.html" %}
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <!--Metrics-->>
+  <button id="metrics-btn" class="sidebar-btn">
+    <div class="sidebar-btn-content">
+      <i class="fa-solid fa-chart-bar"></i>
+      <span>Metrics</span>
+    </div>
+    <i class="fa-solid fa-chevron-right chevron"></i>
+  </button>
+  <div id="metrics-submenu" class="submenu">
+    <button id="cost-btn" class="submenu-btn"><i class="fa-solid fa-dollar-sign"></i> Cost</button>
+    <button id="performance-btn" class="submenu-btn"><i class="fa-solid fa-gauge-high"></i> Performance</button>
+  </div>
+
+  <!-- Diagnostics -->
+  <button id="diagnosis-btn" class="sidebar-btn" onclick="window.location.href='/audit'">
+    <div class="sidebar-btn-content">
+      <i class="fas fa-file-alt"></i>
+      <span>Diagnostics</span>
+    </div>
+  </button>
+
+  <!-- Aggregated Cost -->
+  <button id="aggregated-btn" class="sidebar-btn active" onclick="window.location.href='/aggregatedcost'">
+    <div class="sidebar-btn-content">
+      <i class="fas fa-coins"></i>
+      <span>Aggregated Cost</span>
+    </div>
+  </button>
+
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page-container">
+  <div class="card">
+
+    <h2>Aggregated Agent Cost</h2>
+
+    <label>Select Agent:</label>
+    <select id="agentFilter"></select>
+
+    <label>Filter by Month:</label>
+    <select id="monthFilterForAgent"></select>
+
+    <h3>Monthly Aggregated Cost</h3>
+    <table id="aggregatedTable" class="styled-table">
+      <thead>
+        <tr>
+          <th>Agent</th>
+          <th>Total Cost</th>
+          <th>Month</th>
+          <th>Updated On</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="pagination" id="aggPagination"></div>
+
+    <h3>Monthly User Cost</h3>
+
+<label>Filter by User:</label>
+<select id="userFilter"></select>
+
+<label>Filter by Month:</label>
+<select id="monthFilter"></select>
+
+<table id="userCostTable" class="styled-table">
+  <thead>
+    <tr>
+      <th>Agent</th>
+      <th>User</th>
+      <th>Month</th>
+      <th>Total Cost</th>
+      <th>Updated On</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="pagination" id="userCostPagination"></div>
+
+
+  </div>
+</div>
+
+<script src="/static/config.js"></script>
+<script src="/static/config.js"></script>
+<script>
+let aggregated = [];
+let monthlyUserCost = [];
+let pageSize = 10;
+
+let aggPage = 1;
+let userCostPage = 1;
+
+/* ---------------- Sidebar Button Routing ---------------- */
+
+document.getElementById("cost-btn").addEventListener("click", () => {
+  window.location.href = '/cost';   // FIXED
+});
+
+document.getElementById("performance-btn").addEventListener("click", () => {
+  window.location.href = '/performance';  // FIXED
+});
+
+document.getElementById("metrics-btn").addEventListener("click", () => {
+  const submenu = document.getElementById("metrics-submenu");
+  submenu.classList.toggle("open");
+  document.querySelector("#metrics-btn .chevron").classList.toggle("rotate");
+});
+
+/* ---------------- Load Data ---------------- */
+
+async function loadData() {
+  const aggRes = await fetch(`${API_BASE}/aggregated-agent-monthly-cost`);
+  const userCostRes = await fetch(`${API_BASE}/monthly-user-agent-cost`);
+
+  aggregated = (await aggRes.json())?.uploaded ?? [];
+  monthlyUserCost = (await userCostRes.json())?.monthly_costs ?? [];
+
+  populateFilters();
+  renderTables();
+}
+
+/* ---------------- Filter Setup ---------------- */
+
+function populateFilters() {
+  const agentSet = new Set();
+  const userSet = new Set();
+  const monthSet = new Set();
+  const agentMonthSet = new Set();
+
+  aggregated.forEach(r => {
+    agentSet.add(r.AgentCode);
+    agentMonthSet.add(r.Month);
+  });
+
+  monthlyUserCost.forEach(r => {
+    userSet.add(r.UserName);
+    monthSet.add(r.Month);
+  });
+
+  document.getElementById('agentFilter').innerHTML =
+    `<option value="all">All Agents</option>` +
+    [...agentSet].map(a => `<option value="${a}">${a}</option>`).join("");
+
+  document.getElementById('userFilter').innerHTML =
+    `<option value="all">All Users</option>` +
+    [...userSet].map(u => `<option value="${u}">${u}</option>`).join("");
+
+  document.getElementById('monthFilter').innerHTML =
+    `<option value="all">All Months</option>` +
+    [...monthSet].sort().map(m => `<option value="${m}">${m}</option>`).join("");
+
+  document.getElementById('monthFilterForAgent').innerHTML =
+    `<option value="all">All Months</option>` +
+    [...agentMonthSet].sort().map(m => `<option value="${m}">${m}</option>`).join("");
+
+  // Trigger data refresh on filter change
+  document.getElementById('agentFilter').onchange =
+  document.getElementById('userFilter').onchange =
+  document.getElementById('monthFilter').onchange =
+  document.getElementById('monthFilterForAgent').onchange = () => {
+    userCostPage = 1;
+    aggPage = 1;
+    renderTables();
+  };
+}
+
+/* ---------------- Render Tables ---------------- */
+
+function paginate(array, page) {
+  return array.slice((page - 1) * pageSize, page * pageSize);
+}
+
+function renderTables() {
+
+  const selectedAgent = document.getElementById('agentFilter').value;
+  const selectedUser = document.getElementById('userFilter').value;
+  const selectedMonth = document.getElementById('monthFilter').value;
+  const selectedAgentMonth = document.getElementById('monthFilterForAgent').value; // FIXED ID
+
+  /* ------ Filter Aggregated Agent Table ------ */
+
+  let filteredAgg = aggregated;
+
+  if (selectedAgent !== "all")
+    filteredAgg = filteredAgg.filter(r => r.AgentCode === selectedAgent);
+
+  if (selectedAgentMonth !== "all")
+    filteredAgg = filteredAgg.filter(r => r.Month === selectedAgentMonth);  // FIXED & ADDED
+
+  const aggRows = paginate(filteredAgg, aggPage)
+    .map(r => `
+      <tr>
+        <td>${r.AgentCode}</td>
+        <td>${r.TotalCost}</td>
+        <td>${r.Month}</td>
+        <td>${r.UpdatedOn}</td>
+      </tr>
+    `).join("");
+
+  document.querySelector("#aggregatedTable tbody").innerHTML =
+    aggRows || "<tr><td colspan='3'>No Data</td></tr>";
+
+  /* ------ Filter Monthly User Cost Table ------ */
+
+  let filteredCost = monthlyUserCost;
+
+  if (selectedAgent !== "all")
+    filteredCost = filteredCost.filter(r => r.AgentCode === selectedAgent);
+
+  if (selectedUser !== "all")
+    filteredCost = filteredCost.filter(r => r.UserName === selectedUser);
+
+  if (selectedMonth !== "all")
+    filteredCost = filteredCost.filter(r => r.Month === selectedMonth);
+
+  const userCostRows = paginate(filteredCost, userCostPage)
+    .map(r => `
+      <tr>
+        <td>${r.AgentCode}</td>
+        <td>${r.UserName}</td>
+        <td>${r.Month}</td>
+        <td>${r.TotalCost.toFixed(6)}</td>
+        <td>${new Date(r.UpdatedOn).toLocaleString()}</td>
+      </tr>
+    `).join("");
+
+  document.querySelector("#userCostTable tbody").innerHTML =
+    userCostRows || "<tr><td colspan='5'>No Data</td></tr>";
+
+  renderPagination(filteredAgg.length, aggPage, "#aggPagination", (p)=>{ aggPage=p; renderTables(); });
+  renderPagination(filteredCost.length, userCostPage, "#userCostPagination", (p)=>{ userCostPage=p; renderTables(); });
+}
+
+/* ---------------- Pagination Renderer ---------------- */
+
+function renderPagination(total, page, selector, callback) {
+  const pages = Math.ceil(total / pageSize);
+  const div = document.querySelector(selector);
+
+  if (pages <= 1) {
+    div.innerHTML = "";
+    return;
+  }
+
+  div.innerHTML = `
+    <button ${page===1?"disabled":""} onclick="(${callback})(1)">First</button>
+    <button ${page===1?"disabled":""} onclick="(${callback})(${page - 1})">Prev</button>
+    <span>Page ${page} / ${pages}</span>
+    <button ${page===pages?"disabled":""} onclick="(${callback})(${page + 1})">Next</button>
+    <button ${page===pages?"disabled":""} onclick="(${callback})(${pages})">Last</button>
+  `;
+}
+
+/* ---------------- Start ---------------- */
+loadData();
+</script>
+
+</body>
+</html>

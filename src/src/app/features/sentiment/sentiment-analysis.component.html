@@ -1,0 +1,251 @@
+<div class="sentiment-container">
+  <!-- Sidebar -->
+  <div class="sentiment-sidebar">
+    <div class="sidebar-item" routerLink="/session">
+      <i class="fas fa-users"></i>
+      <span>User Interaction</span>
+    </div>
+    <div class="sidebar-item active">
+      <i class="fas fa-chart-line"></i>
+      <span>Sentiment Analyzer</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="sentiment-content">
+    <div class="page-header">
+      <h1>
+        <i class="fas fa-chart-bar"></i>
+        Sentiment Analysis
+      </h1>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <form [formGroup]="filterForm" (ngSubmit)="search()">
+        <div class="filter-row">
+          <div class="filter-group autocomplete-wrapper">
+            <label for="agentCode">
+              <i class="fas fa-robot"></i> Agent CODE
+            </label>
+            <input
+              type="text"
+              id="agentCode"
+              formControlName="agentCode"
+              class="form-control"
+              placeholder="Start typing agent code..."
+              autocomplete="off"
+              (focus)="onAgentInputFocus()"
+              (keydown)="onAgentInputKeydown($event)"
+              (blur)="hideAutocomplete()">
+            
+            <!-- Autocomplete Dropdown -->
+            <div class="autocomplete-dropdown" *ngIf="showAutocomplete" (mousedown)="$event.preventDefault()">
+              <div class="autocomplete-loading" *ngIf="agentsLoading">
+                <i class="fas fa-spinner fa-spin"></i> Loading agents...
+              </div>
+              <div class="autocomplete-no-results" *ngIf="!agentsLoading && filteredAgents.length === 0">
+                <i class="fas fa-search"></i> No matching agents
+              </div>
+              <div 
+                *ngFor="let agent of filteredAgents; let i = index"
+                class="autocomplete-item"
+                [class.selected]="i === selectedAgentIndex"
+                (click)="selectAgent(agent)">
+                <i class="fas fa-robot"></i>
+                <span>{{ agent.code || agent.agentCode || agent.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="startDate">
+              <i class="fas fa-calendar"></i> Start Date
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              formControlName="startDate"
+              class="form-control">
+          </div>
+
+          <div class="filter-group">
+            <label for="endDate">
+              <i class="fas fa-calendar"></i> End Date
+            </label>
+            <input
+              type="date"
+              id="endDate"
+              formControlName="endDate"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <app-button type="submit" variant="primary" icon="search">
+            Search
+          </app-button>
+          <app-button type="button" variant="secondary" icon="redo" (click)="reset()">
+            Reset
+          </app-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats Cards: Only show after search -->
+    <div *ngIf="sentiments.length > 0 && !loading" class="stats-cards show">
+      <div class="stat-card blue-gradient">
+        <div class="stat-card-icon">📊</div>
+        <div class="stat-card-value">{{ stats.total }}</div>
+        <div class="stat-card-label">Total Feedback</div>
+      </div>
+      <div class="stat-card blue-gradient">
+        <div class="stat-card-icon">😊</div>
+        <div class="stat-card-value">{{ stats.positive }}</div>
+        <div class="stat-card-label">Positive</div>
+      </div>
+      <div class="stat-card blue-gradient">
+        <div class="stat-card-icon">😐</div>
+        <div class="stat-card-value">{{ stats.neutral }}</div>
+        <div class="stat-card-label">Neutral</div>
+      </div>
+      <div class="stat-card blue-gradient">
+        <div class="stat-card-icon">😞</div>
+        <div class="stat-card-value">{{ stats.negative }}</div>
+        <div class="stat-card-label">Negative</div>
+      </div>
+      <div class="stat-card blue-gradient">
+        <div class="stat-card-icon">🎯</div>
+        <div class="stat-card-value">{{ stats.overallSentiment }}</div>
+        <div class="stat-card-label">Overall Sentiment</div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <app-loader *ngIf="loading" size="large" message="Loading sentiment data..."></app-loader>
+
+    <div class="results-card" *ngIf="!loading">
+      <div *ngIf="sentiments.length === 0" class="no-data">
+        <i class="fas fa-info-circle"></i>
+        <p>Enter Agent ID and date range, then click "Search" to view feedback data.</p>
+      </div>
+
+      <div class="table-container" *ngIf="sentiments.length > 0">
+        <table class="sentiment-table">
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Session ID</th>
+              <th>Created At</th>
+              <th>Rating</th>
+              <th>Sentiment</th>
+              <th>Scores</th>
+              <th>Summary</th>
+              <th>Original Feedback</th>
+              <th>Positive Points</th>
+              <th>Negative Points</th>
+              <th>Categories</th>
+              <th>Request</th>
+              <th>Response</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sentiment of sentiments; let i = index">
+              <td>
+                <div><strong>{{ sentiment.user_name || sentiment.userName || 'N/A' }}</strong></div>
+              </td>
+              <td><small>{{ sentiment.session_id || sentiment.sessionId }}</small></td>
+              <td><small>{{ sentiment.created_at || (sentiment.createdAt | date: 'dd-MM-yyyy HH:mm') }}</small></td>
+              <td>
+                <div class="rating">
+                  <i class="fas" [ngClass]="star <= (sentiment.rating || 0) ? 'fa-star filled' : 'fa-star-o'" *ngFor="let star of [1,2,3,4,5]"></i>
+                  <span class="rating-number">{{ sentiment.rating || 0 }}/5</span>
+                </div>
+              </td>
+              <td>
+                <span class="sentiment-badge" [ngClass]="sentiment.sentiment || sentiment.overall_sentiment">
+                  {{ (sentiment.sentiment || sentiment.overall_sentiment) }}
+                </span>
+              </td>
+              <td>
+                <div><span class="score-badge highlight positive">{{ sentiment.scores?.positive || sentiment.positive_score || 0 }}</span> Positive</div>
+                <div><span class="score-badge highlight negative">{{ sentiment.scores?.negative || sentiment.negative_score || 0 }}</span> Negative</div>
+                <div><span class="score-badge highlight neutral">{{ sentiment.scores?.neutral || sentiment.overall_score || 0 }}</span> Overall</div>
+              </td>
+              <td>
+                <div class="text-cell" [id]="'summary-' + i">
+                  {{ sentiment.summary || 'N/A' }}
+                </div>
+                <button *ngIf="(sentiment.summary ? sentiment.summary.length : 0) > 100" class="btn btn-secondary expand-btn" (click)="toggleExpand('summary-' + i, $event)">Expand</button>
+              </td>
+              <td>
+                <div class="text-cell" [id]="'feedback-' + i">
+                  {{ sentiment.original_feedback || sentiment.feedback || 'N/A' }}
+                </div>
+                <button *ngIf="((sentiment.original_feedback ? sentiment.original_feedback.length : 0) || (sentiment.feedback ? sentiment.feedback.length : 0)) > 100" class="btn btn-secondary expand-btn" (click)="toggleExpand('feedback-' + i, $event)">Expand</button>
+              </td>
+              <td>
+                <ul class="aspect-list" *ngIf="(sentiment.positiveAspects && sentiment.positiveAspects.length) || (sentiment.positive && sentiment.positive.length)">
+                  <li *ngFor="let aspect of (sentiment.positiveAspects && sentiment.positiveAspects.length ? sentiment.positiveAspects : sentiment.positive)">{{ aspect }}</li>
+                </ul>
+              </td>
+              <td>
+                <div class="text-cell" [id]="'negative-' + i">
+                  <ul class="aspect-list" *ngIf="sentiment.negativeAspects || sentiment.negative">
+                    <li *ngFor="let aspect of (sentiment.negativeAspects || sentiment.negative)">{{ aspect }}</li>
+                  </ul>
+                </div>
+                <button *ngIf="((sentiment.negativeAspects ? sentiment.negativeAspects.length : 0) || (sentiment.negative ? sentiment.negative.length : 0)) > 3" class="btn btn-secondary expand-btn" (click)="toggleExpand('negative-' + i, $event)">Expand</button>
+              </td>
+              <td style="max-width: 400px;">
+                <div [id]="'categories-' + i">
+                  <ng-container *ngIf="sentiment.categories && (objectKeys(sentiment.categories).length > 0); else noCategories">
+                    <div *ngFor="let cat of objectKeys(sentiment.categories); let ci = index">
+                      <div class="category-card blue-gradient">
+                        <div class="category-title">
+                          <i class="fas fa-tag"></i> {{ cat }} <span class="category-count">({{ sentiment.categories[cat].length }} item{{ sentiment.categories[cat].length > 1 ? 's' : '' }})</span>
+                        </div>
+                        <div class="category-items">
+                          <div *ngFor="let item of sentiment.categories[cat]; let itemIdx = index" class="category-item">
+                            <div class="category-sentence">"{{ item.sentence || '' }}"</div>
+                            <div class="category-meta">
+                              <span class="category-sentiment-tag" [ngClass]="item.sentiment">
+                                {{ item.sentiment === 'Positive' ? '👍' : item.sentiment === 'Negative' ? '👎' : '😐' }} {{ item.sentiment }}
+                              </span>
+                              <span class="category-score">Score: {{ item.score || 0 }}/10</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-container>
+                  <ng-template #noCategories>
+                    <em style="color: #999;">None</em>
+                  </ng-template>
+                </div>
+              </td>
+              <td>
+                <div class="text-cell" [id]="'request-' + i">
+                  {{ sentiment.request || 'N/A' }}
+                </div>
+                <button *ngIf="(sentiment.request ? sentiment.request.length : 0) > 100" class="btn btn-secondary expand-btn" (click)="toggleExpand('request-' + i, $event)">Expand</button>
+              </td>
+              <td>
+                <div class="text-cell" [id]="'response-' + i">
+                  {{ sentiment.response || 'N/A' }}
+                </div>
+                <button *ngIf="(sentiment.response ? sentiment.response.length : 0) > 100" class="btn btn-secondary expand-btn" (click)="toggleExpand('response-' + i, $event)">Expand</button>
+              </td>
+              <td style="text-align: center;">
+                <button class="btn btn-primary expand-btn" style="padding: 8px 16px; font-size: 12px;" (click)="toggleExpandAll(i, $event)">
+                  Expand
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

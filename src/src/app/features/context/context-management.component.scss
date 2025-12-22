@@ -1,0 +1,65 @@
+.context-management-container {
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.context-header {
+  background: linear-gradient(135deg, #7b4a8e 0%, #65336e 100%);
+  padding: 32px 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.page-title {
+  margin: 0 0 12px 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  i {
+    font-size: 28px;
+  }
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.context-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .context-header {
+    padding: 24px 20px;
+  }
+
+  .page-title {
+    font-size: 24px;
+
+    i {
+      font-size: 22px;
+    }
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+  }
+
+  .context-content {
+    padding: 20px;
+  }
+}

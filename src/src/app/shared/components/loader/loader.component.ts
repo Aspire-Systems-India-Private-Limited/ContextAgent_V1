@@ -1,0 +1,11 @@
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-loader',
+  templateUrl: './loader.component.html',
+  styleUrls: ['./loader.component.scss']
+})
+export class LoaderComponent {
+  @Input() size: 'small' | 'medium' | 'large' = 'medium';
+  @Input() message: string = 'Loading...';
+}

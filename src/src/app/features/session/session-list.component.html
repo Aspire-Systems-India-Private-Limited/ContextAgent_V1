@@ -1,0 +1,209 @@
+<div class="session-container">
+  <!-- Sidebar -->
+  <div class="session-sidebar">
+    <div class="sidebar-item active">
+      <i class="fas fa-users"></i>
+      <span>User Interaction</span>
+    </div>
+    <div class="sidebar-item" routerLink="/sentiment">
+      <i class="fas fa-chart-line"></i>
+      <span>Sentiment Analyzer</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="session-content">
+    <div class="page-header">
+      <h1>User Interaction</h1>
+      <p class="subtitle">Monitor and manage conversation sessions</p>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="search-section">
+      <app-card title="Search Sessions">
+        <div class="search-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="startDate">Start:</label>
+              <input 
+                type="date" 
+                id="startDate"
+                [(ngModel)]="startDate"
+                class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">End:</label>
+              <input 
+                type="date" 
+                id="endDate"
+                [(ngModel)]="endDate"
+                class="form-control">
+            </div>
+
+            <div class="form-group checkbox-wrapper">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="hasFeedback">
+                <span>Only with Feedback</span>
+              </label>
+            </div>
+
+            <div class="form-group button-wrapper">
+              <app-button 
+                variant="primary"
+                icon="search"
+                [loading]="loading"
+                (clicked)="onSearch()">
+                Search Sessions
+              </app-button>
+            </div>
+          </div>
+        </div>
+      </app-card>
+    </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Searching sessions..."></app-loader>
+
+  <!-- Sessions List -->
+  <div class="sessions-list" *ngIf="!loading && sessions.length > 0">
+    <div class="session-card" *ngFor="let session of sessions">
+      <!-- Session Header (Collapsible) -->
+      <div class="session-header" (click)="toggleSession(session)">
+        <div class="session-info">
+          <div class="session-title">
+            <i class="fas fa-comments"></i>
+            <strong>Session ID:</strong> {{ session.session_id }}
+          </div>
+          <div class="session-meta">
+            <span class="meta-item">
+              <i class="fas fa-user"></i>
+              {{ session.user_name }}
+            </span>
+            <span class="meta-item">
+              <i class="fas fa-envelope"></i>
+              {{ session.email }}
+            </span>
+            <span class="meta-item">
+              <i class="fas fa-calendar-check"></i>
+              {{ formatDate(session.start_date) }}
+            </span>
+            <span class="meta-item" *ngIf="session.end_date">
+              <i class="fas fa-calendar-times"></i>
+              {{ formatDate(session.end_date) }}
+            </span>
+            <span class="badge ongoing" *ngIf="!session.end_date">Ongoing</span>
+          </div>
+        </div>
+        <div class="session-actions">
+          <button 
+            class="btn-save-memory"
+            (click)="saveMemory(session); $event.stopPropagation()"
+            title="Save as Memory">
+            <i class="fas fa-save"></i>
+            Save Memory
+          </button>
+          <i class="fas" [ngClass]="session.expanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+      </div>
+
+      <!-- Messages (Expandable) -->
+      <div class="session-messages" *ngIf="session.expanded">
+        <div class="message-card" *ngFor="let message of session.messages">
+          <!-- Message Preview (Clickable) -->
+          <div class="message-preview" (click)="toggleMessage(message.message_id)">
+            <div class="message-summary">
+              <div class="message-user">
+                <i class="fas fa-user-circle"></i>
+                <strong>User:</strong>
+                <span>{{ truncateText(message.user_message, 80) }}</span>
+              </div>
+              <div class="message-ai">
+                <i class="fas fa-robot"></i>
+                <strong>AI:</strong>
+                <span>{{ truncateText(message.ai_response, 80) }}</span>
+              </div>
+              <div class="message-time">
+                <i class="fas fa-clock"></i>
+                {{ formatDate(message.timestamp) }}
+              </div>
+            </div>
+            <i class="fas" [ngClass]="isMessageExpanded(message.message_id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </div>
+
+          <!-- Message Details (Expandable) -->
+          <div class="message-details" *ngIf="isMessageExpanded(message.message_id)">
+            <div class="detail-section">
+              <div class="detail-header">
+                <h4>
+                  <i class="fas fa-user"></i>
+                  User Message
+                </h4>
+                <button 
+                  class="btn-copy"
+                  (click)="copyToClipboard(message.user_message)"
+                  title="Copy">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <div class="detail-content">
+                <pre>{{ message.user_message }}</pre>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-header">
+                <h4>
+                  <i class="fas fa-robot"></i>
+                  AI Response
+                </h4>
+                <button 
+                  class="btn-copy"
+                  (click)="copyToClipboard(message.ai_response)"
+                  title="Copy">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <div class="detail-content">
+                <pre>{{ message.ai_response }}</pre>
+              </div>
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Model</label>
+                <span class="badge model">{{ message.model }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Token Count</label>
+                <span class="badge tokens">{{ message.token_count }}</span>
+              </div>
+              <div class="detail-item" *ngIf="message.intent_code">
+                <label>Intent Code</label>
+                <span class="badge intent">{{ message.intent_code }}</span>
+              </div>
+              <div class="detail-item" *ngIf="message.agent_code">
+                <label>Agent Code</label>
+                <span class="badge agent">{{ message.agent_code }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Timestamp</label>
+                <span>{{ formatDate(message.timestamp) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && sessions.length === 0">
+    <i class="fas fa-search"></i>
+    <h3>No Sessions Found</h3>
+    <p>Use the search filters above to find sessions</p>
+  </div>
+  </div>
+</div>

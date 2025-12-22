@@ -1,0 +1,43 @@
+<div class="context-layout">
+  <!-- Left Sidebar -->
+  <aside class="context-sidebar">
+    <div class="sidebar-header">
+      <h2>Context Admin</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a 
+        routerLink="/context/create" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-plus-circle"></i>
+        <span>Create Context</span>
+      </a>
+      <a 
+        routerLink="/context/search" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-search"></i>
+        <span>Search Contexts</span>
+      </a>
+      <a 
+        routerLink="/context/create-reflection" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-lightbulb"></i>
+        <span>Create Reflection Context</span>
+      </a>
+      <a 
+        routerLink="/context/search-reflection" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-list-alt"></i>
+        <span>Search Reflection Context</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="context-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

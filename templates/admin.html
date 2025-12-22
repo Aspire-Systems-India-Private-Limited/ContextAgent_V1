@@ -1,0 +1,4598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Context Admin</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+<style>
+  :root {
+    --primary-purple: #65336e;
+    --dark-purple: #542d6b;
+    --bg-purple: #692e8b;
+    --light-blue: #80c6ff;
+    --text-light: #eee;
+    --sidebar-width: 200px;
+    --toolbar-height: 70px;
+    --good-feedback: #28a745;
+    --bad-feedback: #dc3545;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body { 
+    background-color: var(--text-light);
+    color: #333;
+    font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+  }
+  
+  .app-wrapper { display: flex; height: 100vh; transition: all 0.3s ease; }
+  
+  .sidebar { 
+    background-color: var(--primary-purple);
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0;
+    z-index: 100;
+    transition: width 0.3s ease;
+  }
+  
+  .title-text {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 10px;
+    cursor: pointer;
+  }
+  
+  .title-text .ext { color: var(--text-light); margin-left: 4px; }
+
+  .sidebar button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    width: 100%;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+  }
+  
+  .sidebar button:hover, .sidebar button.is-active {
+    background-color: var(--dark-purple);
+    border-radius: 8px;
+    padding: 14px 20px;
+  }
+  
+  .icon { font-size: 1.3rem; color: var(--text-light); }
+  
+  .content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+  }
+  
+  .toolbar {
+    height: var(--toolbar-height);
+    background: var(--primary-purple);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: calc(100% - var(--sidebar-width));
+    left: var(--sidebar-width);
+    padding: 0 24px;
+    z-index: 99;
+    border-bottom: 0.2px solid rgba(255,255,255,0.1);
+  }
+  
+  .page-title { color: var(--text-light); font-weight: 400; font-size: 24px; }
+  .user { color: var(--text-light); display: flex; align-items: center; gap: 10px; }
+  
+  .page-container {
+    margin-top: var(--toolbar-height);
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100vh - var(--toolbar-height));
+  }
+  
+  .btn { 
+    background-color: var(--primary-purple);
+    color: var(--text-light);
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .btn:hover { background-color: var(--dark-purple); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  
+  .btn-ai {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+  .btn-ai:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .btn-history {
+    background: linear-gradient(135deg, #65336e 0%, #663e8f 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    font-weight: 500;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-history:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4); }
+  
+  .card { 
+    background-color: white;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .ai-section {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 2px dashed #667eea;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .ai-section h3 {
+    color: #667eea;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feedback-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 12px;
+  }
+
+  .feedback-badge.good {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--good-feedback);
+    border: 1px solid var(--good-feedback);
+  }
+
+  .feedback-badge.bad {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--bad-feedback);
+    border: 1px solid var(--bad-feedback);
+  }
+
+  .feedback-type-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .feedback-option {
+    flex: 1;
+    padding: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    background-color: white;
+  }
+
+  .feedback-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .feedback-option.selected.good {
+    border-color: var(--good-feedback);
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
+  .feedback-option.selected.bad {
+    border-color: var(--bad-feedback);
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+
+  .feedback-option-icon { font-size: 32px; margin-bottom: 8px; }
+  .feedback-option-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+  .feedback-option-desc { font-size: 12px; color: #666; }
+  
+  .form-group { margin-bottom: 20px; }
+  
+  label { 
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  input, textarea, select { 
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  
+  input:focus, textarea:focus, select:focus { 
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+  }
+
+  input.required-field { border-color: #ff6b6b; background-color: #fff5f5; }
+
+  .warning-message, .update-version-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
+    border: 1px solid #ffeaa7;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  
+  .result-card { 
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  h2 { color: #333; margin-bottom: 20px; font-size: 22px; font-weight: 500; }
+  h3 { color: #333; margin-bottom: 16px; font-size: 18px; font-weight: 500; }
+  
+  pre {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    margin-top: 8px;
+    font-size: 13px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 12px;
+    border: 1px solid #c3e6cb;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 12px;
+    border: 1px solid #f5c6cb;
+  }
+
+  .divider { border: none; border-top: 2px solid #e0e0e0; margin: 24px 0; }
+
+  .logo {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-image { height: 50px; width: auto; object-fit: contain; }
+  .logo .ext { color: var(--text-light); }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+  }
+
+  .modal.show { display: flex; justify-content: center; align-items: center; }
+
+  .modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .modal-header h2 { margin: 0; color: var(--primary-purple); }
+
+  .close-btn, .close-modal {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .close-btn:hover, .close-modal:hover {
+    color: #ff6b6b;
+    transform: rotate(90deg);
+    background-color: rgba(255, 107, 107, 0.1);
+    border-radius: 50%;
+  }
+
+  .version-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+
+  .version-item {
+    padding: 12px 16px;
+    background-color: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .version-item:hover { border-color: var(--primary-purple); transform: translateX(4px); }
+
+  .version-item.selected {
+    background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%);
+    border-color: var(--primary-purple);
+    font-weight: 600;
+  }
+
+  .version-badge {
+    background-color: var(--primary-purple);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .version-details {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+  .loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* ========================================
+   TEST MODAL SPECIFIC STYLES
+   ======================================== */
+
+.test-modal-content {
+  max-height: 85vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.test-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.test-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.test-modal-content::-webkit-scrollbar-thumb {
+  background: var(--primary-purple);
+  border-radius: 4px;
+}
+
+.test-modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-purple);
+}
+
+/* Test Row Styles */
+.test-row {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-purple);
+  animation: slideInDown 0.3s ease-out;
+}
+
+.test-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.test-row-header strong {
+  font-size: 16px;
+  color: #333;
+  flex: 1;
+}
+
+.version-set-model {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.version-set-model:hover {
+  border-color: var(--primary-purple);
+}
+
+.version-set-model:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+}
+
+.remove-test-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.remove-test-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+/* Version Items Container */
+.version-items-container {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  border: 1px dashed #ddd;
+}
+
+.version-item {
+  background-color: white;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.version-item:hover {
+  border-color: var(--primary-purple);
+  box-shadow: 0 2px 8px rgba(101, 51, 110, 0.1);
+}
+
+.version-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Context List and Image Input Containers */
+#contextListContainer,
+#imageInputContainer {
+  margin-bottom: 16px;
+}
+
+#contextListContainer > div,
+#imageInputContainer > div {
+  background-color: white;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  animation: slideInDown 0.3s ease-out;
+}
+
+#contextListContainer > div:hover,
+#imageInputContainer > div:hover {
+  border-color: var(--primary-purple);
+  box-shadow: 0 2px 8px rgba(101, 51, 110, 0.1);
+}
+
+/* Test Section Styles */
+.test-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.test-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.test-section-description {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* Form Groups in Test Modal */
+.test-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.test-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.test-field label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #555;
+}
+
+.test-field input,
+.test-field textarea,
+.test-field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.test-field input:focus,
+.test-field textarea:focus,
+.test-field select:focus {
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+  outline: none;
+}
+
+/* Checkbox Group */
+.test-checkbox-group {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.test-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.test-checkbox-label:hover {
+  color: var(--primary-purple);
+}
+
+.test-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-purple);
+}
+
+/* Add Item Button */
+.add-item-btn {
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(101, 51, 110, 0.2);
+}
+
+.add-item-btn:hover {
+  background: linear-gradient(135deg, var(--dark-purple) 0%, var(--primary-purple) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(101, 51, 110, 0.3);
+}
+
+.add-item-btn:active {
+  transform: translateY(0);
+}
+
+/* Test Actions */
+.test-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+  flex-wrap: wrap;
+}
+
+/* Test Results Container */
+.test-results-container {
+  margin-top: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.test-results-container h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #667eea;
+  margin-bottom: 24px;
+  font-size: 20px;
+}
+
+/* Result Set Styles */
+.result-set {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 5px solid #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.result-set:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.result-set-header {
+  font-size: 18px;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Result Item Styles */
+.result-item {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border-left: 3px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.result-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-left-width: 4px;
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+}
+
+.result-item-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-content {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.result-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #333;
+}
+
+.result-content pre::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.result-content pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.result-content pre::-webkit-scrollbar-thumb {
+  background: var(--primary-purple);
+  border-radius: 3px;
+}
+
+/* Version Badge Small */
+.version-badge-small {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-style: italic;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+/* Test Info Box */
+.test-info-box {
+  background-color: #e7f3ff;
+  border-left: 4px solid #2196F3;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #0d47a1;
+}
+
+.test-info-box strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #1565c0;
+}
+
+/* Image Preview Styles */
+.image-preview-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.image-preview-item:hover {
+  border-color: var(--primary-purple);
+  box-shadow: 0 4px 12px rgba(101, 51, 110, 0.2);
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-preview-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.image-preview-remove:hover {
+  background-color: #c82333;
+  transform: scale(1.1);
+}
+
+/* File Upload Button */
+.file-upload-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.file-upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.file-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Hidden file input */
+.hidden-file-input {
+  display: none;
+}
+
+/* Animations */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .test-field-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .test-checkbox-group {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .test-actions {
+    flex-direction: column;
+  }
+  
+  .test-actions button {
+    width: 100%;
+  }
+
+  .test-row-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .version-set-model {
+    width: 100%;
+  }
+}
+/* Feedback Analyzer Styles */
+.feedback-type-selector-analyzer {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.feedback-type-option {
+  flex: 1;
+  padding: 24px;
+  border: 3px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.feedback-type-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(101, 51, 110, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.feedback-type-option:hover::before {
+  left: 100%;
+}
+
+.feedback-type-option:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.feedback-type-option.selected {
+  border-color: var(--primary-purple);
+  background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%);
+  box-shadow: 0 4px 16px rgba(101, 51, 110, 0.2);
+}
+
+.feedback-type-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.feedback-type-title {
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.feedback-type-desc {
+  font-size: 13px;
+  color: #666;
+}
+
+.stats-grid-analyzer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card-analyzer {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--primary-purple);
+  transition: all 0.3s ease;
+}
+
+.stat-card-analyzer:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.stat-card-analyzer.positive {
+  border-left-color: #28a745;
+}
+
+.stat-card-analyzer.negative {
+  border-left-color: #dc3545;
+}
+
+.stat-card-analyzer.neutral {
+  border-left-color: #ffc107;
+}
+
+.stat-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.stat-number-analyzer {
+  font-size: 36px;
+  font-weight: 700;
+  color: #333;
+  margin: 8px 0;
+}
+
+.stat-label-analyzer {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.feedback-analyzer-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid #667eea;
+}
+
+.feedback-analyzer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.feedback-user-info {
+  flex: 1;
+}
+
+.feedback-user-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feedback-meta-info {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.sentiment-badge-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sentiment-badge-large.Positive {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.sentiment-badge-large.Negative {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.sentiment-badge-large.Neutral {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+}
+
+.feedback-scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.score-item {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.score-item:hover {
+  border-color: var(--primary-purple);
+  transform: scale(1.05);
+}
+
+.score-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-purple);
+  margin-bottom: 4px;
+}
+
+.score-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.feedback-summary {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  margin: 20px 0;
+}
+
+.feedback-summary-title {
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-summary-text {
+  color: #555;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.sentiment-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.sentiment-list {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.sentiment-list.positive {
+  border-left: 4px solid #28a745;
+}
+
+.sentiment-list.negative {
+  border-left: 4px solid #dc3545;
+}
+
+.sentiment-list-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.sentiment-list.positive .sentiment-list-title {
+  color: #28a745;
+}
+
+.sentiment-list.negative .sentiment-list-title {
+  color: #dc3545;
+}
+
+.sentiment-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sentiment-list li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sentiment-list.positive li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.sentiment-list.negative li::before {
+  content: "✗";
+  position: absolute;
+  left: 0;
+  color: #dc3545;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.categories-section {
+  margin-top: 20px;
+}
+
+.categories-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  border-color: var(--primary-purple);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.category-name {
+  font-weight: 600;
+  color: var(--primary-purple);
+  margin-bottom: 12px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-item {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 3px solid #dee2e6;
+}
+
+.category-item.Positive {
+  border-left-color: #28a745;
+  background: rgba(40, 167, 69, 0.05);
+}
+
+.category-item.Negative {
+  border-left-color: #dc3545;
+  background: rgba(220, 53, 69, 0.05);
+}
+
+.category-sentence {
+  color: #555;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.category-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.category-sentiment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.category-sentiment.Positive {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.category-sentiment.Negative {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.category-score {
+  color: #666;
+  font-weight: 600;
+}
+
+.request-response-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.request-response-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.request-box, .response-box {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.request-response-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.request-response-content {
+  color: #555;
+  font-size: 13px;
+  line-height: 1.6;
+  max-height: 200px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.empty-state-analyzer {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+
+.empty-state-analyzer .empty-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.3;
+}
+
+.empty-state-analyzer h3 {
+  font-size: 24px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.empty-state-analyzer p {
+  font-size: 16px;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .sentiment-lists,
+  .request-response-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .feedback-scores {
+    grid-template-columns: 1fr;
+  }
+}
+/* Sample Image Selection Styles */
+.sample-images-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.sample-image-item {
+  position: relative;
+  cursor: pointer;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 120px;
+}
+
+.sample-image-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.sample-image-item.selected {
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.3);
+}
+
+.sample-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sample-image-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sample-image-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--primary-purple);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.sample-image-item.selected .sample-image-check {
+  display: flex;
+}
+.feedback-content-container {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.feedback-content-container textarea {
+  transition: all 0.3s ease;
+}
+/* CIRCULAR SPINNER */
+.loader {
+  width: 55px;
+  height: 55px;
+  border: 6px solid #ddd;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-size: 16px;
+  margin-top: 12px;
+  color: #333;
+}
+
+/* Tree Structure Styles */
+.tree-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.tree-node {
+  margin-left: 0;
+  padding: 0;
+}
+
+.tree-node-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 4px 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+  border-left: 3px solid transparent;
+}
+
+.tree-node-item:hover {
+  background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%);
+  border-left-color: var(--primary-purple);
+  transform: translateX(4px);
+}
+
+.tree-node-item.active {
+  background: linear-gradient(135deg, rgba(101, 51, 110, 0.15) 0%, rgba(128, 198, 255, 0.15) 100%);
+  border-left-color: var(--primary-purple);
+  font-weight: 600;
+}
+
+.tree-toggle {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--primary-purple);
+  transition: transform 0.3s ease;
+}
+
+.tree-toggle.expanded {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  color: var(--primary-purple);
+}
+
+.tree-label {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.tree-badge {
+  background: var(--primary-purple);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.tree-children {
+  margin-left: 32px;
+  display: none;
+  animation: slideDown 0.3s ease-out;
+}
+
+.tree-children.show {
+  display: block;
+}
+
+.tree-detail-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 20px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.tree-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tree-detail-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary-purple);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tree-search-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.tree-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.tree-search-input:focus {
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.1);
+  outline: none;
+}
+
+.tree-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.tree-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.tree-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+/* Force all editable inputs to be editable */
+input[type="text"]:not([readonly]),
+textarea:not([readonly]),
+select:not([readonly]) {
+  background-color: white !important;
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+input[type="text"]:not([readonly]):focus,
+textarea:not([readonly]):focus,
+select:not([readonly]):focus {
+  outline: none !important;
+  border-color: var(--primary-purple) !important;
+  box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1) !important;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <div class="sidebar">
+      <div class="logo">
+        <img src="/static/aspire.svg" alt="Company Logo" class="logo-image" onerror="this.style.display='none'">
+        <span class="title-text">Context<span class="ext">Admin</span></span>
+      </div>
+      <button class="is-active" onclick="showCreate()">
+        <i data-lucide="plus" class="icon"></i>
+        <span>Create Context</span>
+      </button>
+      <button onclick="showSearch()">
+        <i data-lucide="search" class="icon"></i>
+        <span>Search Contexts</span>
+      </button>
+      <button onclick="showFeedback()">
+        <i data-lucide="message-square" class="icon"></i>
+        <span>Create Reflection Context</span>
+      </button>
+      <button onclick="showSearchFeedback()">
+        <i data-lucide="search-check" class="icon"></i>
+        <span>Search Reflection Context</span>
+      </button>
+    </div>
+
+    <div class="content">
+      <div class="toolbar">
+        <div class="page-title"></div>
+        <div class="user">
+           <div class="user">{% include "navbar.html" %}</div>
+        </div>
+      </div>
+
+      <div class="page-container">
+        <!-- CREATE CONTEXT PANEL -->
+        <div id="createPanel" class="card">
+          <h2>Create New Context</h2>
+          
+          <div class="ai-section">
+            <h3>
+              <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+              AI-Powered Context Generation
+            </h3>
+            <p style="color: #666; margin-bottom: 16px; font-size: 14px;">
+              Generate context content by providing intent, task, and context type.
+            </p>
+            
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Intent for AI</label>
+                <input id="aiIntent" placeholder="e.g., customer_support, data_analysis"/>
+              </div>
+              <div class="form-group">
+                <label>Task for AI</label>
+                <input id="aiTask" placeholder="e.g., answer queries, process data"/>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Context Type for AI</label>
+                <select id="aiContextType">
+                  <option value="">Select type</option>
+                  <option value="system">taskcontext</option>
+                  <option value="user">domaincontext</option>
+                  <option value="assistant">responsecontext</option>
+                  <option value="function">parentcontext</option>
+                  <option value="function">pastinteraction</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Additional Info (Optional)</label>
+                <input id="aiUserContent" placeholder="Extra context or requirements"/>
+              </div>
+            </div>
+
+            <button type="button" class="btn-ai" onclick="generateContextContent()" id="generateBtn">
+              <i data-lucide="wand-2" style="width: 16px; height: 16px;"></i>
+              Generate Content with AI
+            </button>
+
+            <div id="aiGenerationResult"></div>
+          </div>
+
+          <hr class="divider">
+
+          <form id="createForm">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Context Code</label>
+                <input id="PromptCode" placeholder="Enter context code" required/>
+              </div>
+              <div class="form-group">
+                <label>Parent Context Code</label>
+                <input id="ParentPromptCode" placeholder="Enter parent context code"/>
+              </div>
+            </div>
+            
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Agent Code</label>
+                <input id="agentCode" placeholder="Enter agent code" required/>
+              </div>
+              <div class="form-group">
+                <label>Type</label>
+                <input id="type" placeholder="Enter type" required/>
+              </div>
+            </div>
+            
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Intent</label>
+                <input id="intent" placeholder="Enter intent" required/>
+              </div>
+              <div class="form-group">
+                <label>Version ID</label>
+                <input id="versionId" placeholder="Enter version ID" required/>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Context Version</label>
+              <input id="contextVersion" placeholder="Enter context version" type="text" required/>
+            </div>
+
+            <div class="form-group">
+              <h3>Filters</h3>
+              <div id="entitiesContainer"></div>
+              <button type="button" class="btn" style="margin-top:12px;" onclick="addEntityRow()">Add Filters</button>
+            </div>
+
+            <div class="form-group">
+              <label>Content</label>
+              <textarea id="content" rows="6" placeholder="Enter content or generate with AI above"></textarea>
+            </div>
+
+            <div style="display:flex; gap:24px; margin-bottom:20px; flex-wrap: wrap;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="default"/>
+                <span>Default</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="latest"/>
+                <span>Latest</span>
+              </label>
+            </div>
+            
+            <button type="submit" class="btn">Create Context</button>
+          </form>
+        </div>
+
+        <!-- SEARCH CONTEXT PANEL -->
+        <div id="searchPanel" class="card" style="display:none;">
+          <h2>Search Contexts</h2>
+          <form id="searchForm">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Agent Code</label>
+                <input id="agentSearch" placeholder="Enter agent code" required/>
+              </div>
+              <div class="form-group">
+                <label>Version ID (optional)</label>
+                <input id="versionSearch" placeholder="Enter version ID"/>
+              </div>
+            </div>
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+                <button type="submit" class="btn">Search</button>
+                <button type="button" class="btn">Import</button>
+                <button type="button" class="btn">Export</button>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 1px;">
+                  <input type="checkbox" id="showTreeView" style="width: 18px; height: 18px;"/>
+                  <span style="font-weight: 500;">Context Tree View</span>
+                </label>
+              </div>
+          </form>
+          <div id="treeViewContainer" style="display:none; margin-top: 24px;">
+          <div style="background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="color: var(--primary-purple); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="git-branch" style="width: 20px; height: 20px;"></i>
+              Context Tree View
+            </h3>
+            <div id="treeContainer" class="tree-container"></div>
+            <div id="treeDetailPanel"></div>
+          </div>
+        </div>
+          <div id="searchResults" style="margin-top:24px;"></div>
+        </div>
+
+      <!-- CREATE FEEDBACK PANEL -->
+        <div id="feedbackPanel" class="card" style="display:none;">
+          <h2>Create Reflection Context</h2>
+          
+          <div class="feedback-type-selector">
+            <div class="feedback-option good selected" id="goodFeedbackOption" onclick="selectFeedbackType('good')">
+              <div class="feedback-option-icon">👍</div>
+              <div class="feedback-option-title">Good Example</div>
+              <div class="feedback-option-desc">Positive feedback context</div>
+            </div>
+            <div class="feedback-option bad" id="badFeedbackOption" onclick="selectFeedbackType('bad')">
+              <div class="feedback-option-icon">👎</div>
+              <div class="feedback-option-title">Bad Example</div>
+              <div class="feedback-option-desc">Negative feedback context</div>
+            </div>
+          </div>
+
+          <form id="feedbackForm">
+            <input type="hidden" id="feedbackType" value="good"/>
+            
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Agent Code</label>
+                <input id="feedbackAgentCode" placeholder="Enter agent code" required/>
+              </div>
+              <div class="form-group">
+                <label>Intent</label>
+                <input id="feedbackIntent" placeholder="Enter intent" required/>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Reason</label>
+              <input id="feedbackReason" placeholder="Enter reason for feedback" required/>
+            </div>
+
+            <div class="form-group">
+              <h3>Filters</h3>
+              <div id="feedbackEntitiesContainer"></div>
+              <button type="button" class="btn" style="margin-top:12px;" onclick="addFeedbackEntityRow()">Add Filters</button>
+            </div>
+
+            <div class="form-group">
+              <label>Content</label>
+              <textarea id="feedbackContent" rows="8" placeholder="Enter feedback content" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Create Reflection Context</button>
+          </form>
+        </div>
+
+        <!-- SEARCH FEEDBACK PANEL -->
+        <div id="searchFeedbackPanel" class="card" style="display:none;">
+          <h2>Search Reflection Contexts</h2>
+          
+          <div class="feedback-type-selector">
+            <div class="feedback-option good selected" id="searchGoodFeedbackOption" onclick="selectSearchFeedbackType('good')">
+              <div class="feedback-option-icon">👍</div>
+              <div class="feedback-option-title">Good Example</div>
+              <div class="feedback-option-desc">Search positive feedback</div>
+            </div>
+            <div class="feedback-option bad" id="searchBadFeedbackOption" onclick="selectSearchFeedbackType('bad')">
+              <div class="feedback-option-icon">👎</div>
+              <div class="feedback-option-title">Bad Example</div>
+              <div class="feedback-option-desc">Search negative feedback</div>
+            </div>
+          </div>
+
+          <form id="searchFeedbackForm">
+            <input type="hidden" id="searchFeedbackType" value="good"/>
+            
+            <div class="form-group">
+              <label>Agent Code</label>
+              <input id="agentSearchFeedback" placeholder="Enter agent code" required/>
+            </div>
+            
+            <button type="submit" class="btn">Search Feedback</button>
+          </form>
+          
+          <div id="searchFeedbackResults" style="margin-top:24px;"></div>
+        </div>
+
+        <!-- TREE VIEW PANEL -->
+        <div id="treeViewPanel" class="card" style="display:none;">
+          <h2>Context Tree View</h2>
+          
+          <div class="tree-search-box">
+            <i data-lucide="search" class="tree-search-icon" style="width: 18px; height: 18px;"></i>
+            <input type="text" id="treeSearchInput" class="tree-search-input" placeholder="Search by Agent Code..." />
+          </div>
+          
+          <button type="button" class="btn" onclick="loadTreeView(agentCode)">
+            <i data-lucide="refresh-cw" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
+            Load Tree View
+          </button>
+          
+          <div id="treeContainer" class="tree-container"></div>
+          <div id="treeDetailPanel"></div>
+        </div>
+
+  <!-- GLOBAL LOADER OVERLAY -->
+<div id="globalLoader" class="loader-overlay" style="display:none;">
+  <div class="loader"></div>
+  <div class="loader-text">Processing...</div>
+</div>
+
+<!-- TEST MODAL -->
+<div id="testModal" class="modal">
+  <div class="modal-content" style="max-width: 1400px;">
+    <div class="modal-header">
+      <h2>
+        <i data-lucide="flask-conical" style="width: 24px; height: 24px; display: inline-block; vertical-align: middle;"></i>
+        Context Evaluation
+      </h2>
+      <button class="close-btn" onclick="closeTestModal()">&times;</button>
+    </div>
+
+    <!-- Basic Configuration -->
+    <div class="test-section">
+      <h3 class="test-section-title">Basic Configuration</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Agent Code</label>
+          <input id="testAgentCode" placeholder="Agent code" readonly style="background-color: #f5f5f5;"/>
+        </div>
+        <div class="form-group">
+          <label>Intent</label>
+          <input id="testIntent" placeholder="Intent" required/>
+        </div>
+      </div>
+
+        <!-- Hidden fields for Session ID and Model -->
+        <input type="hidden" id="testSessionId"/>
+        <input type="hidden" id="testModel"/>
+        <input type="hidden" id="testVersionId"/>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>User ID</label>
+            <input id="testUserId" placeholder="e.g., user_001" value="user_001"/>
+          </div>
+          <div class="form-group">
+            <label>Request ID</label>
+            <input id="testRequestId" placeholder="e.g., req_abc123"/>
+          </div>
+        </div>
+
+      <div class="form-group">
+        <label>User Message (Optional)</label>
+        <textarea id="testUserMsg" rows="2" placeholder="Enter user message or leave empty"></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Top Results</label>
+          <input id="testTop" type="number" value="5" min="1"/>
+        </div>
+        <div class="test-checkbox-group" style="margin: 0; padding: 0; background: none;">
+          <label class="test-checkbox-label">
+            <input type="checkbox" id="testDefault" checked/>
+            <span>Default</span>
+          </label>
+          <label class="test-checkbox-label">
+            <input type="checkbox" id="testLatest" checked/>
+            <span>Latest</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Context List Section -->
+    <div class="test-section">
+      <h3 class="test-section-title">Context List</h3>
+      <p class="test-section-description">
+        Add context items that will be used for placeholder replacement in parent contexts
+      </p>
+      <div id="contextListContainer"></div>
+      <button type="button" class="add-item-btn" onclick="addContextListItem()">
+        <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+        Add Context Item
+      </button>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Image Input Section -->
+
+    <div class="test-section">
+      <h3 class="test-section-title">Image Input</h3>
+      <p class="test-section-description">
+        Select sample images or add custom image URLs
+      </p>
+      
+      <!-- Sample Images -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Sample Images</label>
+        <div class="sample-images-container" id="sampleImagesContainer">
+          <!-- Sample images will be populated here -->
+        </div>
+      </div>
+      
+      <!-- Custom Image URLs -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Custom Image URLs</label>
+        <div id="imageInputContainer"></div>
+        <button type="button" class="add-item-btn" onclick="addImageInputItem()">
+          <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+          Add Custom Image URL
+        </button>
+      </div>
+    </div>
+
+
+    <hr class="divider">
+
+    <!-- Context Version Sets -->
+    <div class="test-section">
+      <h3 class="test-section-title">Context Version Sets</h3>
+      <p class="test-section-description">
+        Each set represents a different combination of context versions to test. Results will be generated for each set independently.
+      </p>
+      <div id="versionSetsContainer"></div>
+      <button type="button" class="add-item-btn" onclick="addVersionSet()">
+        <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+        Add Version Set
+      </button>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Actions -->
+    <div class="test-actions">
+      <button type="button" class="btn-ai" onclick="executeMultipleContextTests()">
+        <i data-lucide="play" style="width: 16px; height: 16px;"></i>
+        Execute Tests
+      </button>
+      <button type="button" class="btn" onclick="closeTestModal()">
+        Cancel
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="testResults"></div>
+  </div>
+</div>
+
+  <!-- HISTORY MODAL -->
+  <div id="historyModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>
+          <i data-lucide="history" style="width: 24px; height: 24px; display: inline-block; vertical-align: middle;"></i>
+          Version History
+        </h2>
+        <button class="close-btn" onclick="closeHistoryModal()">&times;</button>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <p style="color: #666; font-size: 14px;">
+          <strong>Context Code:</strong> <span id="historyContextCode"></span>
+        </p>
+        <p style="color: #666; font-size: 14px; margin-top: 8px;">
+          <strong>Total Versions:</strong> <span id="totalVersionCount">0</span>
+        </p>
+      </div>
+   
+      <h3 style="margin-bottom: 12px;">Available Versions</h3>
+      <div id="versionList" class="version-list"></div>
+   
+      <div id="versionDetailsContainer" style="display: none;">
+        <h3 style="margin-bottom: 12px;">Version Details</h3>
+        <button class="close-modal" onclick="closeVersionDetails()" aria-label="Close">&times;</button>
+        <div id="versionDetails" class="version-details"></div>
+      </div>
+   
+      <div id="historyError" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+<script src="/static/config.js"></script>
+<script>
+  //const API_BASE = window.API_BASE || '';
+  
+  let historyData = [];
+  let selectedVersionIndex = -1;
+  let selectedFeedbackType = "good";
+  let selectedSearchFeedbackType = "good";
+  let currentAnalyzerType = 'user';
+  let analyzerFeedbackData = [];
+
+  // Initialize Lucide icons
+  lucide.createIcons();
+
+  // ========================================
+  // NAVIGATION FUNCTIONS
+  // ========================================
+  
+  function showCreate(){ 
+    document.getElementById("createPanel").style.display="block"; 
+    document.getElementById("searchPanel").style.display="none";
+    document.getElementById("feedbackPanel").style.display="none";
+    document.getElementById("searchFeedbackPanel").style.display="none";
+    updateActiveButton(0);
+  }
+  
+  function showSearch(){ 
+    document.getElementById("createPanel").style.display="none"; 
+    document.getElementById("searchPanel").style.display="block";
+    document.getElementById("feedbackPanel").style.display="none";
+    document.getElementById("searchFeedbackPanel").style.display="none";
+    updateActiveButton(1);
+  }
+
+  function showFeedback(){ 
+    document.getElementById("createPanel").style.display="none"; 
+    document.getElementById("searchPanel").style.display="none";
+    document.getElementById("feedbackPanel").style.display="block";
+    document.getElementById("searchFeedbackPanel").style.display="none";
+    updateActiveButton(2);
+    selectFeedbackType('good');
+    lucide.createIcons();
+  }
+
+  function showSearchFeedback(){ 
+    document.getElementById("createPanel").style.display="none"; 
+    document.getElementById("searchPanel").style.display="none";
+    document.getElementById("feedbackPanel").style.display="none";
+    document.getElementById("searchFeedbackPanel").style.display="block";
+    updateActiveButton(3);
+    selectSearchFeedbackType('good');
+    lucide.createIcons();
+  }
+
+  function updateActiveButton(index) {
+  const buttons = document.querySelectorAll('.sidebar button');
+  buttons.forEach((btn, i) => {
+    if (i === index) btn.classList.add('is-active');
+    else btn.classList.remove('is-active');
+  });
+}
+
+  // ========================================
+  // FEEDBACK TYPE SELECTION
+  // ========================================
+
+  function selectFeedbackType(type) {
+    selectedFeedbackType = type;
+    document.getElementById('feedbackType').value = type;
+    
+    const goodOption = document.getElementById('goodFeedbackOption');
+    const badOption = document.getElementById('badFeedbackOption');
+    
+    if (type === 'good') {
+      goodOption.classList.add('selected');
+      badOption.classList.remove('selected');
+    } else {
+      badOption.classList.add('selected');
+      goodOption.classList.remove('selected');
+    }
+  }
+
+  function selectSearchFeedbackType(type) {
+    selectedSearchFeedbackType = type;
+    document.getElementById('searchFeedbackType').value = type;
+    
+    const goodOption = document.getElementById('searchGoodFeedbackOption');
+    const badOption = document.getElementById('searchBadFeedbackOption');
+    
+    if (type === 'good') {
+      goodOption.classList.add('selected');
+      badOption.classList.remove('selected');
+    } else {
+      badOption.classList.add('selected');
+      goodOption.classList.remove('selected');
+    }
+  }
+
+  // ========================================
+  // UTILITY FUNCTIONS
+  // ========================================
+
+  function generateUUID(){ 
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){ 
+      const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8); 
+      return v.toString(16);
+    }).toLowerCase();
+  }
+
+  function addEntityRow(key = "", value = "") {
+    const container = document.getElementById("entitiesContainer");
+    const div = document.createElement("div");
+    div.className = "grid grid-cols-3";
+    div.style.marginBottom = "12px";
+    div.style.display = "grid";
+    div.style.gridTemplateColumns = "1fr 1fr auto";
+    div.style.gap = "12px";
+    div.style.alignItems = "end";
+    div.innerHTML = `
+      <div>
+        <label style="margin-bottom:4px;">Key</label>
+        <input class="entity-key" placeholder="Key" value="${key}" />
+      </div>
+      <div>
+        <label style="margin-bottom:4px;">Value</label>
+        <input class="entity-value" placeholder="Value" value="${value}" />
+      </div>
+      <div>
+        <button type="button" class="btn" style="background-color: #d9534f;" onclick="this.parentElement.parentElement.remove()">Remove</button>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+  function addFeedbackEntityRow(key = "", value = "") {
+  const container = document.getElementById("feedbackEntitiesContainer");
+  const div = document.createElement("div");
+  div.className = "grid grid-cols-3";
+  div.style.marginBottom = "12px";
+  div.style.display = "grid";
+  div.style.gridTemplateColumns = "1fr 1fr auto";
+  div.style.gap = "12px";
+  div.style.alignItems = "end";
+  div.innerHTML = `
+    <div>
+      <label style="margin-bottom:4px;">Key</label>
+      <input class="entity-key" placeholder="Key" value="${key}" /> 
+    </div>
+    <div>
+      <label style="margin-bottom:4px;">Value</label>
+      <input class="entity-value" placeholder="Value" value="${value}" /> 
+    </div>
+    <div>
+      <button type="button" class="btn" style="background-color: #d9534f;" onclick="this.parentElement.parentElement.remove()">Remove</button>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+  async function getCurrentUser() {
+    return "admin";
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // SHOW LOADER
+function showLoader(text = "Processing...") {
+    document.getElementById("globalLoader").style.display = "flex";
+    document.querySelector(".loader-text").innerText = text;
+}
+
+// HIDE LOADER
+function hideLoader() {
+    document.getElementById("globalLoader").style.display = "none";
+}
+
+  // ========================================
+  // AI GENERATION
+  // ========================================
+
+  async function generateContextContent() {
+    showLoader("Creating context...");
+    const intent = document.getElementById("aiIntent").value.trim();
+    const task = document.getElementById("aiTask").value.trim();
+    const contextType = document.getElementById("aiContextType").value;
+    const userContent = document.getElementById("aiUserContent").value.trim();
+
+    if (!intent || !task || !contextType) {
+      alert("⚠️ Please fill in Intent, Task, and Context Type for AI generation");
+      return;
+    }
+
+    const generateBtn = document.getElementById("generateBtn");
+    const resultDiv = document.getElementById("aiGenerationResult");
+    
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i data-lucide="loader" style="width: 16px; height: 16px; animation: spin 1s linear infinite;"></i> Generating...';
+    resultDiv.innerHTML = "";
+
+    try {
+      const response = await fetch(`${API_BASE}/generate/context`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          intent: intent,
+          task: task,
+          contextType: contextType,
+          userContent: userContent || null
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Server error ${response.status}`);
+      }
+
+      const generatedContent = await response.text();
+      document.getElementById("content").value = generatedContent;
+      
+      const contextTypeMapping = {
+        'system': 'taskcontext',
+        'user': 'domaincontext',
+        'assistant': 'Responsecontext',
+        'function': 'Parentcontext'
+      };
+      const selectedContextType = document.getElementById("aiContextType").value;
+      if (selectedContextType && contextTypeMapping[selectedContextType]) {
+        document.getElementById("type").value = contextTypeMapping[selectedContextType];
+      }
+      
+      const aiIntent = document.getElementById("aiIntent").value.trim();
+      if (aiIntent) {
+        document.getElementById("intent").value = aiIntent;
+      }
+      
+      resultDiv.innerHTML = `
+        <div class="success-message">
+          <strong>✅ Content Generated Successfully!</strong>
+          <p style="margin-top: 8px; font-size: 13px;">
+            The generated content has been added to the Content field below.<br>
+            Type and Intent fields can edit them before creating the context.
+          </p>
+        </div>
+      `;
+
+      document.getElementById("content").scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    } catch (error) {
+      resultDiv.innerHTML = `
+        <div class="error-message">
+          <strong>❌ Generation Failed:</strong>
+          <p style="margin-top: 8px;">${error.message}</p>
+        </div>
+      `;
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.innerHTML = '<i data-lucide="wand-2" style="width: 16px; height: 16px;"></i> Generate Content with AI';
+      lucide.createIcons();
+      hideLoader();
+    }
+  }
+
+  // ========================================
+  // CREATE CONTEXT FORM
+  // ========================================
+
+  document.getElementById("createForm").addEventListener("submit", async(e)=>{
+    e.preventDefault();
+    
+    const newId = generateUUID();
+
+    const entityPairs = Array.from(document.querySelectorAll("#entitiesContainer > div")).map(row => {
+      const key = row.querySelector(".entity-key")?.value.trim();
+      const value = row.querySelector(".entity-value")?.value.trim();
+      return key && value ? { Key: key, Value: value } : null;
+    }).filter(Boolean);
+    const currentUser = await getCurrentUser();
+
+    const doc = {
+      id: newId,
+      PromptCode: document.getElementById("PromptCode").value,        
+      ParentPromptCode: document.getElementById("ParentPromptCode").value.trim() || null,
+      AgentCode: document.getElementById("agentCode").value,
+      Type: document.getElementById("type").value,
+      Intent: document.getElementById("intent").value,
+      VersionId: document.getElementById("versionId").value,
+      Content: document.getElementById("content").value,
+      Default: document.getElementById("default").checked,
+      Latest: document.getElementById("latest").checked,
+      CreatedBy: currentUser,
+      ModifiedBy: currentUser,
+      Entity: entityPairs
+    };
+
+    const contextVersionValue = document.getElementById("contextVersion").value.trim();
+    if (contextVersionValue) {
+      doc.ContextVersion = contextVersionValue;
+    }
+
+    try{
+      const res = await fetch(`${API_BASE}/contexts`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify([doc])
+      });
+      
+      if(!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || `Server ${res.status}`);
+      }
+      
+      alert(`✅ Context created! ID: ${newId}`);
+      e.target.reset();
+      document.getElementById("entitiesContainer").innerHTML = "";
+      document.getElementById("aiGenerationResult").innerHTML = "";
+      
+    }catch(err){ 
+      alert("❌ Create failed: "+err.message);
+    }
+  });
+
+  // ========================================
+  // CREATE FEEDBACK FORM
+  // ========================================
+
+  document.getElementById("feedbackForm").addEventListener("submit", async(e)=>{
+    e.preventDefault();
+    showLoader("Creating feedback...");
+    
+    const newId = generateUUID();
+    const feedbackType = document.getElementById("feedbackType").value;
+
+     const feedbackEntityPairs = Array.from(document.querySelectorAll("#feedbackEntitiesContainer > div")).map(row => {
+    const key = row.querySelector(".entity-key")?.value.trim();  
+    const value = row.querySelector(".entity-value")?.value.trim(); 
+    return key && value ? { Key: key, Value: value } : null;
+  }).filter(Boolean);
+
+    const currentUser = await getCurrentUser();
+    const contentValue = document.getElementById("feedbackContent").value.trim();
+
+    const doc = {
+      id: newId,
+      Reason: document.getElementById("feedbackReason").value.trim(),
+      AgentCode: document.getElementById("feedbackAgentCode").value.trim(),
+      Intent: document.getElementById("feedbackIntent").value.trim(),
+      Entity: feedbackEntityPairs,
+      Content: contentValue || null,
+      CreatedBy: currentUser,
+      ModifiedBy: currentUser
+    };
+
+    try{
+      const endpoint = feedbackType === 'good' ? '/good-feedback/contexts' : '/bad-feedback/contexts';
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify([doc])
+      });
+      
+      if(!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || `Server ${res.status}`);
+      }
+      
+      const feedbackBadge = feedbackType === 'good' ? '👍 Good' : '👎 Bad';
+      alert(`✅ ${feedbackBadge} Feedback Context created! ID: ${newId}`);
+      e.target.reset();
+      selectFeedbackType('good');
+      
+    }catch(err){ 
+      alert("❌ Create feedback failed: "+err.message);
+    }finally {
+    hideLoader();   
+  }
+  });
+
+  // ========================================
+  // SEARCH CONTEXT FORM
+  // ========================================
+
+  document.getElementById("searchForm").addEventListener("submit", async(e)=>{
+    e.preventDefault();
+    const agent = document.getElementById("agentSearch").value.trim();
+    const version = document.getElementById("versionSearch").value.trim();
+    if(!agent){ alert("Agent Code required"); return; }
+  
+    const resultsDiv = document.getElementById("searchResults");
+    resultsDiv.innerHTML = "<p>Loading...</p>";
+  
+    try{
+      let url = `${API_BASE}/agents/${agent}/contexts`;
+      if(version) url += `?version_id=${encodeURIComponent(version)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!Array.isArray(data)||data.length===0){ 
+        resultsDiv.innerHTML="<p>No results found.</p>"; 
+        return; 
+      }
+      resultsDiv.innerHTML="";
+  
+      data.forEach(doc=>{
+        const div=document.createElement("div");
+        div.className="result-card";
+  
+        const entityHtml = (doc.Entity && doc.Entity.length>0)
+          ? doc.Entity.map(e=>`<li>${e.Key}: ${e.Value}</li>`).join("")
+          : "<li>None</li>";
+  
+        div.innerHTML=`
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+    <p><strong>ID:</strong> ${doc.id}</p>
+    <p><strong>Context Code:</strong> ${doc.PromptCode}</p>
+    <p><strong>Parent Context Code:</strong> ${doc.ParentPromptCode || 'None'}</p>
+    <p><strong>Agent Code:</strong> ${doc.AgentCode}</p>
+    <p><strong>Type:</strong> ${doc.Type}</p>
+    <p><strong>Intent:</strong> ${doc.Intent}</p>
+    <p><strong>Version ID:</strong> ${doc.VersionId}</p>
+    <p><strong>Default:</strong> ${doc.Default ? '✅' : '❌'}</p>
+    <p><strong>Latest:</strong> ${doc.Latest ? '✅' : '❌'}</p>
+  </div>
+  <div style="margin-bottom:12px;">
+    <strong>Context Version:</strong>
+    <input id="contextVersion-${doc.id}" type="text" value="${doc.ContextVersion || ''}" 
+           readonly style="width: 100%; margin-top: 8px; padding: 10px; background-color: #f5f5f5; cursor: not-allowed; border: 1px solid #ddd; border-radius: 4px;" />
+  </div>
+  <div style="margin-bottom:12px;">
+    <strong>Content:</strong>
+    <textarea id="content-${doc.id}" rows="3" style="width: 100%; margin-top: 8px; height: 350px;">${doc.Content}</textarea>
+  </div>
+  <div style="margin-bottom:12px;">
+    <strong>Filter:</strong>
+    <ul style="margin-top:4px; margin-left:20px;">${entityHtml}</ul>
+  </div>
+  <div style="margin-bottom:16px;">
+    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+      <input type="checkbox" id="updateVersion-${doc.id}" style="width:16px; height:16px;" onchange="toggleUpdateVersionWarning('${doc.id}')"/>
+      <span>Update Context Version</span>
+    </label>
+    <div id="updateVersionWarning-${doc.id}" class="update-version-warning" style="display:none; margin-top: 8px;">
+      <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+      <span>⚠️ Context Version field is now editable. Please update the version number before saving.</span>
+    </div>
+  </div>
+  <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+    <button class="btn" onclick="updateContextInline('${doc.id}')">Save</button>
+    <button class="btn" style="background-color: #d9534f;" onclick="deleteDocument('${doc.id}')">Delete</button>
+    <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="openTestModal('${doc.AgentCode}', '${doc.VersionId}', '${doc.ContextVersion}')">Test</button>
+    <button class="btn-history" onclick="openHistoryModal('${doc.PromptCode}')">
+      <i data-lucide="history" style="width: 14px; height: 14px;"></i>
+      History
+    </button>
+  </div>
+`;
+  
+        resultsDiv.appendChild(div);
+      });
+      
+    }catch(err){
+      resultsDiv.innerHTML="";
+      alert("❌ Search failed: "+err.message);
+    } finally {
+    // Call lucide icons only once at the end
+    requestAnimationFrame(() => {
+      lucide.createIcons();
+    });
+  }
+});
+
+  // ========================================
+  // SEARCH FEEDBACK FORM
+  // ========================================
+
+  document.getElementById("searchFeedbackForm").addEventListener("submit", async(e)=>{
+    e.preventDefault();
+    const agent = document.getElementById("agentSearchFeedback").value.trim();
+    const feedbackType = document.getElementById("searchFeedbackType").value;
+    
+    if(!agent){ alert("Agent Code required"); return; }
+  
+    const resultsDiv = document.getElementById("searchFeedbackResults");
+    resultsDiv.innerHTML = "<p>Loading feedback contexts...</p>";
+  
+    try{
+      const url = `${API_BASE}/agent-code/${encodeURIComponent(agent)}/feedback-type/${feedbackType}/feedback-contexts`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      data.sort((a, b) => new Date(b.ModifiedOn) - new Date(a.ModifiedOn));
+      
+      if(!Array.isArray(data)||data.length===0){ 
+        resultsDiv.innerHTML=`<p>No ${feedbackType} feedback contexts found.</p>`; 
+        return; 
+      }
+      
+      const feedbackBadgeClass = feedbackType === 'good' ? 'good' : 'bad';
+      const feedbackIcon = feedbackType === 'good' ? '👍' : '👎';
+      
+      resultsDiv.innerHTML="";
+  
+      data.forEach(doc=>{
+        const div=document.createElement("div");
+        div.className="result-card";
+        div.style.borderLeft = feedbackType === 'good' ? '4px solid var(--good-feedback)' : '4px solid var(--bad-feedback)';
+
+        const entityHtml = (doc.Entity && doc.Entity.length>0)
+          ? doc.Entity.map(e=>`<li>${escapeHtml(e.Key)}: ${escapeHtml(e.Value)}</li>`).join("")
+          : "<li>None</li>";
+  
+        div.innerHTML=`
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0;">Feedback Context
+              <span class="feedback-badge ${feedbackBadgeClass}">${feedbackIcon} ${feedbackType.charAt(0).toUpperCase() + feedbackType.slice(1)}</span>
+            </h3>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+            <p><strong>ID:</strong> ${escapeHtml(doc.id || 'N/A')}</p>
+            <p><strong>Agent Code:</strong> ${escapeHtml(doc.AgentCode || 'N/A')}</p>
+            <p><strong>Intent:</strong> ${escapeHtml(doc.Intent || 'N/A')}</p>
+            <p><strong>Reason:</strong> ${escapeHtml(doc.Reason || 'N/A')}</p>
+            <p><strong>Created By:</strong> ${escapeHtml(doc.CreatedBy || 'N/A')}</p>
+            <p><strong>Created On:</strong> ${escapeHtml(doc.CreatedOn || 'N/A')}</p>
+            <p><strong>Modified By:</strong> ${escapeHtml(doc.ModifiedBy || 'N/A')}</p>
+            <p><strong>Modified On:</strong> ${escapeHtml(doc.ModifiedOn || 'N/A')}</p>
+          </div>
+          <div style="margin-bottom:12px;">
+            <strong>Filters:</strong>
+            <ul style="margin-top:4px; margin-left:20px;">${entityHtml}</ul>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong>Content:</strong>
+              <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" onclick="toggleContentExpand('${doc.id}')">
+                <span id="expandBtn-${doc.id}">Expand</span>
+              </button>
+            </div>
+            <div id="content-${doc.id}" class="feedback-content-container" style="max-height: 100px; overflow: hidden; transition: max-height 0.3s ease;">
+              <textarea id="feedbackContent-${doc.id}" rows="4" style="width: 100%; min-height: 100px; resize: vertical;">${escapeHtml(doc.Content || '')}</textarea>
+            </div>
+          </div>
+          <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="btn" onclick="updateFeedbackInline('${doc.id}', '${feedbackType}')">Save</button>
+            <button class="btn" style="background-color: #d9534f;" onclick="deleteFeedbackDocument('${doc.id}', '${feedbackType}')">Delete</button>
+          </div>
+        `;
+  
+        resultsDiv.appendChild(div);
+      });
+      
+      lucide.createIcons();
+    }catch(err){
+      resultsDiv.innerHTML="";
+      alert("❌ Search feedback failed: "+err.message);
+    }
+  });
+
+  // ========================================
+  // UPDATE/DELETE CONTEXT FUNCTIONS
+  // ========================================
+
+  function toggleUpdateVersionWarning(docId) {
+    const checkbox = document.getElementById(`updateVersion-${docId}`);
+    const warningDiv = document.getElementById(`updateVersionWarning-${docId}`);
+    const contextVersionInput = document.getElementById(`contextVersion-${docId}`);
+
+    if (!contextVersionInput.dataset.originalVersion) {
+      contextVersionInput.dataset.originalVersion = contextVersionInput.value;
+    }
+    
+    if (checkbox.checked) {
+      warningDiv.style.display = 'flex';
+      contextVersionInput.removeAttribute('readonly');
+      contextVersionInput.style.backgroundColor = 'white';
+      contextVersionInput.style.cursor = 'text';
+      contextVersionInput.classList.add('required-field');
+    } else {
+      const originalVersion = contextVersionInput.dataset.originalVersion || '';
+      contextVersionInput.value = originalVersion;
+      warningDiv.style.display = 'none';
+      contextVersionInput.setAttribute('readonly', 'readonly');
+      contextVersionInput.style.backgroundColor = '#f5f5f5';
+      contextVersionInput.style.cursor = 'not-allowed';
+      contextVersionInput.classList.remove('required-field');
+    }
+    lucide.createIcons();
+  }
+
+ async function updateContextInline(id) {
+  const updateVersionCheckbox = document.getElementById(`updateVersion-${id}`);
+  const updateContextVersion = updateVersionCheckbox ? updateVersionCheckbox.checked : false;
+  const contextVersionInput = document.getElementById(`contextVersion-${id}`);
+  const newContextVersion = contextVersionInput ? contextVersionInput.value.trim() : null;
+
+  if (updateContextVersion) {
+    if (!newContextVersion) {
+      alert("⚠️ Please enter a Context Version value before saving!");
+      contextVersionInput.focus();
+      return;
+    }
+
+    const validation = await validateContextVersionChange(id, newContextVersion);
+    if (!validation.isValid) {
+      alert(validation.message);
+      contextVersionInput.focus();
+      return;
+    }
+
+    if (!confirm("⚠️ This will create a new version of the context. Do you want to continue?")) {
+      return;
+    }
+  }
+  
+  showLoader("Updating context...");
+
+  try {
+    const currentUser = await getCurrentUser();
+    const existingRes = await fetch(`${API_BASE}/contexts/${id}?doc_id=${id}`);
+    if (!existingRes.ok) throw new Error("Failed to load document");
+    const existingDoc = await existingRes.json();
+
+    // Collect all editable field values
+    const updatedDoc = {
+      ...existingDoc,
+      PromptCode: document.getElementById(`promptCode-${id}`).value.trim(),
+      ParentPromptCode: document.getElementById(`parentPromptCode-${id}`).value.trim() || null,
+      AgentCode: document.getElementById(`agentCode-${id}`).value.trim(),
+      Type: document.getElementById(`type-${id}`).value.trim(),
+      Intent: document.getElementById(`intent-${id}`).value.trim(),
+      VersionId: document.getElementById(`versionId-${id}`).value.trim(),
+      Content: document.getElementById(`content-${id}`).value,
+      Default: document.getElementById(`default-${id}`).checked,
+      Latest: document.getElementById(`latest-${id}`).checked,
+      ModifiedBy: currentUser
+    };
+
+    // Collect entity pairs
+    const entityKeys = document.querySelectorAll(`.entity-key-${id}`);
+    const entityValues = document.querySelectorAll(`.entity-value-${id}`);
+    const entityPairs = [];
+    
+    entityKeys.forEach((keyInput, index) => {
+      const key = keyInput.value.trim();
+      const value = entityValues[index]?.value.trim();
+      if (key && value) {
+        entityPairs.push({ Key: key, Value: value });
+      }
+    });
+    
+    updatedDoc.Entity = entityPairs;
+    
+    if (updateContextVersion && newContextVersion) {
+      updatedDoc.ContextVersion = newContextVersion;
+    }
+
+    const url = `${API_BASE}/contexts/${id}?doc_id=${id}&update_context_version=${updateContextVersion}`;
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedDoc)
+    });
+
+    if (!res.ok) throw new Error(`Server ${res.status}`);
+    
+    if (updateContextVersion) {
+      alert("✅ New context version created successfully!");
+    } else {
+      alert("✅ Updated successfully!");
+    }
+
+    // Refresh search results
+    document.getElementById("searchForm").dispatchEvent(new Event("submit"));
+  } catch (err) {
+    alert("❌ Update failed: " + err.message);
+  } finally {
+    hideLoader();
+  }
+}
+  // Add entity row to specific context in search results
+function addEntityToContext(docId) {
+  const container = document.getElementById(`entityContainer-${docId}`);
+  
+  // Remove "No filters" message if exists
+  const noFiltersMsg = container.querySelector('p');
+  if (noFiltersMsg) {
+    noFiltersMsg.remove();
+  }
+  
+  const div = document.createElement("div");
+  div.style.display = "grid";
+  div.style.gridTemplateColumns = "1fr 1fr auto";
+  div.style.gap = "12px";
+  div.style.marginBottom = "8px";
+  div.style.alignItems = "end";
+  
+  div.innerHTML = `
+    <div>
+      <input class="entity-key-${docId}" value="" placeholder="Key" 
+             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+    </div>
+    <div>
+      <input class="entity-value-${docId}" value="" placeholder="Value" 
+             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+    </div>
+    <div>
+      <button type="button" class="btn" style="background-color: #d9534f; padding: 8px 12px;" 
+              onclick="this.parentElement.parentElement.remove()">Remove</button>
+    </div>
+  `;
+  
+  container.appendChild(div);
+}
+
+  async function validateContextVersionChange(id, newContextVersion) {
+    try {
+      const existingRes = await fetch(`${API_BASE}/contexts/${id}?doc_id=${id}`);
+      if (!existingRes.ok) throw new Error("Failed to load document");
+      const existingDoc = await existingRes.json();
+      
+      const currentVersion = existingDoc.ContextVersion || '';
+      
+      if (currentVersion === newContextVersion) {
+        return {
+          isValid: false,
+          message: `⚠️ Same version detected!\n\nCurrent Version: ${currentVersion}\nProvided Version: ${newContextVersion}\n\nPlease provide a different version number to create a new version.`
+        };
+      }
+      
+      return { isValid: true };
+    } catch (err) {
+      return { isValid: false, message: `Error validating version: ${err.message}` };
+    }
+  }
+
+  // REPLACE the existing deleteDocument function with this:
+async function deleteDocument(id) {
+  if (!confirm("Are you sure you want to delete this context?")) return;
+  showLoader("Deleting context...");
+  try {
+    const response = await fetch(`${API_BASE}/contexts/${id}?doc_id=${id}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) throw new Error("Delete failed");
+    alert("Deleted successfully!");
+    
+    // Refresh search results
+    hideLoader();
+    document.getElementById("searchForm").dispatchEvent(new Event("submit"));
+    
+  } catch (err) {
+    alert("Error deleting: " + err.message);
+    hideLoader();
+  }
+}
+
+  // ========================================
+  // UPDATE/DELETE FEEDBACK FUNCTIONS
+  // ========================================
+
+async function updateFeedbackInline(id, feedbackType) {
+  showLoader("Updating feedback...");
+  const newContent = document.getElementById(`feedbackContent-${id}`).value;
+
+  try {
+    const currentUser = await getCurrentUser();
+
+    const existingRes = await fetch(
+      `${API_BASE}/contexts/feedback/${id}/feedback-type/${feedbackType}`
+    );
+
+    if (!existingRes.ok) {
+      const err = await existingRes.json();
+      throw new Error(err.detail || "Failed to load feedback document");
+    }
+
+    const existingDoc = await existingRes.json();
+
+    if (!existingDoc) {
+      throw new Error("Feedback document not found.");
+    }
+
+    const updatedDoc = {
+      ...existingDoc,
+      Content: newContent || null,
+      ModifiedBy: currentUser
+    };
+    // Send update request
+    const updateRes = await fetch(
+      `${API_BASE}/contexts/feedback/${id}/feedback-type/${feedbackType}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedDoc)
+      }
+    );
+
+    if (!updateRes.ok) {
+      const err = await updateRes.json();
+      throw new Error(err.detail || "Update failed");
+    }
+
+    alert("✅ Feedback updated successfully!");
+
+    // Refresh list
+    document
+      .getElementById("searchFeedbackForm")
+      .dispatchEvent(new Event("submit"));
+
+  } catch (err) {
+    alert("❌ Update failed: " + err.message);
+  } finally {
+    hideLoader(); 
+  }
+}
+
+ async function deleteFeedbackDocument(id, feedbackType) {
+  const feedbackIcon = feedbackType === "good" ? "👍" : "👎";
+
+  if (!confirm(`Are you sure you want to delete this ${feedbackIcon} ${feedbackType} feedback context?`)) {
+    return;
+  }
+  
+  showLoader("Deleting feedback...");
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/contexts/feedback/${id}/feedback-type/${feedbackType}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.detail || "Delete failed");
+    }
+
+    alert(`✅ ${feedbackIcon} Feedback context deleted successfully!`);
+
+    // Refresh feedback list
+    document.getElementById("searchFeedbackForm")
+      .dispatchEvent(new Event("submit"));
+
+  } catch (err) {
+    alert("❌ Error deleting feedback: " + err.message);
+  } finally {
+    hideLoader(); 
+  }
+}
+// Toggle content expand/collapse
+function toggleContentExpand(docId) {
+  const contentDiv = document.getElementById(`content-${docId}`);
+  const expandBtn = document.getElementById(`expandBtn-${docId}`);
+  const textarea = document.getElementById(`feedbackContent-${docId}`);
+  
+  if (contentDiv.style.maxHeight === '100px' || contentDiv.style.maxHeight === '') {
+    // Expand
+    contentDiv.style.maxHeight = textarea.scrollHeight + 'px';
+    expandBtn.textContent = 'Collapse';
+  } else {
+    // Collapse
+    contentDiv.style.maxHeight = '100px';
+    expandBtn.textContent = 'Expand';
+  }
+}
+
+  // ========================================
+  // HISTORY MODAL FUNCTIONS
+  // ========================================
+
+  async function openHistoryModal(contextCode) {
+    document.getElementById("historyModal").classList.add("show");
+    document.getElementById("historyContextCode").textContent = contextCode;
+    document.getElementById("totalVersionCount").textContent = "0";
+    document.getElementById("versionList").innerHTML = "<p>Loading versions...</p>";
+    document.getElementById("versionDetailsContainer").style.display = "none";
+    document.getElementById("historyError").innerHTML = "";
+    
+    historyData = [];
+    selectedVersionIndex = -1;
+
+    try {
+      const response = await fetch(`${API_BASE}/context-code/${encodeURIComponent(contextCode)}/contexts`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch history: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const results = Array.isArray(data) ? data : data.results;
+
+      if (!results || results.length === 0) {
+        document.getElementById("versionList").innerHTML = "<p style='color: #999;'>No version history found.</p>";
+        return;
+      }
+
+      historyData = results;
+
+      const versionMap = new Map();
+      historyData.forEach(item => {
+        const version = item.ContextVersion || "Unknown";
+        if (!versionMap.has(version)) versionMap.set(version, []);
+        versionMap.get(version).push(item);
+      });
+
+      document.getElementById("totalVersionCount").textContent = versionMap.size;
+
+      const versionListHtml = Array.from(versionMap.keys())
+        .sort((a, b) => {
+          const numA = parseFloat(a);
+          const numB = parseFloat(b);
+          if (!isNaN(numA) && !isNaN(numB)) return numB - numA;
+          return b.localeCompare(a);
+        })
+        .map((version, index) => {
+          const versionItems = versionMap.get(version);
+          const count = versionItems.length;
+          const modifiedOn = versionItems[0]?.ModifiedOn || "N/A";
+          const modifiedBy = versionItems[0]?.ModifiedBy || "N/A";
+
+          return `
+            <div class="version-item" onclick="selectVersion('${version}', event)">
+              <div>
+                <strong>Context Version ${version}</strong>
+                <span style="color: #666; font-size: 12px; margin-left: 8px;">
+                  (Modified On: ${modifiedOn})
+                </span>
+                <span style="color: #666; font-size: 12px; margin-left: 8px;">
+                  (Modified By: ${modifiedBy})
+                </span>
+                <span style="color: #999; font-size: 12px; margin-left: 8px;">
+                  (${count} context${count > 1 ? 's' : ''})
+                </span>
+              </div>
+              <span class="version-badge">${index === 0 ? 'Latest' : version}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      document.getElementById("versionList").innerHTML = versionListHtml;
+
+    } catch (error) {
+      console.error("History modal error:", error);
+      document.getElementById("historyError").innerHTML = `
+        <div class="error-message">
+          <strong>❌ Failed to load history:</strong>
+          <p style="margin-top: 8px;">${error.message}</p>
+        </div>
+      `;
+      document.getElementById("versionList").innerHTML = "";
+    }
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+
+  function closeHistoryModal() {
+    document.getElementById("historyModal").classList.remove("show");
+    historyData = [];
+    selectedVersionIndex = -1;
+  }
+
+  function selectVersion(contextVersion, event) {
+    document.querySelectorAll(".version-item").forEach(item => {
+      item.classList.remove("selected");
+    });
+    event.target.closest(".version-item").classList.add("selected");
+
+    const versionData = historyData.filter(item => item.ContextVersion === contextVersion);
+
+    if (versionData.length === 0) {
+      document.getElementById("versionDetailsContainer").style.display = "none";
+      return;
+    }
+
+    const allVersions = [...new Set(historyData.map(item => item.ContextVersion))].sort((a, b) => {
+      const numA = parseFloat(a);
+      const numB = parseFloat(b);
+      if (!isNaN(numA) && !isNaN(numB)) return numB - numA;
+      return b.localeCompare(a);
+    });
+
+    const currentVersionIndex = allVersions.indexOf(contextVersion);
+    const previousVersion =
+      currentVersionIndex < allVersions.length - 1 ? allVersions[currentVersionIndex + 1] : null;
+    
+    const previousData = previousVersion
+      ? historyData.filter(item => item.ContextVersion === previousVersion)
+      : [];
+
+    let detailsHtml = "";
+
+    versionData.forEach(item => {
+      const entityHtml =
+        item.Entity && item.Entity.length > 0
+          ? item.Entity.map(e => `<li>${escapeHtml(e.Key)}: ${escapeHtml(e.Value)}</li>`).join("")
+          : "<li>None</li>";
+
+      const changesHtml = "";
+      const modifiedOnHtml =
+        item.ModifiedOn && item.ModifiedOn !== item.CreatedOn
+          ? escapeHtml(item.ModifiedOn)
+          : "N/A";
+
+      detailsHtml += `
+        <div style="background-color: white; padding: 16px; border-radius: 6px; margin-bottom: 16px; border: 1px solid #e0e0e0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <p><strong>ID:</strong> ${escapeHtml(item.id || 'N/A')}</p>
+            <p><strong>Context Code:</strong> ${escapeHtml(item.PromptCode || 'N/A')}</p>
+            <p><strong>Parent Context Code:</strong> ${escapeHtml(item.ParentPromptCode || 'None')}</p>
+            <p><strong>Agent Code:</strong> ${escapeHtml(item.AgentCode || 'N/A')}</p>
+            <p><strong>Type:</strong> ${escapeHtml(item.Type || 'N/A')}</p>
+            <p><strong>Intent:</strong> ${escapeHtml(item.Intent || 'N/A')}</p>
+            <p><strong>Version ID:</strong> ${escapeHtml(item.VersionId || 'N/A')}</p>
+            <p><strong>Context Version:</strong> ${escapeHtml(item.ContextVersion || 'N/A')}</p>
+            <p><strong>Default:</strong> ${item.Default ? '✅' : '❌'}</p>
+            <p><strong>Latest:</strong> ${item.Latest ? '✅' : '❌'}</p>
+            <p><strong>Created On:</strong> ${escapeHtml(item.CreatedOn || 'N/A')}</p>
+            <p><strong>Modified On:</strong> ${escapeHtml(item.ModifiedOn || 'N/A')}</p>
+            <p><strong>Created By:</strong> ${escapeHtml(item.CreatedBy || 'N/A')}</p>
+            <p><strong>Modified By:</strong> ${escapeHtml(item.ModifiedBy || 'N/A')}</p>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <strong>Content:</strong>
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 4px; max-height: 200px; overflow-y: auto;">
+              <pre style="margin: 0; white-space: pre-wrap; font-size: 12px;">${escapeHtml(item.Content || 'N/A')}</pre>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <strong>Filters:</strong>
+            <ul style="margin-top: 4px; margin-left: 20px; font-size: 13px;">${entityHtml}</ul>
+          </div>
+          
+          ${changesHtml}
+        </div>
+      `;
+    });
+
+    const detailsHeader = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+        <h3 style="margin: 0;">Version Details - Context Version ${contextVersion}</h3>
+        <button onclick="closeVersionDetails()" title="Close Details" style="background: #f5f5f5; border: 2px solid #ddd; border-radius: 6px; font-size: 24px; cursor: pointer; color: #666; padding: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.backgroundColor='#e74c3c'; this.style.borderColor='#e74c3c'; this.style.color='white';" onmouseout="this.style.backgroundColor='#f5f5f5'; this.style.borderColor='#ddd'; this.style.color='#666';">
+          ✕
+        </button>
+      </div>
+    `;
+
+    document.getElementById("versionDetails").innerHTML = detailsHtml;
+    document.getElementById("versionDetailsContainer").style.display = "block";
+
+    lucide.createIcons();
+
+    setTimeout(() => {
+      document.getElementById("versionDetailsContainer").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 100);
+  }
+
+  function closeVersionDetails() {
+    document.querySelectorAll(".version-item").forEach(item => {
+      item.classList.remove("selected");
+    });
+    
+    document.getElementById("versionDetailsContainer").style.display = "none";
+    
+    document.querySelector(".version-list").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+  
+// ========================================
+// TEST MODAL FUNCTIONS
+// ========================================
+
+// Global variables for test modal
+
+let currentTestContext = null;
+let currentTestContexts = [];
+let currentTestAgentCode = "";
+
+// Open test modal with updated structure
+async function openTestModal(agentCode, versionId = null, contextVersion = null) {
+  currentTestAgentCode = agentCode;
+  document.getElementById("testModal").classList.add("show");
+
+  // Clear previous data
+  document.getElementById("versionSetsContainer").innerHTML = "";
+  document.getElementById("testResults").innerHTML = "";
+
+  try {
+    const response = await fetch(`${API_BASE}/agents/${agentCode}/contexts`);
+    const data = await response.json();
+
+    currentTestContexts = data;
+    let targetContext;
+    if (versionId) {
+      targetContext = data.find(ctx => ctx.VersionId === versionId && 
+       (contextVersion ? ctx.ContextVersion === contextVersion : true));
+    }
+    
+    // Fallback to latest context if not found
+    if (!targetContext) {
+      targetContext = data.find(ctx => ctx.Latest === true) || data[0];
+    }
+    
+    currentTestContext = targetContext;
+    
+    // Set Agent Code from the clicked context
+    document.getElementById("testAgentCode").value = targetContext?.AgentCode || agentCode;
+
+    // Populate intent dropdown dynamically
+    await populateIntentDropdown(agentCode);
+    document.getElementById("testIntent").value = targetContext?.Intent || "";
+
+
+      // Set User ID
+      document.getElementById("testUserId").value = "admin";
+
+      // Generate Session ID with admin_datetime format (hidden)
+      const now = new Date();
+      const datetime = now.toISOString().replace(/[-:]/g, '').replace('T', '_').split('.')[0];
+      document.getElementById("testSessionId").value = `admin_${datetime}`;
+
+      // Set Request ID
+      document.getElementById("testRequestId").value = "req_" + Date.now();
+
+       // Set Model from backend data (hidden)
+    document.getElementById("testModel").value = targetContext?.Model || "gpt-4o-mini";
+
+    // Set Version ID from the clicked context (hidden)
+    document.getElementById("testVersionId").value = targetContext?.VersionId || versionId || "v1";
+
+    currentTestContextCode = targetContext?.PromptCode || "";
+
+  } catch (error) {
+    console.error("Error fetching context:", error);
+  }
+
+  // Add first version set
+  addVersionSet();
+  initializeSampleImages();
+  lucide.createIcons();
+}
+
+// Close test modal
+function closeTestModal() {
+  const modal = document.getElementById("testModal");
+  modal.classList.remove("show");
+  currentTestContextCode = "";
+  currentTestContext = null;
+  currentTestContexts = [];
+  currentTestAgentCode = "";
+}
+
+// Add version set with model selection
+function addVersionSet() {
+  const container = document.getElementById("versionSetsContainer");
+  const setId = "version-set-" + Date.now();
+  const setNumber = container.children.length + 1;
+
+  const div = document.createElement("div");
+  div.className = "test-row";
+  div.id = setId;
+
+  div.innerHTML = `
+    <div class="test-row-header">
+      <strong>Version Set ${setNumber}</strong>
+      <select class="version-set-model" style="margin-left: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd;">
+        <option value="gpt-4o-mini">gpt-4o-mini</option>
+        <option value="gpt-4o">gpt-4o</option>
+      </select>
+      <button type="button" class="remove-test-btn" onclick="document.getElementById('${setId}').remove(); renumberVersionSets()">Remove</button>
+    </div>
+    <div class="version-items-container" data-set-id="${setId}"></div>
+    <button type="button" class="add-item-btn" onclick="addVersionItem('${setId}')">
+      <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+      Add Context Version
+    </button>
+  `;
+
+  container.appendChild(div);
+
+  // Auto-prefill based on currentTestContexts
+  const ctx = currentTestContexts[setNumber - 1];
+  if (ctx) {
+    addVersionItem(setId, ctx.Type, ctx.ContextVersion, ctx.PromptCode);
+  } else {
+    addVersionItem(setId);
+  }
+  
+  lucide.createIcons();
+}
+
+// Add version item to a set
+function addVersionItem(setId, prefillType = "", prefillVersion = "", prefillTypeName = "") {
+  const container = document.querySelector(`[data-set-id="${setId}"]`);
+  const itemId = "version-item-" + Date.now();
+
+  const div = document.createElement("div");
+  div.className = "version-item";
+  div.id = itemId;
+  div.style.display = "grid";
+  div.style.gridTemplateColumns = "1fr 1fr 1fr auto";
+  div.style.gap = "12px";
+  div.style.marginBottom = "8px";
+  div.style.alignItems = "end";
+
+  div.innerHTML = `
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Type</label>
+      <select class="version-type" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+        <option value="">Select Type</option>
+        <option value="taskcontext" ${prefillType === "TaskContext" || prefillType === "taskcontext" ? "selected" : ""}>taskcontext</option>
+        <option value="domaincontext" ${prefillType === "DomainContext" || prefillType === "domaincontext" ? "selected" : ""}>domaincontext</option>
+        <option value="responsecontext" ${prefillType === "ResponseContext" || prefillType === "responsecontext" ? "selected" : ""}>responsecontext</option>
+        <option value="parentcontext" ${prefillType === "ParentContext" || prefillType === "parentcontext" ? "selected" : ""}>parentcontext</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Version</label>
+      <input class="version-value" value="${prefillVersion}" placeholder="e.g., v1, v2" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>TypeName (Prompt Code)</label>
+      <input class="version-typename" value="${prefillTypeName}" placeholder="e.g., ae_inference_taskcontext_prompt" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div>
+      <button type="button" class="remove-test-btn" style="margin-top: 22px;" onclick="document.getElementById('${itemId}').remove()">Remove</button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+
+// Renumber version sets after removal
+function renumberVersionSets() {
+  const sets = document.querySelectorAll("#versionSetsContainer .test-row");
+  sets.forEach((set, index) => {
+    const header = set.querySelector(".test-row-header strong");
+    if (header) {
+      header.textContent = `Version Set ${index + 1}`;
+    }
+  });
+}
+
+// Add context list item
+function addContextListItem(contextType = "", contextName = "", contextValue = "") {
+  const container = document.getElementById("contextListContainer");
+  const itemId = "context-list-item-" + Date.now();
+
+  const div = document.createElement("div");
+  div.id = itemId;
+  div.style.display = "grid";
+  div.style.gridTemplateColumns = "1fr 1fr 2fr auto";
+  div.style.gap = "12px";
+  div.style.marginBottom = "8px";
+  div.style.alignItems = "end";
+
+  div.innerHTML = `
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Context Type</label>
+      <input class="context-list-type" value="${contextType}" placeholder="e.g., perception" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Context Name</label>
+      <input class="context-list-name" value="${contextName}" placeholder="e.g., user_input" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Context Value</label>
+      <input class="context-list-value" value="${contextValue}" placeholder="Context value or URL" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div>
+      <button type="button" class="remove-test-btn" style="margin-top: 22px;" onclick="document.getElementById('${itemId}').remove()">Remove</button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+
+// Add image input item
+function addImageInputItem(imageUrl = "") {
+  const container = document.getElementById("imageInputContainer");
+  const itemId = "image-input-item-" + Date.now();
+
+  const div = document.createElement("div");
+  div.id = itemId;
+  div.style.display = "grid";
+  div.style.gridTemplateColumns = "1fr auto";
+  div.style.gap = "12px";
+  div.style.marginBottom = "8px";
+  div.style.alignItems = "end";
+
+  div.innerHTML = `
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>Image URL</label>
+      <input class="image-url-input" value="${imageUrl}" placeholder="https://example.com/image.jpg" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+    </div>
+
+    <div>
+      <button type="button" class="remove-test-btn" style="margin-top: 22px;" onclick="document.getElementById('${itemId}').remove()">Remove</button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+// Sample images configuration
+const SAMPLE_IMAGES = [
+  { name: "Shoes", url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400" },
+  { name: "Shirt", url: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400" },
+  { name: "Jacket", url: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400" },
+  { name: "Bag", url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400" }
+];
+
+// Initialize sample images
+function initializeSampleImages() {
+  const container = document.getElementById("sampleImagesContainer");
+  container.innerHTML = "";
+  
+  SAMPLE_IMAGES.forEach((image, index) => {
+    const div = document.createElement("div");
+    div.className = "sample-image-item";
+    div.dataset.imageUrl = image.url;
+    div.dataset.imageName = image.name;
+    
+    div.innerHTML = `
+      <img src="${image.url}" alt="${image.name}" onerror="this.src='https://via.placeholder.com/120?text=${image.name}'">
+      <div class="sample-image-label">${image.name}</div>
+      <div class="sample-image-check">✓</div>
+    `;
+    
+    div.onclick = function() {
+      this.classList.toggle("selected");
+    };
+    
+    container.appendChild(div);
+  });
+}
+
+// Get selected sample images
+function getSelectedSampleImages() {
+  const selectedImages = [];
+  const items = document.querySelectorAll(".sample-image-item.selected");
+  
+  items.forEach(item => {
+    selectedImages.push({
+      type: "image_url",
+      url: item.dataset.imageUrl,
+      name: item.dataset.imageName
+    });
+  });
+  
+  return selectedImages;
+}
+
+// Format refined output for better readability
+function formatRefinedOutput(output) {
+  if (!output) return '<p style="color: #999;">No output available</p>';
+  
+  // If output is a string, try to parse it
+  let parsedOutput = output;
+  if (typeof output === 'string') {
+    try {
+      parsedOutput = JSON.parse(output);
+    } catch (e) {
+      // If not JSON, display as formatted text
+      return `<div style="white-space: pre-wrap; line-height: 1.8; color: #333;">${escapeHtml(output)}</div>`;
+    }
+  }
+  
+  // Format as structured HTML
+  let html = '<div style="line-height: 1.8;">';
+  
+  if (typeof parsedOutput === 'object' && parsedOutput !== null) {
+    for (const [key, value] of Object.entries(parsedOutput)) {
+      html += `
+        <div style="margin-bottom: 12px; padding: 12px; background-color: rgba(102, 126, 234, 0.05); border-left: 3px solid #667eea; border-radius: 4px;">
+          <div style="font-weight: 600; color: #667eea; margin-bottom: 6px; text-transform: capitalize;">
+            ${escapeHtml(key.replace(/_/g, ' '))}:
+          </div>
+          <div style="color: #333; padding-left: 12px;">
+            ${formatValue(value)}
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    html += `<div style="color: #333;">${escapeHtml(String(parsedOutput))}</div>`;
+  }
+  
+  html += '</div>';
+  return html;
+}
+
+// Helper function to format individual values
+function formatValue(value) {
+  if (value === null || value === undefined) {
+    return '<span style="color: #999; font-style: italic;">N/A</span>';
+  }
+  
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return '<span style="color: #999; font-style: italic;">Empty list</span>';
+    }
+    return '<ul style="margin: 4px 0; padding-left: 20px;">' + 
+           value.map(item => `<li style="margin: 4px 0;">${formatValue(item)}</li>`).join('') + 
+           '</ul>';
+  }
+  
+  if (typeof value === 'object') {
+    let html = '<div style="margin-left: 12px; padding: 8px; background-color: rgba(0,0,0,0.02); border-radius: 4px;">';
+    for (const [k, v] of Object.entries(value)) {
+      html += `
+        <div style="margin: 6px 0;">
+          <span style="font-weight: 600; color: #555;">${escapeHtml(k)}:</span> 
+          <span style="color: #333;">${formatValue(v)}</span>
+        </div>
+      `;
+    }
+    html += '</div>';
+    return html;
+  }
+  
+  if (typeof value === 'boolean') {
+    return value ? 
+      '<span style="color: #28a745; font-weight: 600;">✓ True</span>' : 
+      '<span style="color: #dc3545; font-weight: 600;">✗ False</span>';
+  }
+  
+  if (typeof value === 'number') {
+    return `<span style="color: #667eea; font-weight: 600;">${value}</span>`;
+  }
+  
+  // String value
+  return `<span style="color: #333;">${escapeHtml(String(value))}</span>`;
+}
+
+// Execute multiple context tests
+async function executeMultipleContextTests() {
+  showLoader("Executing tests...");
+
+ // Get form values
+const agentCode = document.getElementById("testAgentCode").value.trim();
+const intent = document.getElementById("testIntent").value.trim();
+const userMsg = document.getElementById("testUserMsg").value.trim();
+const userId = document.getElementById("testUserId").value.trim();
+const sessionId = document.getElementById("testSessionId").value.trim(); // Hidden field
+const requestId = document.getElementById("testRequestId").value.trim();
+const model = document.getElementById("testModel").value.trim(); // Hidden field - from backend
+const versionId = document.getElementById("testVersionId").value.trim();
+const top = parseInt(document.getElementById("testTop").value) || 5;
+const defaultFlag = document.getElementById("testDefault").checked;
+const latest = document.getElementById("testLatest").checked;
+const validationClue = ""; // Empty as per requirement
+const contextCode = currentTestContextCode;
+
+// Validate required fields
+if (!agentCode) {
+  alert("Agent Code is required");
+  hideLoader();
+  return;
+}
+
+if (!intent) {
+  alert("Intent is required");
+  hideLoader();
+  return;
+}
+  // Build entity from current context
+  let entity = {};
+  if (currentTestContext && currentTestContext.Entity && currentTestContext.Entity.length > 0) {
+    currentTestContext.Entity.forEach(e => {
+      entity[e.Key] = e.Value;
+    });
+  }
+
+  // Collect context_list
+  const contextList = [];
+  const contextListItems = document.querySelectorAll("#contextListContainer > div");
+  contextListItems.forEach(item => {
+    const type = item.querySelector(".context-list-type")?.value.trim();
+    const name = item.querySelector(".context-list-name")?.value.trim();
+    const value = item.querySelector(".context-list-value")?.value.trim();
+    
+    if (type && name && value) {
+      contextList.push({
+        context_type: type,
+        context_name: name,
+        context_value: value
+      });
+    }
+  });
+
+  // Collect image_input from sample images and custom URLs
+  const imageInput = [];
+
+  // Add selected sample images
+  const sampleImages = getSelectedSampleImages();
+  imageInput.push(...sampleImages);
+
+  // Add custom image URLs
+  const imageInputItems = document.querySelectorAll("#imageInputContainer > div");
+  imageInputItems.forEach(item => {
+    const url = item.querySelector(".image-url-input")?.value.trim();
+    if (url) {
+      imageInput.push({
+        type: "image_url",
+        url: url
+      });
+    }
+  });
+
+  // Collect version sets
+  const contextVersionSets = [];
+  const versionSetDivs = document.querySelectorAll("#versionSetsContainer .test-row");
+  
+  versionSetDivs.forEach(setDiv => {
+    const modelSelect = setDiv.querySelector(".version-set-model");
+    const modelValue = modelSelect ? modelSelect.value : model;
+    
+    const versionItems = setDiv.querySelectorAll(".version-items-container .version-item");
+    const setContexts = [];
+    
+    versionItems.forEach(item => {
+      const type = item.querySelector(".version-type").value.trim();
+      const version = item.querySelector(".version-value").value.trim();
+      const typename = item.querySelector(".version-typename").value.trim();
+      
+      if (type && version && typename) {
+        setContexts.push({ 
+          type: type, 
+          version: version, 
+          typename: typename 
+        });
+      }
+    });
+    
+    if (setContexts.length > 0) {
+      contextVersionSets.push({
+        model: modelValue,
+        contexts: setContexts
+      });
+    }
+  });
+
+  if (contextVersionSets.length === 0) {
+    alert("Please add at least one version set with valid versions");
+    hideLoader();
+    return;
+  }
+
+  // Build request payload
+  const payload = {
+    user_msg: userMsg || "",
+    user_id: userId,
+    intent: intent,
+    session_id: sessionId,
+    version_id: versionId,
+    default: defaultFlag,
+    latest: latest,
+    entity: entity,
+    image_input: imageInput,
+    agent_code: agentCode,
+    context_list: contextList,
+    top: top,
+    validation_clue: validationClue || null,
+    model: model,
+    context_code: contextCode,
+    request_id: requestId,
+    context_version_sets: contextVersionSets
+  };
+  console.log(payload)
+
+  const resultsDiv = document.getElementById("testResults");
+  resultsDiv.innerHTML = "<p>Running tests...</p>";
+
+  try {
+    const response = await fetch(`${AI_SEARCH_API_BASE}/validate_multiple_output`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.detail || "Test execution failed");
+    }
+
+    // Display results
+    let resultsHtml = `
+      <div class="test-results-container">
+        <h3 style="margin-bottom: 20px; color: #667eea;">
+          <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+          Test Execution Results
+        </h3>
+    `;
+    
+    if (data.success && Array.isArray(data.success)) {
+      data.success.forEach((setResult, index) => {
+        const modelUsed = contextVersionSets[index]?.model || model;
+        
+        resultsHtml += `
+          <div class="result-set">
+            <div class="result-set-header">
+              <i data-lucide="layers" style="width: 18px; height: 18px;"></i>
+              Version Set ${setResult.set}
+              <span class="version-badge-small">${modelUsed}</span>
+            </div>
+        `;
+        
+        if (setResult.results && setResult.results.length > 0) {
+          setResult.results.forEach((result, resultIndex) => {
+            resultsHtml += `
+              <div class="result-item">
+                <div class="result-item-title">
+                  Result ${resultIndex + 1}
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                  <strong style="color: #667eea;">Context Versions Used:</strong>
+                  <div class="result-content">
+                    <pre>${JSON.stringify(result.request_context_versions, null, 2)}</pre>
+                  </div>
+                </div>
+                
+                <div>
+                  <strong style="color: #667eea;">Refined Output:</strong>
+                  <div class="result-content">
+                    ${formatRefinedOutput(result.refined_output)}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          resultsHtml += `
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <p>No results for this version set</p>
+            </div>
+          `;
+        }
+        
+        resultsHtml += `</div>`;
+      });
+    } else {
+      resultsHtml += `
+        <div class="error-message">
+          <strong>❌ Unexpected response format</strong>
+          <pre style="margin-top: 8px; background-color: rgba(255,255,255,0.5); max-height: 300px; overflow-y: auto;">${JSON.stringify(data, null, 2)}</pre>
+        </div>
+      `;
+    }
+
+    resultsHtml += `</div>`;
+    resultsDiv.innerHTML = resultsHtml;
+    lucide.createIcons();
+
+  } catch (error) {
+    resultsDiv.innerHTML = `
+      <div class="error-message">
+        <strong>❌ Test Execution Failed</strong>
+        <p style="margin-top: 8px;">${error.message}</p>
+      </div>
+    `;
+  } finally {
+    hideLoader();
+  }
+}
+// Generate datetime in admin_datetime format
+function generateAdminDateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  return `admin_${year}${month}${day}_${hours}${minutes}${seconds}`;
+}
+// Add this new function to fetch intents for an agent
+async function fetchIntentsForAgent(agentCode) {
+  try {
+    const response = await fetch(`${API_BASE}/agents/${agentCode}/contexts`);
+    const data = await response.json();
+    
+    // Get unique intents from the contexts
+    const intents = [...new Set(data.map(ctx => ctx.Intent).filter(Boolean))];
+    return intents;
+  } catch (error) {
+    console.error("Error fetching intents:", error);
+    return [];
+  }
+}
+
+// Add this new function to populate intent dropdown
+async function populateIntentDropdown(agentCode) {
+  const intents = await fetchIntentsForAgent(agentCode);
+  const intentInput = document.getElementById("testIntent");
+  
+  // Convert input to select dropdown
+  const selectHTML = `
+    <select id="testIntent" style="padding: 10px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 14px; width: 100%;">
+      <option value="">Select Intent</option>
+      ${intents.map(intent => `<option value="${intent}">${intent}</option>`).join('')}
+    </select>
+  `;
+  
+  intentInput.outerHTML = selectHTML;
+}
+
+// ========================================
+// TREE VIEW FUNCTIONS (Integrated)
+// ========================================
+
+let treeData = {};
+let expandedNodes = new Set();
+
+// Add checkbox event listener for tree view toggle
+document.getElementById("showTreeView").addEventListener("change", async function() {
+  const isChecked = this.checked;
+  const treeContainer = document.getElementById("treeViewContainer");
+  
+  if (isChecked) {
+    const agent = document.getElementById("agentSearch").value.trim();
+    
+    if (!agent) {
+      this.checked = false;
+      alert("Please enter an Agent Code and click Search first");
+      return;
+    }
+    
+    // Check if search results exist
+    const resultsDiv = document.getElementById("searchResults");
+    if (!resultsDiv.innerHTML || resultsDiv.innerHTML === "<p>Loading...</p>") {
+      this.checked = false;
+      alert("Please perform a search first");
+      return;
+    }
+    
+    // Show tree view alongside results
+    treeContainer.style.display = "block";
+    
+    // Use already loaded search data to build tree
+    const searchResultCards = resultsDiv.querySelectorAll('.result-card');
+    if (searchResultCards.length > 0) {
+      // Extract context data from existing search results
+      const allContexts = Array.from(searchResultCards).map(card => {
+        // Extract data from the rendered cards
+        const getId = card.querySelector('p:nth-child(1)');
+        return window.lastSearchData || []; // Use cached data
+      });
+      
+      // Build tree from cached data (no API call)
+      if (window.lastSearchData && window.lastSearchData.length > 0) {
+        buildTreeFromData(agent, window.lastSearchData);
+      } else {
+        await loadTreeViewForAgent(agent);
+      }
+    }
+  } else {
+    // Just hide tree view, keep results visible
+    treeContainer.style.display = "none";
+  }
+});
+
+// Modified search form handler to include tree view
+document.getElementById("searchForm").addEventListener("submit", async(e)=>{
+  e.preventDefault();
+  const agent = document.getElementById("agentSearch").value.trim();
+  const version = document.getElementById("versionSearch").value.trim();
+  const showTreeCheckbox = document.getElementById("showTreeView");
+  const showTree = showTreeCheckbox.checked;
+  
+  if(!agent){ alert("Agent Code required"); return; }
+
+  const resultsDiv = document.getElementById("searchResults");
+  const treeContainer = document.getElementById("treeViewContainer");
+  
+  // Always show search results
+  resultsDiv.style.display = "block";
+ 
+  resultsDiv.innerHTML = "<p>Loading...</p>";
+
+  try{
+    let url = `${API_BASE}/agents/${agent}/contexts`;
+    if(version) url += `?version_id=${encodeURIComponent(version)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+     window.lastSearchData = data;
+    
+    if(!Array.isArray(data)||data.length===0){ 
+      resultsDiv.innerHTML="<p>No results found.</p>"; 
+      return; 
+    }
+    
+    resultsDiv.innerHTML="";
+
+    data.forEach(doc=>{
+      const div=document.createElement("div");
+      div.className="result-card";
+
+      const entityHtml = (doc.Entity && doc.Entity.length>0)
+        ? doc.Entity.map(e=>`<li>${e.Key}: ${e.Value}</li>`).join("")
+        : "<li>None</li>";
+
+      div.innerHTML=`
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">ID</label>
+          <input id="id-${doc.id}" type="text" value="${doc.id}" readonly 
+                style="width: 100%; padding: 8px; background-color: #f5f5f5; cursor: not-allowed; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Context Code</label>
+          <input id="promptCode-${doc.id}" type="text" value="${doc.PromptCode}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Parent Context Code</label>
+          <input id="parentPromptCode-${doc.id}" type="text" value="${doc.ParentPromptCode || ''}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                placeholder="None" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Agent Code</label>
+          <input id="agentCode-${doc.id}" type="text" value="${doc.AgentCode}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Type</label>
+          <input id="type-${doc.id}" type="text" value="${doc.Type}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Intent</label>
+          <input id="intent-${doc.id}" type="text" value="${doc.Intent}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div>
+          <label style="font-weight: 600; margin-bottom: 4px; display: block;">Version ID</label>
+          <input id="versionId-${doc.id}" type="text" value="${doc.VersionId}" 
+                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        
+        <div style="display: flex; gap: 24px; align-items: center;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="default-${doc.id}" ${doc.Default ? 'checked' : ''} 
+                  style="width:18px; height:18px;"/>
+            <span style="font-weight: 600;">Default</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="latest-${doc.id}" ${doc.Latest ? 'checked' : ''} 
+                  style="width:18px; height:18px;"/>
+            <span style="font-weight: 600;">Latest</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-weight: 600; margin-bottom: 4px; display: block;">Context Version</label>
+        <input id="contextVersion-${doc.id}" type="text" value="${doc.ContextVersion || ''}" 
+              readonly style="width: 100%; padding: 10px; background-color: #f5f5f5; cursor: not-allowed; border: 1px solid #ddd; border-radius: 4px;" />
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-weight: 600; margin-bottom: 4px; display: block;">Content</label>
+        <textarea id="content-${doc.id}" rows="3" style="width: 100%; height: 350px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${doc.Content}</textarea>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-weight: 600; margin-bottom: 4px; display: block;">Filters</label>
+        <div id="entityContainer-${doc.id}" style="margin-top: 8px;">
+          ${doc.Entity && doc.Entity.length > 0 ? 
+            doc.Entity.map((e, idx) => `
+              <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 8px; align-items: end;">
+                <div>
+                  <input class="entity-key-${doc.id}" value="${e.Key}" placeholder="Key" 
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+                <div>
+                  <input class="entity-value-${doc.id}" value="${e.Value}" placeholder="Value" 
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+                <div>
+                  <button type="button" class="btn" style="background-color: #d9534f; padding: 8px 12px;" 
+                          onclick="this.parentElement.parentElement.remove()">Remove</button>
+                </div>
+              </div>
+            `).join('') 
+            : '<p style="color: #999; font-style: italic;">No filters</p>'
+          }
+        </div>
+        <button type="button" class="btn" style="margin-top: 8px; padding: 6px 12px; font-size: 13px;" 
+                onclick="addEntityToContext('${doc.id}')">
+          <i data-lucide="plus" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+          Add Filter
+        </button>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="updateVersion-${doc.id}" style="width:16px; height:16px;" onchange="toggleUpdateVersionWarning('${doc.id}')"/>
+          <span>Update Context Version</span>
+        </label>
+        <div id="updateVersionWarning-${doc.id}" class="update-version-warning" style="display:none; margin-top: 8px;">
+          <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+          <span>⚠️ Context Version field is now editable. Please update the version number before saving.</span>
+        </div>
+      </div>
+
+      <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+        <button class="btn" onclick="updateContextInline('${doc.id}')">Save</button>
+        <button class="btn" style="background-color: #d9534f;" onclick="deleteDocument('${doc.id}')">Delete</button>
+        <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="openTestModal('${doc.AgentCode}', '${doc.VersionId}', '${doc.ContextVersion}')">Test</button>
+        <button class="btn-history" onclick="openHistoryModal('${doc.PromptCode}')">
+          <i data-lucide="history" style="width: 14px; height: 14px;"></i>
+          History
+        </button>
+      </div>
+      `;
+      resultsDiv.appendChild(div);
+    });
+    
+    lucide.createIcons();
+  }catch(err){
+    resultsDiv.innerHTML="";
+    alert("❌ Search failed: "+err.message);
+  }
+});
+
+// Add change listener to agent code input - uncheck tree view when agent changes
+document.getElementById("agentSearch").addEventListener("input", function() {
+  const showTreeCheckbox = document.getElementById("showTreeView");
+  const treeContainer = document.getElementById("treeViewContainer");
+  
+  // If tree view is currently shown and agent code changes
+  if (showTreeCheckbox.checked) {
+    // Uncheck the tree view
+    showTreeCheckbox.checked = false;
+    // Hide the tree container
+    treeContainer.style.display = "none";
+    
+    // Clear cached data
+    window.lastSearchData = null;
+  }
+});
+
+// NEW FUNCTION: Build tree from already-fetched data (no API call)
+function buildTreeFromData(agentCode, allContexts) {
+  const container = document.getElementById("treeContainer");
+  
+  showLoader("Building tree structure...");
+  
+  try {
+    // Organize data by intent -> type
+    treeData = {};
+    
+    allContexts.forEach(ctx => {
+      const intent = ctx.Intent || "No Intent";
+      const type = ctx.Type || "No Type";
+      
+      if (!treeData[intent]) {
+        treeData[intent] = {};
+      }
+      
+      if (!treeData[intent][type]) {
+        treeData[intent][type] = [];
+      }
+      
+      treeData[intent][type].push(ctx);
+    });
+    
+    // Render tree
+    renderTreeForAgent(agentCode);
+    
+  } catch (error) {
+    container.innerHTML = `
+      <div class="error-message">
+        <strong>❌ Failed to build tree view</strong>
+        <p style="margin-top: 8px;">${error.message}</p>
+      </div>
+    `;
+  } finally {
+    hideLoader();
+  }
+}
+
+async function loadTreeViewForAgent(agentCode) {
+  const container = document.getElementById("treeContainer");
+  
+  container.innerHTML = "<p>Loading tree view...</p>";
+  showLoader("Building tree structure...");
+  
+  try {
+    // Use the correct API endpoint - same as search
+    const response = await fetch(`${API_BASE}/agents/${agentCode}/contexts`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contexts: ${response.status}`);
+    }
+    
+    const allContexts = await response.json();
+    
+    if (!Array.isArray(allContexts) || allContexts.length === 0) {
+      container.innerHTML = `
+        <div class="tree-empty-state">
+          <div class="tree-empty-icon">🌳</div>
+          <h3>No Contexts Found</h3>
+          <p>No contexts available for agent: ${escapeHtml(agentCode)}</p>
+        </div>
+      `;
+      hideLoader();
+      return;
+    }
+    
+    // Organize data by intent -> type for this specific agent
+    treeData = {};
+    
+    allContexts.forEach(ctx => {
+      const intent = ctx.Intent || "No Intent";
+      const type = ctx.Type || "No Type";
+      
+      if (!treeData[intent]) {
+        treeData[intent] = {};
+      }
+      
+      if (!treeData[intent][type]) {
+        treeData[intent][type] = [];
+      }
+      
+      treeData[intent][type].push(ctx);
+    });
+    
+    // Render tree for this agent
+    renderTreeForAgent(agentCode);
+    
+  } catch (error) {
+    container.innerHTML = `
+      <div class="error-message">
+        <strong>❌ Failed to load tree view</strong>
+        <p style="margin-top: 8px;">${error.message}</p>
+      </div>
+    `;
+  } finally {
+    hideLoader();
+  }
+}
+
+function renderTreeForAgent(agentCode) {
+  const container = document.getElementById("treeContainer");
+  
+  if (Object.keys(treeData).length === 0) {
+    container.innerHTML = `
+      <div class="tree-empty-state">
+        <div class="tree-empty-icon">🌳</div>
+        <h3>No Contexts Found</h3>
+        <p>No contexts available for this agent</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = `
+    <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid var(--primary-purple);">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i data-lucide="server" style="width: 24px; height: 24px; color: var(--primary-purple);"></i>
+        <div>
+          <div style="font-size: 18px; font-weight: 600; color: #333;">${escapeHtml(agentCode)}</div>
+          <div style="font-size: 13px; color: #666; margin-top: 4px;">
+            ${Object.keys(treeData).length} Intent${Object.keys(treeData).length !== 1 ? 's' : ''} Available
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Sort intents alphabetically
+  const sortedIntents = Object.keys(treeData).sort();
+  
+  sortedIntents.forEach(intent => {
+    const typeCount = Object.keys(treeData[intent]).length;
+    const isExpanded = expandedNodes.has(`intent-${intent}`);
+    
+    html += `
+      <div class="tree-node">
+        <div class="tree-node-item" onclick="toggleTreeNode('intent-${intent}')">
+          <div class="tree-toggle ${isExpanded ? 'expanded' : ''}">▶</div>
+          <i data-lucide="target" class="tree-icon"></i>
+          <span class="tree-label">${escapeHtml(intent)}</span>
+          <span class="tree-badge">${typeCount} type${typeCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div id="intent-${intent}" class="tree-children ${isExpanded ? 'show' : ''}">
+          ${renderTypesForIntent(agentCode, intent)}
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  lucide.createIcons();
+}
+
+function renderTypesForIntent(agentCode, intent) {
+  let html = '';
+  const types = treeData[intent];
+  
+  // Sort types alphabetically
+  const sortedTypes = Object.keys(types).sort();
+  
+  sortedTypes.forEach(type => {
+    const contexts = types[type];
+    const contextCount = contexts.length;
+    
+    html += `
+      <div class="tree-node">
+        <div class="tree-node-item" onclick="showTreeDetail('${escapeHtml(agentCode)}', '${escapeHtml(intent)}', '${escapeHtml(type)}')">
+          <div class="tree-toggle" style="visibility: hidden;">▶</div>
+          <i data-lucide="file-text" class="tree-icon"></i>
+          <span class="tree-label">${escapeHtml(type)}</span>
+          <span class="tree-badge">${contextCount} context${contextCount !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  return html;
+}
+
+function toggleTreeNode(nodeId) {
+  const node = document.getElementById(nodeId);
+  const toggle = event.currentTarget.querySelector('.tree-toggle');
+  
+  if (node.classList.contains('show')) {
+    node.classList.remove('show');
+    toggle.classList.remove('expanded');
+    expandedNodes.delete(nodeId);
+  } else {
+    node.classList.add('show');
+    toggle.classList.add('expanded');
+    expandedNodes.add(nodeId);
+  }
+  
+  // Prevent event bubbling to avoid multiple calls
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+}
+
+function showTreeDetail(agent, intent, type) {
+  // Prevent multiple calls from event bubbling
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  
+  const contexts = treeData[intent][type];
+  const detailPanel = document.getElementById("treeDetailPanel");
+  
+  if (!contexts || contexts.length === 0) {
+    detailPanel.innerHTML = "";
+    return;
+  }
+  
+  // Mark active node
+  document.querySelectorAll('.tree-node-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  event.currentTarget.classList.add('active');
+  
+  let html = `
+    <div class="tree-detail-panel">
+      <div class="tree-detail-header">
+        <div class="tree-detail-title">
+          <i data-lucide="info" style="width: 20px; height: 20px;"></i>
+          Context Details
+        </div>
+        <button class="close-btn" onclick="document.getElementById('treeDetailPanel').innerHTML = ''">&times;</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+        <div>
+          <strong style="color: #666; font-size: 12px; text-transform: uppercase;">Agent Code</strong>
+          <div style="font-size: 16px; font-weight: 600; color: #333; margin-top: 4px;">${escapeHtml(agent)}</div>
+        </div>
+        <div>
+          <strong style="color: #666; font-size: 12px; text-transform: uppercase;">Intent</strong>
+          <div style="font-size: 16px; font-weight: 600; color: #333; margin-top: 4px;">${escapeHtml(intent)}</div>
+        </div>
+        <div>
+          <strong style="color: #666; font-size: 12px; text-transform: uppercase;">Type</strong>
+          <div style="font-size: 16px; font-weight: 600; color: #333; margin-top: 4px;">${escapeHtml(type)}</div>
+        </div>
+      </div>
+  `;
+  
+  // Sort contexts by ContextVersion (descending)
+  contexts.sort((a, b) => {
+    const versionA = parseFloat(a.ContextVersion) || 0;
+    const versionB = parseFloat(b.ContextVersion) || 0;
+    return versionB - versionA;
+  });
+  
+  contexts.forEach((ctx, index) => {
+    const entityHtml = (ctx.Entity && ctx.Entity.length > 0)
+      ? ctx.Entity.map(e => `<li>${escapeHtml(e.Key)}: ${escapeHtml(e.Value)}</li>`).join("")
+      : "<li>None</li>";
+    
+    html += `
+      <div class="result-card" style="margin-bottom: 16px; ${index === 0 ? 'border-left: 4px solid var(--primary-purple);' : ''}">
+        ${index === 0 ? '<div style="background: var(--primary-purple); color: white; padding: 4px 12px; display: inline-block; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 12px;">LATEST</div>' : ''}
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <p><strong>ID:</strong> ${escapeHtml(ctx.id)}</p>
+          <p><strong>Context Code:</strong> ${escapeHtml(ctx.PromptCode)}</p>
+          <p><strong>Parent Context Code:</strong> ${escapeHtml(ctx.ParentPromptCode || 'None')}</p>
+          <p><strong>Version ID:</strong> ${escapeHtml(ctx.VersionId)}</p>
+          <p><strong>Context Version:</strong> ${escapeHtml(ctx.ContextVersion || 'N/A')}</p>
+          <p><strong>Default:</strong> ${ctx.Default ? '✅' : '❌'}</p>
+          <p><strong>Latest:</strong> ${ctx.Latest ? '✅' : '❌'}</p>
+          <p><strong>Modified On:</strong> ${escapeHtml(ctx.ModifiedOn || 'N/A')}</p>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <strong>Content:</strong>
+          <div style="background-color: #f8f9fa; padding: 12px; border-radius: 4px; margin-top: 8px; max-height: 200px; overflow-y: auto;">
+            <pre style="margin: 0; white-space: pre-wrap; font-size: 12px;">${escapeHtml(ctx.Content || 'N/A')}</pre>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <strong>Filters:</strong>
+          <ul style="margin-top:4px; margin-left:20px;">${entityHtml}</ul>
+        </div>
+        
+        <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+          <button class="btn-history" onclick="openHistoryModal('${ctx.PromptCode}')">
+            <i data-lucide="history" style="width: 14px; height: 14px;"></i>
+            History
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  detailPanel.innerHTML = html;
+  
+  // Scroll to detail panel
+  detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  
+  lucide.createIcons();
+}
+  // ========================================
+  // EVENT LISTENERS FOR MODALS
+  // ========================================
+
+  window.onclick = function(event) {
+    const historyModal = document.getElementById("historyModal");
+    
+    if (event.target === historyModal) {
+      closeHistoryModal();
+    }
+     const modal = document.getElementById("testModal");
+    if (event.target === modal) {
+      closeTestModal();
+    }
+  }
+
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('historyModal');
+    const testModal = document.getElementById('testModal');
+    if (event.target === modal) {
+      closeHistoryModal();
+    }
+    if (event.target === testModal) {
+    closeTestModal();
+  }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const modal = document.getElementById('historyModal');
+      const testModal = document.getElementById('testModal');
+      if (modal && modal.classList.contains('show')) {
+        closeHistoryModal();
+      }
+      if (testModal && testModal.classList.contains('show')) {
+      closeTestModal();
+    }
+    }
+  });
+    document.addEventListener('DOMContentLoaded', function() {
+    const analyzerFilterInput = document.getElementById('analyzerFilterInput');
+    if (analyzerFilterInput) {
+      analyzerFilterInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          loadAnalyzerFeedback();
+        }
+      });
+    }
+  });
+
+</script>
+</body>
+</html>

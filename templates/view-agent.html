@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Details</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+
+<style>
+   :root {
+    --primary-purple: #65336e;
+    --dark-purple: #542d6b;
+    --bg-purple: #692e8b;
+    --light-blue: #80c6ff;
+    --text-light: #eee;
+    --sidebar-width: 200px;
+    --toolbar-height: 70px;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body { 
+    background-color: var(--text-light);
+    color: #333;
+    font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+  }
+  
+  .app-wrapper {
+    display: flex;
+    height: 100vh;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar { 
+    background-color: var(--primary-purple);
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0;
+    z-index: 100;
+    transition: width 0.3s ease;
+  }
+  
+  .title-text {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 10px;
+    cursor: pointer;
+  }
+  
+  .title-text .ext {
+    color: var(--light-blue);
+    margin-left: 4px;
+  }
+
+  .sidebar button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    width: 100%;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+  }
+  
+  .sidebar button:hover,
+  .sidebar button.is-active {
+    background-color: var(--dark-purple);
+    border-radius: 8px;
+    padding: 14px 20px;
+  }
+  
+  .icon {
+    font-size: 1.3rem;
+    color: var(--text-light);
+  }
+.content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+  }
+
+  .toolbar {
+    height: var(--toolbar-height);
+    background: var(--primary-purple);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: calc(100% - var(--sidebar-width));
+    left: var(--sidebar-width);
+    padding: 0 24px;
+    z-index: 99;
+    border-bottom: 0.2px solid rgba(255,255,255,0.1);
+  }
+  
+  .page-title {
+    color: var(--text-light);
+    font-weight: 400;
+    font-size: 24px;
+  }
+  
+  .user {
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .page-container {
+    margin-top: var(--toolbar-height);
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100vh - var(--toolbar-height));
+  }
+  
+
+      .card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(101, 51, 110, 0.15);
+        border-color: var(--primary-purple);
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        color: var(--primary-purple);
+        font-weight: 600;
+      }
+
+      .card p {
+        font-size: 13px;
+        color: #555;
+        margin: 6px 0 0 0;
+        line-height: 1.5;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      input,
+      textarea {
+        padding: 10px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        background-color: white;
+        color: #333;
+        width: 100%;
+        font-family: inherit;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+      }
+
+      button.submit-btn {
+        background-color: var(--primary-purple);
+        color: var(--text-light);
+        border: none;
+        padding: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background-color 0.3s;
+      }
+
+      button.submit-btn:hover {
+        background-color: var(--dark-purple);
+      }
+
+      .metadata-field {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .metadata-field input {
+        flex: 1;
+      }
+
+      .metadata-field button {
+        background: none;
+        border: none;
+        color: #ef4444;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 6px;
+        transition: opacity 0.3s;
+      }
+
+      .metadata-field button:hover {
+        opacity: 0.7;
+      }
+
+      .add-meta-btn {
+        background-color: #10b981;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        width: fit-content;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .add-meta-btn:hover {
+        opacity: 0.85;
+      }
+
+      h4 {
+        color: var(--primary-purple);
+        margin: 16px 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .form-section {
+        grid-column: 1 / -1;
+      }
+
+      .delete-btn {
+        background-color: #ef4444 !important;
+      }
+
+      .delete-btn:hover {
+        background-color: #dc2626 !important;
+      }
+
+      .left-panel::-webkit-scrollbar,
+      .right-panel::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .left-panel::-webkit-scrollbar-track,
+      .right-panel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb,
+      .right-panel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb:hover,
+      .right-panel::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+
+      pre {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 8px 0;
+        font-size: 13px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .btn-context {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn-context:hover {
+        background-color: var(--dark-purple);
+        border-color: var(--light-blue);
+      }
+
+      .id-toggle-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .id-toggle-btn {
+        flex: 1;
+        padding: 10px;
+        border: 2px solid var(--primary-purple);
+        background: white;
+        color: var(--primary-purple);
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .id-toggle-btn.active {
+        background: var(--primary-purple);
+        color: white;
+      }
+
+      .id-toggle-btn:hover {
+        background: var(--dark-purple);
+        color: white;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .optional-badge {
+        position: absolute;
+        top: -8px;
+        right: 8px;
+        background: var(--light-blue);
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .logo {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-image {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .logo .ext {
+    color:  var(--text-light);
+  }
+
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        grid-column: 1 / -1;
+        height: 150px;
+        font-size: 16px;
+        color: #666;
+      }
+      .loading::after {
+        content: "⏳ Loading...";
+        animation: blink 1s linear infinite;
+      }
+      @keyframes blink {
+        0%,
+        50%,
+        100% {
+          opacity: 1;
+        }
+        25%,
+        75% {
+          opacity: 0.3;
+        }
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 14px;
+      }
+      th {
+        background-color: var(--primary-purple);
+        color: #eee;
+      }
+      td img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+
+      
+  .card {
+    background:#fff;border-radius:8px;padding:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-bottom:24px;
+  }
+  .card h2 {color:var(--primary-purple);margin-bottom:16px;}
+  .details-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;}
+  .details-grid div {padding:8px 0;}
+  .details-grid strong {display:block;font-size:13px;color:#555;}
+  .details-grid span {font-size:15px;}
+
+  table {width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  th, td {padding:12px 16px;text-align:left;border-bottom:1px solid #e0e0e0;font-size:14px;}
+  th {background-color:var(--primary-purple);color:#eee;}
+  tr.expandable {cursor:pointer;}
+  tr.sub-row td {background:#fafafa;}
+
+  .entity-table {margin:10px 0;width:95%;margin-left:30px;}
+  .entity-table th {background:var(--dark-purple);}
+
+
+  #addButton {
+      background-color: #65336e;
+      color: #fff;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-left: 600px;
+    }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: #65336e;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* text on left, arrow on right */
+    width: 160px; /* fixed width for alignment */
+}
+
+.arrow {
+    margin-left: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Highlight arrow when hovered */
+.dropbtn .arrow:hover {
+    background-color: #7d4a86;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show dropdown when hovering over arrow */
+.dropbtn .arrow:hover + .dropdown-content,
+.dropdown-content:hover {
+    display: block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+.dropbtn .arrow {
+  transition: transform 0.3s, color 0.3s;
+}
+
+.dropbtn.active .arrow {
+  color: #80c6ff;          /* highlight color (light blue) */
+  transform: rotate(180deg); /* rotates arrow when active */
+}
+/* Container for label + dropdown */
+.latest-approved-container {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* space between label and dropdown */
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* Label styling */
+.latest-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #65336e; /* primary purple */
+}
+
+/* Dropdown styling */
+.latest-select {
+  width: 150px;             /* small size */
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* On focus */
+.latest-select:focus {
+  border-color: #65336e;
+  box-shadow: 0 0 4px rg
+
+
+    
+</style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+      <div class="sidebar">
+        <div class="logo">
+          <img
+            src="/static/aspire.svg"
+            alt="Company Logo"
+            class="logo-image"
+            onerror="this.style.display='none'"
+          />
+          <span class="title-text">Agent <span class="ext">Details</span></span>
+        </div>
+      
+        <button class="btn" onclick="history.back()">
+          Back to Agent
+        </button>
+        <button class="btn"
+                onclick="view_configuration()">
+            View Configurations
+        </button>
+
+        
+      </div>
+
+      <div class="content">
+        <div class="toolbar">
+          <div class="page-title"></div>
+          <div class="user">{% include "navbar.html" %}</div>
+        </div>
+<div class="page-container">
+  <div id="agentDetails" class="card">
+    <div class="details-grid" id="agentInfo"></div>
+  </div>
+
+
+ 
+  <div class="card">
+    <h2>Intents & Entities</h2>
+    <table id="intentTable">
+      <thead>
+        <tr>
+          <th>Intent Name</th>
+          <th>Description</th>
+          <th>Entities</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+<!-- RBAC Add Modal -->
+<div id="rbacModal" class="modal" style="
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+">
+  <div class="modal-content" style="
+  background-color: #fff;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: 8px;
+  width: 40%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10000;
+">
+
+    <span class="close" onclick="closeModal()" 
+    style="
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+    ">&times;</span>
+
+    <h2 style="color:#65336e;">Add RBAC</h2>
+    
+    <form id="rbacForm">
+      <label>Agent Code</label>
+      <input type="text" id="rbacAgentId" placeholder="Enter Agent ID" readonly />
+
+      <label>Version</label>
+      <input type="text" id="rbacVersion" placeholder="Enter Version" />
+
+      <label class="latest-label">Approved</label>
+      <div class="latest-approved-container" style="gap: 20px;">
+        <label>
+          <input type="radio" name="rbacApprovedStatus" id="rbacApprovedTrue" value="true" checked>
+          True
+        </label>
+        <label>
+          <input type="radio" name="rbacApprovedStatus" id="rbacApprovedFalse" value="false">
+          False
+        </label>
+      </div>
+
+      <label id="permissionsLabel">Permissions (JSON)</label>
+      <textarea id="rbacPermissions" rows="4"></textarea>
+      
+
+      <button type="button" class="submit-btn" onclick="saveAgentConfig()">Save</button>
+    </form>
+  </div>
+</div>
+
+
+<script>
+ //const API_BASE = "http://127.0.0.1:8009/agents";
+
+const API_BASE = "http://agent-ops-public.westus2.azurecontainer.io:8009/agents"; // backend endpoint
+
+// Extract agent ID from URL (e.g. /agent-sol/123/agent)
+let selectedType = null;
+
+const pathParts = window.location.pathname.split('/');
+console.log(pathParts)
+const agentId = pathParts[4]
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!agentId) {
+    document.querySelector(".page-container").innerHTML = "<p style='color:red'>No Agent ID found in URL</p>";
+    return;
+  }
+  loadAgent(agentId);
+});
+
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+
+async function loadAgent(id) {
+  try {
+    console.log("Loading agents....",`${API_BASE}/${id}`)
+    const res = await fetch(`${API_BASE}/${id}`);
+    if (!res.ok) throw new Error("Failed to load agent");
+    const agent = await res.json();
+    renderAgentDetails(agent);
+    renderIntents(agent.intents || []);
+  } catch (err) {
+    console.error(err);
+    document.querySelector(".page-container").innerHTML = "<p style='color:red'>Error loading agent details</p>";
+  }
+}
+let currentAgentCode = null;
+function renderAgentDetails(agent) {
+  currentAgentCode = agent.code;
+  const info = document.getElementById("agentInfo");
+  info.innerHTML = `
+  
+    <div><strong>Name</strong><span>${agent.name}</span></div>
+    <div><strong>Code</strong><span>${agent.code || '-'}</span></div>
+
+    <div><strong>Provider</strong><span>${agent.provider || '-'}</span></div>
+    <div><strong>Environment</strong><span>${agent.environment || '-'}</span></div>
+    <div><strong>URL</strong><span><a href="${agent.url}" target="_blank">Click here</a></span></div>
+    <div><strong>Status</strong><span>${agent.status || '-'}</span></div>
+
+    <div><strong>Support Email</strong><span>${agent.support?.email || '-'}</span></div>
+    <div><strong>Support Phone</strong><span>${agent.support?.phone || '-'}</span></div>
+    <div><strong>Version</strong><span>${agent.version || '-'}</span></div>
+    <div class="dropdown" style="margin-left:600px;">
+  <button onclick="toggleAddDropdown()" class="dropbtn" 
+      style="
+    background-color: #65336e;
+    color: #fff;
+    padding: 10px 40px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 👈 pushes text and arrow apart */
+  ">
+  <span>Add</span>
+   <span class="arrow" style="margin-left: 20px;">▼</span>
+
+  </button>
+<div id="addDropdownMenu" class="dropdown-content">
+  <a href="#" onclick="openModal('RBAC')">RBAC</a>
+  <a href="#" onclick="openModal('Data Scope')">Data Scope</a>
+  <a href="#" onclick="openModal('Cost')">Cost</a>
+  <a href="#" onclick="openModal('Model Routing')">Model Routing</a>
+</div>
+
+</div>
+ `;
+}
+
+function toggleAddDropdown() {
+    const menu = document.getElementById("addDropdownMenu");
+    const arrow = document.querySelector(".arrow");openModal
+    menu.classList.toggle("show");
+    arrow.classList.toggle("rotate");
+}
+
+
+// Close the dropdown when clicking outside
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (let i = 0; i < dropdowns.length; i++) {
+      let openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+// --- RBAC MODAL CONTROL ---
+// --- MODAL CONTROL ---
+function openModal(type) {
+    const modal = document.getElementById("rbacModal");
+    const title = modal.querySelector("h2");
+
+    // ⭐ Store selected config type correctly for save API
+    selectedType = type.toLowerCase().replace(" ", "_");  
+    // Example: "RBAC" → "rbac", "Data Scope" → "data_scope"
+
+    // ⭐ Update modal title
+    title.textContent = `Add ${type}`;
+    // NEWLY ADDED CODE BLOCK:
+
+    // 1. Get the label element
+    const permissionsLabel = document.getElementById("permissionsLabel");
+
+    // 2. Dynamically set the text
+    if (selectedType === 'rbac') {
+        // Keep 'Permissions' for RBAC
+        permissionsLabel.textContent = "Permissions (JSON)"; 
+    } else {
+        // Change to 'Configuration' for Cost, Data Scope, Model Routing
+        permissionsLabel.textContent = "Configuration (JSON)"; 
+    }
+
+    // ⭐ Autopopulate Agent ID (readonly)
+    const agentCodeInput = document.getElementById("rbacAgentId"); // Keeping same ID for simplicity in HTML
+    agentCodeInput.value = currentAgentCode || '';
+    agentCodeInput.setAttribute('readonly', 'readonly');
+
+    // ⭐ Clear Version input
+    const versionInput = document.getElementById("rbacVersion");
+    versionInput.value = '';
+
+    // ⭐ Show modal
+    modal.style.setProperty("display", "block", "important");
+
+    // ⭐ Close dropdown
+    document.getElementById("addDropdownMenu").classList.remove("show");
+    document.querySelector(".dropbtn")?.classList.remove("active");
+}
+
+
+function closeModal() {
+  document.getElementById("rbacModal").style.display = "none";
+}
+function clearRbacForm() {
+    document.getElementById("rbacVersion").value = '';
+    document.getElementById("rbacPermissions").value = '';
+    document.getElementById("rbacApprovedTrue").checked = true;
+    selectedType = null; 
+}
+
+function saveAgentConfig() {
+    if (!selectedType) {
+        alert("No config type selected!");
+        return;
+    }
+     const agentCodeVal = document.getElementById("rbacAgentId").value; 
+    const versionVal = document.getElementById("rbacVersion").value;
+    const permissionInput = document.getElementById("rbacPermissions").value;
+        let parsedData = {};
+
+    try {
+        parsedData = permissionInput ? JSON.parse(permissionInput) : {};
+    } catch (e) {
+        alert("Invalid JSON in Permissions field!");
+        return;
+    }
+
+    const payload = {
+        agent_code: agentCodeVal,
+        version: versionVal,
+        config_type: selectedType,
+        data: parsedData
+    };
+
+    console.log("Sending payload:", payload);
+
+    fetch(`${API_BASE}/${agentId}/config`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(async res => {
+        const text = await res.text();
+
+        if (!res.ok) {
+            alert("Failed:\n" + text);
+            return;
+        }
+
+        let responseObj = {};
+        try {
+            responseObj = JSON.parse(text);
+        } catch {
+            responseObj = { message: text };
+        }
+
+        console.log("Server Response:", responseObj);
+        let message =
+            `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} entry added successfully!\n\n` +
+            `agent_code: ${payload.agent_code}\n` +
+            `version: ${payload.version}\n` +
+            `config_type: ${payload.config_type}\n` +
+            `data: ${JSON.stringify(payload.data, null, 2)}`;
+
+        alert(message);
+
+        // Close modal
+        document.getElementById("rbacModal").style.display = "none";
+        clearRbacForm();
+    })
+    .catch(err => {
+        alert("Save failed: " + err);
+        console.error(err);
+    });
+}
+
+
+// Close modal when clicking outside content
+window.onclick = function(event) {
+  const modal = document.getElementById("rbacModal");
+  if (event.target === modal) {
+    closeModal();
+  }
+};
+async function submitPopupForm(type) {
+  const agentId = document.getElementById("agentId").value;
+  const version = document.getElementById("version").value;
+  const payload = {
+    agent_id: agentId,
+    version: version,
+    type: type,  // "rbac" | "cost" | "model_routing" | "data_scope"
+    data: {
+      field1: document.getElementById("field1").value,
+      field2: document.getElementById("field2").value
+    }
+  };
+
+  const response = await fetch(`${API_BASE}/${agentId}/config`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+
+  const result = await response.json();
+  alert(result.message);
+}
+
+
+function renderIntents(intents) {
+  const tbody = document.querySelector("#intentTable tbody");
+  tbody.innerHTML = "";
+  if (!intents.length) {
+    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;color:#666;'>No intents found</td></tr>";
+    return;
+  }
+
+  intents.forEach(intent => {
+    const tr = document.createElement("tr");
+    tr.classList.add("expandable");
+    tr.innerHTML = `
+      <td>${intent.name}</td>
+      <td>${intent.description || '-'}</td>
+      <td>${(intent.entities?.length || 0)} entities</td>
+    `;
+    tbody.appendChild(tr);
+
+    const subRow = document.createElement("tr");
+    subRow.classList.add("sub-row");
+    subRow.style.display = "none";
+    const subTd = document.createElement("td");
+    subTd.colSpan = 3;
+    subRow.appendChild(subTd);
+    tbody.appendChild(subRow);
+
+    tr.addEventListener("click", () => toggleEntities(subRow, intent));
+  });
+}
+
+function toggleEntities(subRow, intent) {
+  if (subRow.style.display === "none") {
+    subRow.style.display = "table-row";
+    if (!subRow.dataset.loaded) {
+      subRow.firstChild.innerHTML = renderEntities(intent.entities || []);
+      subRow.dataset.loaded = "true";
+    }
+  } else {
+    subRow.style.display = "none";
+  }
+}
+
+function renderEntities(entities) {
+  if (!entities.length) return "<em style='margin-left:20px;color:#666;'>No entities available</em>";
+
+  let html = `<table class="entity-table"><thead><tr><th>Type</th><th>Example</th><th>Description</th></tr></thead><tbody>`;
+  entities.forEach(e => {
+    html += `<tr><td>${e.type}</td><td>${e.example}</td><td>${e.description}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  return html;
+}
+// Navigation
+function goToMemory(){ window.location.href="/memory"; }
+function goToAudit(){ window.location.href="/audit"; }
+function goToSession(){ window.location.href ="/session"; }
+function goToHome(){ window.location.href="/admin"; }
+function goToAgentSolution(){ window.location.href="/agent-sol"; }
+function goBack() {
+  window.history.back();
+}
+function view_configuration() {
+    if (agentId) {
+        // FIX: Change navigation to match the FastAPI route: /agents/{agent_id}/view-configs
+        window.location.href = `/agents/${agentId}/view-configs`; 
+    } else {
+        alert("Cannot navigate: Agent ID is missing.");
+    }
+}
+</script>
+
+</body>
+</html>

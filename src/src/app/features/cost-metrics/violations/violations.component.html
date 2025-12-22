@@ -1,0 +1,77 @@
+<div class="violations-container">
+  <div class="page-header">
+    <h1>Cost Violations</h1>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Filter by Agent:</label>
+        <select [(ngModel)]="filterAgent" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Agents</option>
+          <option *ngFor="let agent of uniqueAgents" [value]="agent">{{ agent }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Filter by Date:</label>
+        <select [(ngModel)]="filterDate" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Dates</option>
+          <option *ngFor="let date of uniqueDates" [value]="date">{{ date }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Filter by Status:</label>
+        <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Status</option>
+          <option value="Exceeded">Exceeded</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading cost violations..."></app-loader>
+
+  <!-- Violations Table -->
+  <div class="results-section" *ngIf="!loading">
+    <h3>Cost Violations</h3>
+    
+    <div class="table-container">
+      <table class="violations-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Modified On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let violation of filteredViolations">
+            <td>{{ violation.agent }}</td>
+            <td>{{ violation.cost | number:'1.0-0' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="{
+                'status-exceeded': violation.status === 'Exceeded',
+                'status-resolved': violation.status === 'Resolved'
+              }">
+                {{ violation.status }}
+              </span>
+            </td>
+            <td>{{ violation.date }}</td>
+            <td>{{ violation.modifiedOn || 'N/A' }}</td>
+          </tr>
+          <tr *ngIf="filteredViolations.length === 0">
+            <td colspan="5" class="no-data">No violations available</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

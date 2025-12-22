@@ -1,0 +1,129 @@
+<div class="search-reflection-container">
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-search"></i>
+      Search Reflection Contexts
+    </h1>
+    <!-- <p>Search and view feedback reflection contexts</p> -->
+  </div>
+
+  <!-- Feedback Type Selector -->
+  <div class="feedback-type-selector">
+    <div class="feedback-option good" 
+         [class.selected]="selectedFeedbackType === 'good'"
+         (click)="selectFeedbackType('good')">
+      <div class="feedback-option-icon">👍</div>
+      <div class="feedback-option-title">Good Example</div>
+      <div class="feedback-option-desc">Positive feedback context</div>
+    </div>
+    <div class="feedback-option bad"
+         [class.selected]="selectedFeedbackType === 'bad'"
+         (click)="selectFeedbackType('bad')">
+      <div class="feedback-option-icon">👎</div>
+      <div class="feedback-option-title">Bad Example</div>
+      <div class="feedback-option-desc">Negative feedback context</div>
+    </div>
+  </div>
+
+  <!-- Search Form -->
+  <div class="form-card">
+    <form [formGroup]="searchForm" (ngSubmit)="search()">
+      <div class="form-group">
+        <label for="agentCode">Agent Code</label>
+        <select
+          id="agentCode"
+          class="form-control"
+          formControlName="agentCode">
+          <option value="">Select agent code</option>
+          <option *ngFor="let code of agentCodes" [value]="code">{{ code }}</option>
+        </select>
+        <small *ngIf="loadingAgents" class="form-text text-muted">Loading agents...</small>
+        <small *ngIf="!loadingAgents && agentCodes.length === 0" class="form-text text-danger">
+          No agents found. Please check your connection.
+        </small>
+      </div>
+
+      <button type="submit" class="btn" [disabled]="loading">
+        <i class="fas fa-search"></i>
+        {{ loading ? 'Searching...' : 'Search Feedback' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading reflection contexts..."></app-loader>
+
+  <!-- Results -->
+  <div class="results-section" *ngIf="!loading && reflections.length > 0">
+    <div *ngFor="let reflection of reflections" class="result-card"
+         [ngStyle]="{'border-left': selectedFeedbackType === 'good' ? '4px solid #28a745' : '4px solid #dc3545'}">
+      
+      <!-- Header with Feedback Badge -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0;">
+          Feedback Context
+          <span class="feedback-badge" 
+                [class.good]="selectedFeedbackType === 'good'"
+                [class.bad]="selectedFeedbackType === 'bad'">
+            {{ selectedFeedbackType === 'good' ? '👍 Good' : '👎 Bad' }}
+          </span>
+        </h3>
+      </div>
+
+      <!-- Metadata Grid (2 columns) -->
+      <div class="metadata-grid">
+        <p><strong>ID:</strong> {{ reflection.id || 'N/A' }}</p>
+        <p><strong>Agent Code:</strong> {{ reflection.AgentCode || 'N/A' }}</p>
+        <p><strong>Intent:</strong> {{ reflection.Intent || 'N/A' }}</p>
+        <p><strong>Reason:</strong> {{ reflection.Reason || 'N/A' }}</p>
+        <p><strong>Created By:</strong> {{ reflection.CreatedBy || 'N/A' }}</p>
+        <p><strong>Created On:</strong> {{ reflection.CreatedOn || 'N/A' }}</p>
+        <p><strong>Modified By:</strong> {{ reflection.ModifiedBy || 'N/A' }}</p>
+        <p><strong>Modified On:</strong> {{ reflection.ModifiedOn || 'N/A' }}</p>
+      </div>
+
+      <!-- Filters List -->
+      <div style="margin-bottom:12px;">
+        <strong>Filters:</strong>
+        <ul style="margin-top:4px; margin-left:20px;">
+          <li *ngFor="let entity of reflection.Entity">
+            {{ entity.Key }}: {{ entity.Value }}
+          </li>
+          <li *ngIf="!reflection.Entity || reflection.Entity.length === 0">None</li>
+        </ul>
+      </div>
+
+      <!-- Expandable Content Section -->
+      <div style="margin-bottom:12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <strong>Content:</strong>
+          <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" 
+                  (click)="toggleContentExpand(reflection.id)">
+            {{ reflection.id && expandedContent[reflection.id] ? 'Collapse' : 'Expand' }}
+          </button>
+        </div>
+        <div class="feedback-content-container" 
+             [ngStyle]="{'max-height': reflection.id && expandedContent[reflection.id] ? 'none' : '100px', 'overflow': 'hidden'}">
+          <textarea 
+            [id]="'feedbackContent-' + reflection.id"
+            rows="4" 
+            style="width: 100%; min-height: 100px; resize: vertical;"
+            [(ngModel)]="reflection.Content"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+        <button class="btn" (click)="updateFeedback(reflection)">Save</button>
+        <button class="btn" style="background-color: #d9534f;" (click)="deleteFeedback(reflection)">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && reflections.length === 0">
+    <i class="fas fa-search"></i>
+    <p>No reflection contexts found</p>
+    <small>Try adjusting your search criteria</small>
+  </div>
+</div>

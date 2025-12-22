@@ -1,0 +1,145 @@
+<div class="cost-metrics-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Agent Metrics [Performance]</h1>
+  </div>
+
+  <!-- Search Form (Same as Cost metrics) -->
+  <div class="search-form-section">
+    <form (ngSubmit)="fetchMetrics()" class="metrics-form">
+      <div class="form-grid-inline">
+        <div class="form-group">
+          <label for="agentCode">Agent Code: <span class="required">*</span></label>
+          <select
+            id="agentCode"
+            [(ngModel)]="agentCode"
+            name="agentCode"
+            class="form-select"
+            required>
+            <option value="" disabled selected>Select Agent Code</option>
+            <option *ngFor="let agent of agents" [value]="agent.code || agent.agentCode">
+              {{ agent.name }} - {{ agent.code || agent.agentCode }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="startTime">Start Time: <span class="required">*</span></label>
+          <input
+            type="datetime-local"
+            id="startTime"
+            [(ngModel)]="startTime"
+            name="startTime"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="endTime">End Time: <span class="required">*</span></label>
+          <input
+            type="datetime-local"
+            id="endTime"
+            [(ngModel)]="endTime"
+            name="endTime"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="minValue">Min Value:</label>
+          <input
+            type="number"
+            id="minValue"
+            [(ngModel)]="minValue"
+            name="minValue"
+            step="0.01"
+            placeholder="Optional"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="maxValue">Max Value:</label>
+          <input
+            type="number"
+            id="maxValue"
+            [(ngModel)]="maxValue"
+            name="maxValue"
+            step="0.01"
+            placeholder="Optional"
+            class="form-control">
+        </div>
+
+        <div class="form-group button-group">
+          <button type="submit" class="btn-fetch" [disabled]="loading">
+            <i class="fas fa-search"></i>
+            {{ loading ? 'Fetching...' : 'Fetch' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Fetching performance metrics..."></app-loader>
+
+  <!-- Chart Section -->
+  <div class="chart-section" *ngIf="!loading && showMetrics && metricsData.length > 0">
+    <div class="chart-header">
+      <h2>Performance Metrics Chart</h2>
+      <div class="intent-filter" *ngIf="uniqueIntents.length > 1">
+        <label for="intentFilter">Filter by Intent:</label>
+        <select id="intentFilter" [(ngModel)]="selectedIntent" (ngModelChange)="onIntentFilterChange()" class="form-control">
+          <option *ngFor="let intent of uniqueIntents" [value]="intent">
+            {{ intent === 'all' ? 'All Intents' : intent }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas #metricsChart></canvas>
+    </div>
+  </div>
+
+  <!-- Metrics Table -->
+  <div class="results-section" *ngIf="!loading && showMetrics && metricsData.length > 0">
+    <div class="section-header">
+      <h2>Performance Metrics Results</h2>
+    </div>
+
+    <div class="table-container">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>DateTime</th>
+            <th>IntentCode</th>
+            <th>UserName</th>
+            <th>RequestId</th>
+            <th>SessionId</th>
+            <th>TokenCount</th>
+            <th>MetricValue (sec)</th>
+            <th>Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let metric of metricsData">
+            <td>{{ metric.DateTime || (metric.timestamp | date:'yyyy-MM-dd HH:mm:ss') || '—' }}</td>
+            <td>{{ metric.IntentCode || metric.context_code || 'agent' }}</td>
+            <td>{{ metric.UserName || metric.user_name || '—' }}</td>
+            <td>{{ metric.RequestId || metric.user_id || '—' }}</td>
+            <td>{{ metric.SessionId || metric.agent_code || '—' }}</td>
+            <td>{{ metric.TokenCount || metric.token_count || 0 }}</td>
+            <td>{{ (metric.MetricValue || metric.metric_value || 0).toFixed(4) }}</td>
+            <td>{{ metric.Model || metric.model || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && showMetrics && metricsData.length === 0">
+    <i class="fas fa-chart-bar"></i>
+    <p>No performance metrics found</p>
+    <small>Try adjusting your search criteria</small>
+  </div>
+</div>

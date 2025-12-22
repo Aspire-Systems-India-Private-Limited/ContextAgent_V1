@@ -1,0 +1,112 @@
+<div class="card">
+  <h2>Create Reflection Context</h2>
+  
+  <!-- Feedback Type Selector -->
+  <div class="feedback-type-selector">
+    <div 
+      class="feedback-option good" 
+      [class.selected]="feedbackType === 'good'"
+      (click)="selectFeedbackType('good')">
+      <div class="feedback-option-icon">👍</div>
+      <div class="feedback-option-title">Good Example</div>
+      <div class="feedback-option-desc">Positive feedback context</div>
+    </div>
+    <div 
+      class="feedback-option bad" 
+      [class.selected]="feedbackType === 'bad'"
+      (click)="selectFeedbackType('bad')">
+      <div class="feedback-option-icon">👎</div>
+      <div class="feedback-option-title">Bad Example</div>
+      <div class="feedback-option-desc">Negative feedback context</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="reflectionForm" (ngSubmit)="onSubmit()">
+    <!-- Grid-2 Layout for Agent Code and Intent -->
+    <div class="grid-2">
+      <!-- Agent Code -->
+      <div class="form-group">
+        <label>Agent Code</label>
+        <select
+          id="agentCode"
+          class="form-control"
+          formControlName="agentCode"
+          required>
+          <option value="">Select agent code</option>
+          <option *ngFor="let code of agentCodes" [value]="code">{{ code }}</option>
+        </select>
+        <small *ngIf="loadingAgents" class="form-text text-muted">
+          Loading agents...
+        </small>
+        <small *ngIf="!loadingAgents && agentCodes.length === 0" class="form-text text-danger">
+          No agents found. Please check your connection.
+        </small>
+      </div>
+
+      <!-- Intent -->
+      <div class="form-group">
+        <label>Intent</label>
+        <input
+          type="text"
+          id="intent"
+          formControlName="intent"
+          placeholder="Enter intent"
+          required>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="form-group">
+      <label>Reason</label>
+      <input
+        type="text"
+        id="reason"
+        formControlName="reason"
+        placeholder="Enter reason for feedback"
+        required>
+    </div>
+
+    <!-- Filters -->
+    <div class="form-group">
+      <h3>Filters</h3>
+      <div formArrayName="filters" id="feedbackEntitiesContainer">
+        <div *ngFor="let filter of filters.controls; let i = index" [formGroupName]="i" class="entity-row">
+          <input
+            type="text"
+            formControlName="key"
+            placeholder="Key"
+            style="flex: 1;">
+          <input
+            type="text"
+            formControlName="value"
+            placeholder="Value"
+            style="flex: 1; margin-left: 8px;">
+          <button
+            type="button"
+            class="btn-remove"
+            (click)="removeFilter(i)"
+            style="margin-left: 8px; padding: 8px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Remove
+          </button>
+        </div>
+      </div>
+      <button type="button" class="btn" style="margin-top:12px;" (click)="addFilter()">Add Filters</button>
+    </div>
+
+    <!-- Content -->
+    <div class="form-group">
+      <label>Content</label>
+      <textarea
+        id="content"
+        formControlName="content"
+        rows="8"
+        placeholder="Enter feedback content"
+        required></textarea>
+    </div>
+    
+    <button type="submit" class="btn" [disabled]="saving">
+      {{ saving ? 'Creating...' : 'Create Reflection Context' }}
+    </button>
+  </form>
+</div>

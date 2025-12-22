@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBAC Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+
+<style>
+:root {
+  --primary-purple: #65336e;
+  --dark-purple: #542d6b;
+  --light-purple: #7e4a9c;
+  --toolbar-height: 70px;
+  --btn-padding: 10px 18px;
+  --btn-radius: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Maven Pro', sans-serif; background:#f5f5f5; color:#333; overflow:hidden; }
+
+.toolbar { height: var(--toolbar-height); background: var(--primary-purple); display:flex; align-items:center; justify-content:space-between; padding:0 24px; color:#eee; position:fixed; top:0; left:0; right:0; z-index:100; }
+.toolbar h1 { font-size:24px; font-weight:500; }
+.user { display:flex; gap:10px; }
+.btn-icon { display:flex; align-items:center; gap:6px; background: var(--primary-purple); border:none; color:#eee; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:500; transition:0.3s; }
+.btn-icon:hover { background: var(--dark-purple); }
+
+.page-container { margin-top: var(--toolbar-height); padding:24px; height: calc(100vh - var(--toolbar-height)); overflow-y:auto; }
+
+.btn { background-color: var(--primary-purple); color: #fff; padding: var(--btn-padding); border-radius: var(--btn-radius); border:none; cursor:pointer; font-weight:500; margin-bottom:16px; transition:0.3s; }
+.btn:hover { background-color: var(--dark-purple); }
+
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+th, td { padding:12px 16px; text-align:left; border-bottom:1px solid #e0e0e0; font-size:14px; }
+th { background-color: var(--primary-purple); color: #eee; }
+td button { background-color: var(--light-purple); color:#fff; border:none; border-radius: var(--btn-radius); cursor:pointer; padding:6px 10px; font-weight:500; transition:0.3s; }
+td button:hover { background-color: var(--dark-purple); }
+
+/* Modals */
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+.modal.show { display:flex; }
+.modal-content { background:white; padding:30px; border-radius:8px; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.modal-header h2 { color: var(--primary-purple); }
+.close-btn { background:none; border:none; font-size:28px; cursor:pointer; color:#999; transition:0.3s; }
+.close-btn:hover { color:#333; }
+
+.form-group { margin-bottom:16px; }
+label { font-weight:600; margin-bottom:6px; display:block; }
+input, textarea { width:100%; padding:8px 12px; border-radius:4px; border:1px solid #ddd; font-size:14px; }
+textarea { min-height:80px; resize:vertical; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>RBAC Dashboard</h1>
+  <div class="user">
+    <button class="btn-icon" onclick="goToHome()">Home</button>
+  </div>
+</div>
+
+<div class="page-container">
+  <button class="btn" onclick="openAddModal()">Add RBAC</button>
+
+  <table id="rbacTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Agent ID</th>
+        <th>Version</th>
+        <th>Latest Approved</th>       
+        <th>Permissions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Add RBAC Modal -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add RBAC</h2>
+      <button class="close-btn" onclick="closeAddModal()">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Agent ID</label>
+      <input type="text" id="agentId">
+    </div>
+    <div class="form-group">
+      <label>Version</label>
+      <input type="text" id="version">
+    </div>
+    <div class="form-group">
+      <label>Latest Approved</label>
+      <select id="latestApproved">
+        <option value="true">True</option>
+        <option value="false">False</option>
+      </select>
+    </div>
+  
+    <div class="form-group">
+      <label>Permissions (JSON)</label>
+      <textarea id="permissions"></textarea>
+    </div>
+    <button class="btn" onclick="saveRBAC()">Save</button>
+  </div>
+</div>
+
+<!-- View Permissions Modal -->
+<div class="modal" id="viewPermissionsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Permissions JSON</h2>
+      <button class="close-btn" onclick="closeViewPermissionsModal()">&times;</button>
+    </div>
+    <pre id="permissionsContent" style="background:#f0f0f0; padding:10px; border-radius:6px;"></pre>
+  </div>
+</div>
+
+<script>
+// ----- Local storage array for RBAC entries -----
+let rbacList = [];
+
+// ----- Modal open/close functions -----
+function openAddModal(){ 
+  document.getElementById('addModal').classList.add('show'); 
+}
+function closeAddModal(){ 
+  document.getElementById('addModal').classList.remove('show'); 
+  clearAddModal(); 
+}
+
+function openViewPermissions(json){ 
+  document.getElementById('permissionsContent').textContent = JSON.stringify(json, null, 2);
+  document.getElementById('viewPermissionsModal').classList.add('show'); 
+}
+function closeViewPermissionsModal(){ 
+  document.getElementById('viewPermissionsModal').classList.remove('show'); 
+}
+
+// ----- Clear modal fields -----
+function clearAddModal(){
+  document.getElementById('agentId').value='';
+  document.getElementById('version').value='';
+  document.getElementById('latestApproved').value='true';
+  document.getElementById('permissions').value='';
+}
+
+// ----- Save RBAC entry to local array -----
+function saveRBAC(){
+  const agent_id = document.getElementById('agentId').value;
+  const version = document.getElementById('version').value;
+  const latest_approved = document.getElementById('latestApproved').value === "true";
+  let permissions = {};
+
+  // Parse JSON input
+  try{
+    permissions = JSON.parse(document.getElementById('permissions').value || '{}');
+  } catch(e){
+    alert("Invalid JSON for permissions");
+    return;
+  }
+
+  // Build new RBAC object
+  const newRBAC = {
+    id: rbacList.length + 1,        // local ID
+    agent_id,
+    version,
+    latest_approved,
+    created_on: new Date().toLocaleString(),
+    updated_on: null,
+    permissions
+  };
+
+  // --- API call would go here ---
+  // fetch('/api/rbac', { method: 'POST', body: JSON.stringify(newRBAC) })
+  //   .then(res => res.json())
+  //   .then(data => rbacList.push(data));
+
+  // For now, just push to local array
+  rbacList.push(newRBAC);
+
+  // Re-render table
+  renderTable();
+  closeAddModal();
+}
+
+// ----- Render table from local array -----
+function renderTable(){
+  const tbody = document.querySelector("#rbacTable tbody");
+  tbody.innerHTML = "";
+  rbacList.forEach(rbac => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${rbac.id}</td>
+      <td>${rbac.agent_id || ''}</td>
+      <td>${rbac.version || ''}</td>
+      <td>${rbac.latest_approved}</td>
+      <td>
+        <button onclick='openViewPermissions(${JSON.stringify(rbac.permissions)})'>
+          View JSON
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ----- Dummy toolbar function -----
+function goToHome(){ alert("Home clicked"); }
+
+</script>
+
+</body>
+</html>

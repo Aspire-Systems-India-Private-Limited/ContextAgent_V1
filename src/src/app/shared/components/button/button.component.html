@@ -1,0 +1,9 @@
+<button 
+  [type]="type"
+  [class]="'btn btn-' + variant + ' btn-' + size"
+  [disabled]="disabled || loading"
+  (click)="onClick($event)">
+  <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+  <i *ngIf="!loading && icon" [class]="'fas fa-' + icon"></i>
+  <span><ng-content></ng-content></span>
+</button>

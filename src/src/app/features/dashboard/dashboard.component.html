@@ -1,0 +1,124 @@
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <h1 class="welcome-title">
+        <ng-container *ngIf="isAuthenticated">Welcome back, {{ userName }}!</ng-container>
+        <ng-container *ngIf="!isAuthenticated">Agent Operations Platform</ng-container>
+      </h1>
+      <p class="welcome-subtitle">
+        <ng-container *ngIf="isAuthenticated">
+          Monitor and manage your AI agents, contexts, and conversations
+        </ng-container>
+        <ng-container *ngIf="!isAuthenticated">
+          Comprehensive platform for managing AI agent operations, contexts, and analytics
+        </ng-container>
+      </p>
+    </div>
+    <div class="welcome-actions" *ngIf="!isAuthenticated">
+      <app-button variant="primary" size="large" icon="sign-in-alt" (clicked)="onLogin()">
+        Get Started
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats" [style.border-left-color]="stat.color">
+      <div class="stat-icon" [style.color]="stat.color">
+        <i [class]="'fas fa-' + stat.icon"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-title">{{ stat.title }}</p>
+        <h3 class="stat-value">{{ stat.value }}</h3>
+        <div class="stat-change" *ngIf="stat.change" [class.positive]="stat.trend === 'up'" [class.negative]="stat.trend === 'down'">
+          <i [class]="stat.trend === 'up' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+          <span>{{ stat.change }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Quick Actions -->
+    <app-card title="Quick Actions" class="quick-actions-card">
+      <div class="quick-actions-grid">
+        <div 
+          class="action-card" 
+          *ngFor="let action of quickActions"
+          (click)="navigateTo(action.route)"
+          [style.border-left-color]="action.color">
+          <div class="action-icon" [style.color]="action.color">
+            <i [class]="'fas fa-' + action.icon"></i>
+          </div>
+          <p class="action-title">{{ action.title }}</p>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Recent Activity -->
+    <app-card title="Recent Activity" class="activity-card">
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon" [style.color]="activity.color">
+            <i [class]="'fas fa-' + activity.icon"></i>
+          </div>
+          <div class="activity-content">
+            <h4 class="activity-title">{{ activity.title }}</h4>
+            <p class="activity-description">{{ activity.description }}</p>
+            <p class="activity-time">{{ activity.time }}</p>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <!-- Features Section for non-authenticated users -->
+  <div class="features-section" *ngIf="!isAuthenticated">
+    <h2 class="section-title">Platform Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-database"></i>
+        </div>
+        <h3>Context Management</h3>
+        <p>Create, manage, and version control AI agent contexts with advanced search and categorization</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <h3>Agent Management</h3>
+        <p>Configure and monitor AI agents with real-time status tracking and performance metrics</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h3>Session Monitoring</h3>
+        <p>Track and analyze conversation sessions with detailed message history and insights</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>Memory Management</h3>
+        <p>Store and retrieve conversation memory with intelligent categorization</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>Analytics & Insights</h3>
+        <p>Comprehensive analytics including cost metrics, sentiment analysis, and audit logs</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3>RBAC Security</h3>
+        <p>Role-based access control with granular permissions and user management</p>
+      </div>
+    </div>
+  </div>
+</div>

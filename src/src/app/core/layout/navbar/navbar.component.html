@@ -1,0 +1,127 @@
+<nav class="navbar" role="navigation" aria-label="Primary navigation">
+  <div class="navbar-container">
+    <!-- Logo/Brand -->
+    <div class="navbar-brand" routerLink="/admin">
+      <i class="fas fa-robot"></i>
+      <span class="brand-text">Operations <span class="brand-highlight">Portal</span></span>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="navbar-links">
+      <!-- Home -->
+      <a 
+        routerLink="/admin" 
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="nav-link"
+        aria-label="Go to Home">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <span>Home</span>
+      </a>
+
+      <!-- Agent -->
+      <a 
+        routerLink="/agent-sol" 
+        routerLinkActive="active"
+        class="nav-link"
+        aria-label="Go to Agent Management">
+        <i class="fas fa-robot" aria-hidden="true"></i>
+        <span>Agent</span>
+      </a>
+
+      <!-- Context (Dropdown) -->
+      <div class="nav-dropdown" 
+           (mouseenter)="showDropdown('context')" 
+           (mouseleave)="hideDropdown('context')">
+        <a class="nav-link" [class.active]="isContextActive()">
+          <i class="fas fa-database" aria-hidden="true"></i>
+          <span>Context</span>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </a>
+        <div class="dropdown-menu" *ngIf="activeDropdown === 'context'">
+          <a routerLink="/context/create" class="dropdown-item">
+            <i class="fas fa-plus-circle"></i>
+            Create Context
+          </a>
+          <a routerLink="/context/search" class="dropdown-item">
+            <i class="fas fa-search"></i>
+            Search Context
+          </a>
+          <a routerLink="/context/create-reflection" class="dropdown-item">
+            <i class="fas fa-lightbulb"></i>
+            Create Reflection Context
+          </a>
+          <a routerLink="/context/search-reflection" class="dropdown-item">
+            <i class="fas fa-filter"></i>
+            Search Reflection Context
+          </a>
+        </div>
+      </div>
+
+      <!-- User Interaction (Dropdown) -->
+      <div class="nav-dropdown" 
+           (mouseenter)="showDropdown('interaction')" 
+           (mouseleave)="hideDropdown('interaction')">
+        <a class="nav-link" [class.active]="isInteractionActive()">
+          <i class="fas fa-comments" aria-hidden="true"></i>
+          <span>User Interaction</span>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </a>
+        <div class="dropdown-menu" *ngIf="activeDropdown === 'interaction'">
+          <a routerLink="/session" class="dropdown-item">
+            <i class="fas fa-comments"></i>
+            User Interaction
+          </a>
+          <a routerLink="/sentiment" class="dropdown-item">
+            <i class="fas fa-chart-line"></i>
+            Sentiment Analysis
+          </a>
+        </div>
+      </div>
+
+      <!-- Memory (Dropdown) -->
+      <div class="nav-dropdown" 
+           (mouseenter)="showDropdown('memory')" 
+           (mouseleave)="hideDropdown('memory')">
+        <a class="nav-link" [class.active]="isMemoryActive()">
+          <i class="fas fa-brain" aria-hidden="true"></i>
+          <span>Memory</span>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </a>
+        <div class="dropdown-menu" *ngIf="activeDropdown === 'memory'">
+          <a routerLink="/memory" class="dropdown-item">
+            <i class="fas fa-database"></i>
+            Memory Management
+          </a>
+        </div>
+      </div>
+
+      <!-- Diagnosis (Dropdown) -->
+      <div class="nav-dropdown" 
+           (mouseenter)="showDropdown('diagnosis')" 
+           (mouseleave)="hideDropdown('diagnosis')">
+        <a class="nav-link" [class.active]="isDiagnosisActive()">
+          <i class="fas fa-stethoscope" aria-hidden="true"></i>
+          <span>Diagnosis</span>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </a>
+        <div class="dropdown-menu" *ngIf="activeDropdown === 'diagnosis'">
+          <a routerLink="/cost-metrics" class="dropdown-item">
+            <i class="fas fa-chart-bar"></i>
+            Metrics - Cost and Performance
+          </a>
+          <!-- <a routerLink="/audit" class="dropdown-item">
+            <i class="fas fa-clipboard-list"></i>
+            Diagnostics
+          </a> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="user-info">
+      <i class="fas fa-user-circle" aria-hidden="true"></i>
+      <span>Administrator</span>
+    </div>
+  </div>
+</nav>

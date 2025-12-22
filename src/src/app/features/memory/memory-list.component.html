@@ -1,0 +1,175 @@
+<div class="memory-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Memory Management</h1>
+    <p class="subtitle">Store and manage agent memory and context</p>
+  </div>
+
+  <!-- Two Panel Layout -->
+  <div class="two-panel-layout">
+    <!-- Left Panel: Memory Cards -->
+    <div class="cards-panel">
+      <div class="panel-header">
+        <h2>Memories</h2>
+        <button class="btn-add" (click)="addNew()">
+          <i class="fas fa-plus"></i>
+          Add Memory
+        </button>
+      </div>
+
+      <app-loader *ngIf="loading" size="medium" message="Loading memories..."></app-loader>
+
+      <div class="memory-grid" *ngIf="!loading">
+        <div 
+          class="memory-card"
+          *ngFor="let memory of memories"
+          [class.selected]="selectedMemory?.id === memory.id"
+          (click)="selectMemory(memory)">
+          <div class="card-body">
+            <p class="memory-text">{{ truncateText(memory.memory_text, 120) }}</p>
+            <div class="card-context">
+              <i class="fas fa-tag"></i>
+              {{ memory.context || 'No context' }}
+            </div>
+            <div class="card-meta">
+              <span class="agent-badge" *ngIf="memory.agent_code">
+                <i class="fas fa-robot"></i>
+                {{ memory.agent_code }}
+              </span>
+              <span class="time-badge">
+                <i class="fas fa-clock"></i>
+                {{ formatDate(memory.timestamp) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-card" *ngIf="memories.length === 0">
+          <i class="fas fa-brain"></i>
+          <p>No memories yet</p>
+          <small>Click "Add Memory" to create one</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Form -->
+    <div class="form-panel">
+      <div class="panel-header">
+        <h2>{{ isEditMode ? 'Edit Memory' : 'Add New Memory' }}</h2>
+      </div>
+
+      <form [formGroup]="memoryForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="user_id">
+            User ID <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="user_id"
+            formControlName="user_id"
+            placeholder="Enter user ID"
+            class="form-control"
+            [class.invalid]="memoryForm.get('user_id')?.invalid && memoryForm.get('user_id')?.touched">
+          <div class="error-message" *ngIf="memoryForm.get('user_id')?.invalid && memoryForm.get('user_id')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            User ID is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="session_id">Session ID</label>
+          <input 
+            type="text" 
+            id="session_id"
+            formControlName="session_id"
+            placeholder="Enter session ID (optional)"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="agent_code">Agent Code</label>
+          <input 
+            type="text" 
+            id="agent_code"
+            formControlName="agent_code"
+            placeholder="Enter agent code (optional)"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="memory_text">
+            Memory Text <span class="required">*</span>
+          </label>
+          <textarea 
+            id="memory_text"
+            formControlName="memory_text"
+            rows="6"
+            placeholder="Enter memory content"
+            class="form-control"
+            [class.invalid]="memoryForm.get('memory_text')?.invalid && memoryForm.get('memory_text')?.touched"></textarea>
+          <div class="error-message" *ngIf="memoryForm.get('memory_text')?.invalid && memoryForm.get('memory_text')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Memory text is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="context">Context</label>
+          <input 
+            type="text" 
+            id="context"
+            formControlName="context"
+            placeholder="Enter context description"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="metadata">
+            Metadata (JSON)
+            <span class="hint">Optional JSON object</span>
+          </label>
+          <textarea 
+            id="metadata"
+            formControlName="metadata"
+            rows="4"
+            placeholder='{"key": "value"}'
+            class="form-control monospace"></textarea>
+          <small class="form-hint">
+            <i class="fas fa-info-circle"></i>
+            Must be valid JSON format
+          </small>
+        </div>
+
+        <div class="form-actions">
+          <app-button 
+            type="submit"
+            variant="primary"
+            size="medium"
+            [loading]="loading"
+            [disabled]="memoryForm.invalid || loading">
+            {{ isEditMode ? 'Update Memory' : 'Create Memory' }}
+          </app-button>
+
+          <app-button 
+            type="button"
+            variant="danger"
+            size="medium"
+            *ngIf="isEditMode"
+            (clicked)="deleteMemory()"
+            [disabled]="loading">
+            Delete
+          </app-button>
+
+          <app-button 
+            type="button"
+            variant="secondary"
+            size="medium"
+            (clicked)="resetForm()"
+            [disabled]="loading">
+            {{ isEditMode ? 'Cancel' : 'Clear' }}
+          </app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

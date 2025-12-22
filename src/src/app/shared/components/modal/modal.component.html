@@ -1,0 +1,18 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="modal-container" [class]="size">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ title }}</h2>
+      <button class="modal-close" (click)="onClose()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <ng-content></ng-content>
+    </div>
+    
+    <div class="modal-footer" *ngIf="showFooter">
+      <ng-content select="[footer]"></ng-content>
+    </div>
+  </div>
+</div>

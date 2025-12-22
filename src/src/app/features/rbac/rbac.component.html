@@ -1,0 +1,316 @@
+<div class="rbac-container">
+  <!-- Tabs Navigation -->
+  <div class="tabs-header">
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'users'"
+      (click)="setActiveTab('users')">
+      <i class="fas fa-users"></i>
+      User Management
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'roles'"
+      (click)="setActiveTab('roles')">
+      <i class="fas fa-user-shield"></i>
+      Role Management
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'permissions'"
+      (click)="setActiveTab('permissions')">
+      <i class="fas fa-key"></i>
+      Permissions
+    </button>
+  </div>
+
+  <!-- User Management Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'users'">
+    <div class="content-header">
+      <h2>
+        <i class="fas fa-users"></i>
+        User Management
+      </h2>
+      <app-button variant="primary" icon="user-plus" (click)="openAddUserModal()">
+        Add User
+      </app-button>
+    </div>
+
+    <app-loader *ngIf="loading" size="large" message="Loading users..."></app-loader>
+
+    <div class="users-table-container" *ngIf="!loading">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last Login</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.fullName }}</td>
+            <td>
+              <span class="role-badge" [class]="user.role.toLowerCase()">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ user.lastLogin | date: 'dd MMM yyyy HH:mm' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn edit" (click)="editUser(user)" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete" (click)="deleteUser(user)" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Role Management Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'roles'">
+    <div class="content-header">
+      <h2>
+        <i class="fas fa-user-shield"></i>
+        Role Management
+      </h2>
+      <app-button variant="primary" icon="plus" (click)="openAddRoleModal()">
+        Add Role
+      </app-button>
+    </div>
+
+    <app-loader *ngIf="loading" size="large" message="Loading roles..."></app-loader>
+
+    <div class="roles-grid" *ngIf="!loading">
+      <div class="role-card" *ngFor="let role of roles">
+        <div class="role-header">
+          <div class="role-icon" [style.background]="role.color">
+            <i [class]="'fas fa-' + role.icon"></i>
+          </div>
+          <div class="role-info">
+            <h3>{{ role.name }}</h3>
+            <p>{{ role.description }}</p>
+          </div>
+        </div>
+        <div class="role-stats">
+          <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <span>{{ role.userCount }} users</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-key"></i>
+            <span>{{ role.permissions?.length || 0 }} permissions</span>
+          </div>
+        </div>
+        <div class="role-permissions">
+          <h4>Permissions:</h4>
+          <div class="permission-tags">
+            <span class="permission-tag" *ngFor="let permission of role.permissions?.slice(0, 5)">
+              {{ permission }}
+            </span>
+            <span class="permission-tag more" *ngIf="role.permissions && role.permissions.length > 5">
+              +{{ role.permissions.length - 5 }} more
+            </span>
+          </div>
+        </div>
+        <div class="role-actions">
+          <button class="btn-edit" (click)="editRole(role)">
+            <i class="fas fa-edit"></i>
+            Edit
+          </button>
+          <button class="btn-delete" (click)="deleteRole(role)" *ngIf="!role.isSystem">
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permissions Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'permissions'">
+    <div class="content-header">
+      <h2>
+        <i class="fas fa-key"></i>
+        Permissions Matrix
+      </h2>
+    </div>
+
+    <app-loader *ngIf="loading" size="large" message="Loading permissions..."></app-loader>
+
+    <div class="permissions-matrix" *ngIf="!loading">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th class="module-column">Module</th>
+            <th *ngFor="let role of roles">{{ role.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let module of permissionModules">
+            <td class="module-cell">
+              <i [class]="'fas fa-' + module.icon"></i>
+              {{ module.name }}
+            </td>
+            <td *ngFor="let role of roles">
+              <div class="permission-checks">
+                <label class="permission-check" *ngFor="let action of module.actions">
+                  <input 
+                    type="checkbox" 
+                    [checked]="hasPermission(role, module.key, action)"
+                    (change)="togglePermission(role, module.key, action)"
+                    [disabled]="role.isSystem">
+                  <span>{{ action }}</span>
+                </label>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<app-modal 
+  *ngIf="showUserModal" 
+  [title]="editingUser ? 'Edit User' : 'Add User'"
+  (close)="closeUserModal()">
+  <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+    <div class="form-group">
+      <label for="username">Username <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="username" 
+        formControlName="username"
+        class="form-control"
+        placeholder="Enter username">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email <span class="required">*</span></label>
+      <input 
+        type="email" 
+        id="email" 
+        formControlName="email"
+        class="form-control"
+        placeholder="user@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="fullName">Full Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="fullName" 
+        formControlName="fullName"
+        class="form-control"
+        placeholder="Enter full name">
+    </div>
+
+    <div class="form-group">
+      <label for="role">Role <span class="required">*</span></label>
+      <select id="role" formControlName="role" class="form-control">
+        <option value="">Select role</option>
+        <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="!editingUser">
+      <label for="password">Password <span class="required">*</span></label>
+      <input 
+        type="password" 
+        id="password" 
+        formControlName="password"
+        class="form-control"
+        placeholder="Enter password">
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="isActive">
+        <span>Active User</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <app-button type="button" variant="secondary" (click)="closeUserModal()">
+        Cancel
+      </app-button>
+      <app-button type="submit" variant="primary" [disabled]="userForm.invalid || saving">
+        {{ saving ? 'Saving...' : (editingUser ? 'Update User' : 'Create User') }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Add/Edit Role Modal -->
+<app-modal 
+  *ngIf="showRoleModal" 
+  [title]="editingRole ? 'Edit Role' : 'Add Role'"
+  (close)="closeRoleModal()">
+  <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
+    <div class="form-group">
+      <label for="roleName">Role Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="roleName" 
+        formControlName="name"
+        class="form-control"
+        placeholder="Enter role name">
+    </div>
+
+    <div class="form-group">
+      <label for="roleDescription">Description <span class="required">*</span></label>
+      <textarea 
+        id="roleDescription" 
+        formControlName="description"
+        class="form-control"
+        rows="3"
+        placeholder="Enter role description"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="roleIcon">Icon</label>
+      <input 
+        type="text" 
+        id="roleIcon" 
+        formControlName="icon"
+        class="form-control"
+        placeholder="e.g., user, shield-alt">
+    </div>
+
+    <div class="form-group">
+      <label for="roleColor">Color</label>
+      <input 
+        type="color" 
+        id="roleColor" 
+        formControlName="color"
+        class="form-control">
+    </div>
+
+    <div class="modal-actions">
+      <app-button type="button" variant="secondary" (click)="closeRoleModal()">
+        Cancel
+      </app-button>
+      <app-button type="submit" variant="primary" [disabled]="roleForm.invalid || saving">
+        {{ saving ? 'Saving...' : (editingRole ? 'Update Role' : 'Create Role') }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>

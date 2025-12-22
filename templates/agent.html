@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Dashboard</title>
+   
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+
+    <style>
+     :root {
+    --primary-purple: #65336e;
+    --dark-purple: #542d6b;
+    --bg-purple: #692e8b;
+    --light-blue: #80c6ff;
+    --text-light: #eee;
+    --sidebar-width: 200px;
+    --toolbar-height: 70px;
+     --light-purple: #7e4a9c;
+
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body { 
+    background-color: var(--text-light);
+    color: #333;
+    font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+  }
+  
+  .app-wrapper {
+    display: flex;
+    height: 100vh;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar { 
+    background-color: var(--primary-purple);
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0;
+    z-index: 100;
+    transition: width 0.3s ease;
+  }
+  
+  .title-text {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 10px;
+    cursor: pointer;
+  }
+  
+  .title-text .ext {
+    color: var(--light-blue);
+    margin-left: 4px;
+  }
+
+  .sidebar button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    width: 100%;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+  }
+  
+  .sidebar button:hover,
+  .sidebar button.is-active {
+    background-color: var(--dark-purple);
+    border-radius: 8px;
+    padding: 14px 20px;
+  }
+  
+  .icon {
+    font-size: 1.3rem;
+    color: var(--text-light);
+  }
+.content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+  }
+
+  .toolbar {
+    height: var(--toolbar-height);
+    background: var(--primary-purple);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: calc(100% - var(--sidebar-width));
+    left: var(--sidebar-width);
+    padding: 0 24px;
+    z-index: 99;
+    border-bottom: 0.2px solid rgba(255,255,255,0.1);
+  }
+  
+  .page-title {
+    color: var(--text-light);
+    font-weight: 400;
+    font-size: 24px;
+  }
+  
+  .user {
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .page-container {
+    margin-top: var(--toolbar-height);
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100vh - var(--toolbar-height));
+  }
+  
+
+      .card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(101, 51, 110, 0.15);
+        border-color: var(--primary-purple);
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        color: var(--primary-purple);
+        font-weight: 600;
+      }
+
+      .card p {
+        font-size: 13px;
+        color: #555;
+        margin: 6px 0 0 0;
+        line-height: 1.5;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      input,
+      textarea {
+        padding: 10px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        background-color: white;
+        color: #333;
+        width: 100%;
+        font-family: inherit;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+      }
+
+      button.submit-btn,
+      .add-btn,
+      .btn-icon,
+      .intent-item button,
+      .entity-item button {
+        background: var(--primary-purple);
+        color: var(--text-light);
+      }
+
+      button.submit-btn:hover,
+      .add-btn:hover,
+      .btn-icon:hover,
+      .intent-item button:hover,
+      .entity-item button:hover {
+        background: var(--dark-purple);
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(101, 51, 110, 0.2);
+      }
+
+      .metadata-field {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .metadata-field input {
+        flex: 1;
+      }
+
+      .metadata-field button {
+        background: none;
+        border: none;
+        color: #ef4444;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 6px;
+        transition: opacity 0.3s;
+      }
+
+      .metadata-field button:hover {
+        opacity: 0.7;
+      }
+
+      .add-meta-btn {
+        background-color: #10b981;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        width: fit-content;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .add-meta-btn:hover {
+        opacity: 0.85;
+      }
+
+      h4 {
+        color: var(--primary-purple);
+        margin: 16px 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .form-section {
+        grid-column: 1 / -1;
+      }
+
+      .delete-btn {
+        background-color: #ef4444 !important;
+      }
+
+      .delete-btn:hover {
+        background-color: #dc2626 !important;
+      }
+
+      .left-panel::-webkit-scrollbar,
+      .right-panel::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .left-panel::-webkit-scrollbar-track,
+      .right-panel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb,
+      .right-panel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb:hover,
+      .right-panel::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+
+      pre {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 8px 0;
+        font-size: 13px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .btn-context {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn-context:hover {
+        background-color: var(--dark-purple);
+        border-color: var(--light-blue);
+      }
+
+      .id-toggle-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .id-toggle-btn {
+        flex: 1;
+        padding: 10px;
+        border: 2px solid var(--primary-purple);
+        background: white;
+        color: var(--primary-purple);
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .id-toggle-btn.active {
+        background: var(--primary-purple);
+        color: white;
+      }
+
+      .id-toggle-btn:hover {
+        background: var(--dark-purple);
+        color: white;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .optional-badge {
+        position: absolute;
+        top: -8px;
+        right: 8px;
+        background: var(--light-blue);
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .logo {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-image {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .logo .ext {
+    color:  var(--text-light);
+  }
+
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        grid-column: 1 / -1;
+        height: 150px;
+        font-size: 16px;
+        color: #666;
+      }
+      .loading::after {
+        content: "⏳ Loading...";
+        animation: blink 1s linear infinite;
+      }
+      @keyframes blink {
+        0%,
+        50%,
+        100% {
+          opacity: 1;
+        }
+        25%,
+        75% {
+          opacity: 0.3;
+        }
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 14px;
+      }
+      th {
+        background-color: var(--primary-purple);
+        color: #eee;
+      }
+      td img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+.modal.show { display:flex; }
+.modal-content { background:white; padding:30px; border-radius:8px; width:90%; max-width:700px; max-height:80vh; overflow-y:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.modal-header h2 { color: var(--primary-purple); }
+.close-btn { background:none; border:none; font-size:28px; cursor:pointer; color:#999; transition:0.3s; }
+.close-btn:hover { color:#333; }
+ .btn-icon {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--primary-purple);
+        border: none;
+        color: #eee;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+      .btn-icon:hover {
+        background: var(--dark-purple);
+      }
+.form-group { margin-bottom:16px; }
+label { font-weight:600; margin-bottom:6px; display:block; }
+input, textarea, select { width:100%; padding:8px 12px; border-radius:4px; border:1px solid #ddd; font-size:14px; }
+textarea { resize:vertical; min-height:60px; }
+input[type="file"] { padding:4px; }
+
+./* Container for the intent. We'll rely on an internal flex container for the header row. */
+.intent-item {
+    display: flex;
+    flex-direction: column; /* Keep the entire block structure column-based */
+    gap: 10px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+/* This targets the first two elements (Intent Name input and Remove Intent button) 
+   and forces them onto a flex row before the next element (entitiesContainer) */
+.intent-item > .intent-name,
+.intent-item > button:nth-of-type(1) {
+   
+}
+.intent-btn{
+    width: 130px;
+    height: 40px;
+    margin-left: auto;
+    padding: 20px 30px;
+    margin-top: 10px;
+}
+
+/* NEW CSS BLOCK TO ADD/MODIFY: This creates a pseudo-header-row effect for the first two children */
+.intent-item {
+    /* Keep the column layout for the main item content */
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+/* New: Apply flex to the input and its sibling button to put them on the same line */
+.intent-item > .intent-name {
+    /* This is the key: we want the button to be next to the input, 
+       but since they're sequential children, we need a wrapper. */
+    /* Since we can't add an HTML wrapper, let's use a wrapper for the first two items */
+    /* This requires a slight, unavoidable tweak to the JS to add a wrapper, 
+       or we make the input smaller and float the button, which is less reliable. */
+}
+
+/* Best pure CSS approach with your current HTML structure:
+   We make the main container a grid to align the first two children horizontally, 
+   then span the rest of the children across the row. */
+
+.intent-item {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Name takes all space, button sizes to content */
+    align-items: center;
+    gap: 10px; /* Gap between grid items */
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+/* Entity Container (3rd child) and Add Entity button (4th child) need to span across both columns */
+.intent-item > .entitiesContainer,
+.intent-item > button:nth-of-type(2) {
+    grid-column: 1 / span 2; 
+    width: 100%; /* Ensure full width */
+}
+
+/* To correct the EntitiesContainer padding */
+.entitiesContainer {
+    width: 100%;
+    margin-top: 8px;
+    padding-left: 0px !important; /* Remove the extra padding */
+    padding-right: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    grid-column: 1 / span 2;
+}
+
+/* Ensure 'Add Entity' button is on the right of its row */
+.intent-item > button:nth-of-type(2) {
+    justify-self: end; /* Pushes the button to the right of the grid span */
+    margin-right: 0 !important; /* Clean up any stray margins */
+}
+
+.intent-item button {
+    /* Keep button styling as is, or adjust if needed */
+    width: auto; /* Allow buttons to size based on content */
+    padding: 8px 12px;
+    margin: 0; /* Remove existing margin if any */
+}
+
+
+
+/* Adjust entity-item layout to better fit inside the column */
+.entity-item > div { /* Target the inner div wrapping entity inputs/remove button */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box;
+}
+
+.entity-item button {
+    width: 100px; /* Or adjust as needed for the remove button */
+    margin-left: auto; /* push remove button to the right inside its small container */
+}
+.entity-item button[onclick*="removeEntity(this)"], .delete-btn {
+    /* Positioning (Keep this to align to the right) */
+    margin-left: auto;
+    
+    /* --- SIZE INCREASED HERE --- */
+    
+    /* Larger Padding for a bigger button */
+    padding: 20px 31px; 
+    
+    /* Larger text size */
+    font-size: 14px;
+    
+    /* Keep other styles */
+    background-color: #dc3545; /* Red for removal */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-top: 10px; /* Space above the button */
+    width: auto; /* Let the text determine the width */
+}
+
+.entity-item button[onclick*="removeEntity(this)"]:hover, .delete-btn {
+    background-color: #dc2626;
+}
+
+/* Specific style to ensure entity inputs/textareas align nicely within their inner div */
+.entity-item input,
+.entity-item textarea {
+  width: 100% !important
+    width: calc(100% - 0px); /* Use full width of parent div */
+}
+
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+
+/* Make the input take available width */
+.intent-name {
+  flex-grow: 1;
+  min-width: 300px; /* optional to avoid shrinking too much */
+}
+
+/* Container below textbox and button */
+.entitiesContainer {
+  width: 100%;
+  margin-top: 8px;
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.entity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* spread input and button */
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.entity-actions {
+  display: flex;
+  justify-content: flex-end; /* or flex-start if you want left align */
+  gap: 12px;
+  margin-top: 10px;
+}
+.entity-actions .add-entity-btn {
+  margin-left: auto;
+}
+.entity-item input { flex:1; }
+
+.entity-item button,
+.intent-item button,
+.add-btn,
+.button-row button { /* Added a selector to catch the Save button if it falls into a row structure */
+    background-color: var(--primary-purple);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 10px 16px; /* Standardized padding */
+    width: 130px; /* Standardized Width - Adjust this value if needed */
+    height: 40px; /* Standardized Height */
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    margin: 4px; /* Use small margin for consistency */
+}
+
+.remove-btn {
+  /* This is the key property: it consumes all available space to the left, pushing the button to the right */
+  margin-left: auto;
+
+  /* Keep the previous styling changes (color, padding, etc.) here too */
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.remove-btn:active {
+  background-color: #bd2130;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+.entity-item button:hover, .intent-item button:hover { background-color: var(--dark-purple); }
+ .button-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
+
+   .add-btn {
+        background-color: var(--primary-purple);
+        border: none;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+      }
+
+      .add-btn:hover {
+        background-color: var(--dark-purple);
+        transform: translateY(-1px);
+      }
+        .action-cell {
+  white-space: nowrap;
+}
+
+.action-cell > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+.entity-description {
+    min-height: 180px !important; /* Increased height/length */
+    height: 180px !important;     /* Explicitly set height to ensure it's applied */
+    width: 100% !important;       /* Explicitly ensure full width */
+    box-sizing: border-box; 
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <div class="sidebar">
+        <div class="logo">
+          <img
+            src="/static/aspire.svg"
+            alt="Company Logo"
+            class="logo-image"
+            onerror="this.style.display='none'"
+          />
+          <span class="title-text">Agents<span class="ext"></span></span>
+        </div>
+        <button class="is-active" onclick="openModal()">
+          <i class="fas fa-plus icon"></i> Add Agent
+        </button>
+        <button class="btn" onclick="history.back()">
+          Back to Agent Solution
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="toolbar">
+          <div class="page-title"></div>
+          <div class="user">{% include "navbar.html" %}</div>
+        </div>
+        <div class="page-container">
+          <table id="agentsTable">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Status</th>
+                <th>Provider</th>
+                <th>URL</th>
+                <th>Category</th>
+
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add Agent</h2>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="form-group">
+          <label>Agent ID</label>
+          <input type="text" id="id" />
+        </div>
+        <div class="form-group">
+          <label>Agent Code</label>
+          <input type="text" id="code" />
+        </div>
+          <div class="form-group">
+          <label>version</label>
+          <input type="text" id="version" />
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="agentName" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="agentDescription"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="agentStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Provider</label>
+          <input type="text" id="agentProvider" />
+        </div>
+        <div class="form-group">
+          <label>URL</label>
+          <input type="text" id="agentURL" />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" id="type" />
+        </div>
+        <div class="form-group">
+          <label>Environment</label>
+          <input type="text" id="environment" />
+        </div>
+        <div class="form-group">
+          <label>Support Email</label>
+          <input type="email" id="supportEmail" />
+        </div>
+        <div class="form-group">
+          <label>Support Phone</label>
+          <input type="text" id="supportPhone" />
+        </div>
+        <div class="form-group">
+          <label>Category </label>
+          <input type="text" id="agentCategory" />
+        </div>
+        <div class="form-group" id="intentDiv">
+          </div>
+
+        <div class="form-group" id="intentDiv">
+          <label>Intents</label>
+          <div id="intentsContainer"></div>
+          <button type="button"  class="btn-icon intent-btn" onclick="addIntent()">
+            <i class="fa fa-plus"></i> Intent
+          </button>
+        </div>
+
+       <div class="button-row">
+          <button
+            class="btn-icon"
+            onclick="saveAgent()"
+            id="saveBtn"
+          >
+         <!--  <i class="fa-solid fa-floppy-disk"></i>-->
+ Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const pathParts = window.location.pathname.split("/");
+      const agentSolutionId = pathParts[2];
+      //const apiBase = "http://127.0.0.1:8009";
+      const apiBase = "http://agent-ops-public.westus2.azurecontainer.io:8009";
+
+
+      let agentsData = [];
+      let isEditMode = false;
+      let currentEditAgentId = null;
+
+      document.addEventListener("DOMContentLoaded", () => loadAgents());
+
+      // Open add agent modal
+      function openModal() {
+        isEditMode = false;
+        currentEditAgentId = null;
+        document.getElementById("modal").classList.add("show");
+        document.querySelector("#modal h2").innerText = "Add Agent";
+         document.getElementById("id").readOnly = false;
+
+        //document.getElementById("#modal .btn").innerText = "Save";
+        clearModal();
+      }
+
+      // Open edit agent modal, with data filled
+      function openEditModal(agent) {
+        fetchIndent(agent.id);
+        isEditMode = true;
+        currentEditAgentId = agent.id;
+        document.getElementById("modal").classList.add("show");
+        document.querySelector("#modal h2").innerText = "Edit Agent";
+        // Fill values
+        document.getElementById("id").value = agent.id || "";
+         document.getElementById("id").readOnly = true;
+        document.getElementById("agentName").value = agent.name || "";
+        document.getElementById("code").value = agent.code || "";
+        document.getElementById("agentDescription").value =
+          agent.description || "";
+        document.getElementById("version").value = agent.version || "";
+        document.getElementById("agentStatus").value = agent.status || "active";
+        document.getElementById("agentProvider").value = agent.provider || "";
+        document.getElementById("agentURL").value = agent.url || "";
+        document.getElementById("type").value = agent.type || "";
+        document.getElementById("environment").value = agent.environment || "";
+        document.getElementById("supportEmail").value =
+          agent.support?.email || "";
+        document.getElementById("supportPhone").value =
+          agent.support?.phone || "";
+        document.getElementById("agentCategory").value = agent.category || "";  
+
+        // Intents and entities
+        const intentsContainer = document.getElementById("intentsContainer");
+        intentsContainer.innerHTML = "";
+        (agent.intents || []).forEach((intent) => {
+          const intentDiv = document.createElement("div");
+          intentDiv.className = "intent-item";
+          intentDiv.innerHTML = `
+      <input type="text" placeholder="Intent Name" value="${
+        intent.name || ""
+      }" class="intent-name" />
+      <button type="button" class="delete-btn"  onclick="removeIntent(this)"><i class="fa fa-minus-circle"></i> Intent</button>
+      <div class="entitiesContainer"></div>
+      <button type="button" onclick="addEntity(this)"><i class="fa fa-plus"></i> Entity</button>
+    `;
+          intentsContainer.appendChild(intentDiv);
+          // Add entities if any
+          const entitiesContainer =
+            intentDiv.querySelector(".entitiesContainer");
+          (intent.entities || []).forEach((e) => {
+            const entityDiv = document.createElement("div");
+            entityDiv.className = "entity-item";
+            entityDiv.innerHTML = `
+          <input type="text" placeholder="Type" class="entity-type" value="${
+            e.type || ""
+          }" />
+          <input type="text" placeholder="Example" class="entity-example" value="${
+            e.example || ""
+          }" />
+        <div class="form-group">
+          <textarea placeholder="Description" class="entity-description" style="width:100%; min-height:50px;">${
+            e.description || ""
+          }</textarea>
+        </div>
+        <div class="button-row">
+          <button type="button" onclick="removeEntity(this)"><i class="fa fa-minus-circle"></i> Entity</button>
+          </div>
+        
+      `;
+            entitiesContainer.appendChild(entityDiv);
+          });
+        });
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("show");
+        clearModal();
+      }
+
+      function addIntent() {
+        const container = document.getElementById("intentsContainer");
+        const div = document.createElement("div");
+        div.className = "intent-item";
+        div.innerHTML = `
+    <input type="text" placeholder="Intent Name" class="intent-name" />
+    <button type="button" class="btn-icon delete-btn" onclick="removeIntent(this)"><i class="fa fa-minus-circle"></i> Intent</button>
+    <div class="entitiesContainer"></div>
+    <button type="button" class="btn-icon" onclick="addEntity(this)"><i class="fa fa-plus"></i> Entity</button>
+  `;
+        container.appendChild(div);
+      }
+      function removeIntent(btn) {
+        btn.parentElement.remove();
+      }
+
+      function addEntity(btn) {
+  const entityContainer = btn.parentElement.querySelector('.entitiesContainer');
+  const div = document.createElement('div');
+  div.className = 'entity-item';
+  div.innerHTML = `
+    <div>
+      <input type="text" placeholder="Type" class="entity-type" />
+      <input type="text" placeholder="Example" class="entity-example" />
+       <div style="margin-bottom:5px;">
+      <textarea placeholder="Description" class="entity-description" style="width:100%; min-height:50px;"></textarea>
+    </div>
+      <button type="button" class="btn-icon" onclick="removeEntity(this)"><i class="fa fa-minus-circle"></i> Entity</button>
+    </div>
+   
+  `;
+  entityContainer.appendChild(div);
+}
+function removeEntity(btn) { btn.parentElement.remove(); }
+
+      function clearModal() {
+        document.getElementById("id").value = "";
+        document.getElementById("agentName").value = "";
+        document.getElementById("code").value = "";
+        document.getElementById("agentDescription").value = "";
+        document.getElementById("agentStatus").value = "active";
+        document.getElementById("agentProvider").value = "";
+        document.getElementById("agentURL").value = "";
+        document.getElementById("supportEmail").value = "";
+        document.getElementById("supportPhone").value = "";
+        document.getElementById("agentCategory").value = "";
+        document.getElementById("type").value = "";
+        document.getElementById("environment").value = "";
+        document.getElementById("version").value = "";
+        document.getElementById("intentsContainer").innerHTML = "";
+      }
+
+      // Load all agents
+      async function loadAgents() {
+        const tbody = document.querySelector("#agentsTable tbody");
+        tbody.innerHTML = '<tr><td colspan="11">Loading...</td></tr>';
+        try {
+          const res = await fetch(
+            `${apiBase}/agent-solutions/${agentSolutionId}/agents`
+          );
+          if (!res.ok) throw new Error("Failed to load agents");
+          const data = await res.json();
+          agentsData = data;
+          tbody.innerHTML = "";
+          if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="11">No agents found</td></tr>';
+            return;
+          }
+          data.forEach((agent) => {
+            const intentsStr = agent.intents
+              ? agent.intents
+                  .map((intent) => {
+                    const entitiesStr = intent.entities
+                      ?.map((e) => `${e.type}(${e.example})`)
+                      .join(", ");
+                    return `${intent.name}: [${entitiesStr}]`;
+                  })
+                  .join("; ")
+              : "";
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+        <td>${agent.id || ""}</td>
+        <td>${agent.name || ""}</td>
+        <td>${agent.code || ""}</td>
+        <td>${agent.status || ""}</td>
+        <td>${agent.provider || ""}</td>
+        <td class="no-row-click"><a href="${agent.url}" target="_blank">Click Here</a></td>
+        <td>${agent.category || ""}</td>
+        <td class="action-cell no-row-click">
+        <button class="btn-icon " onclick='openEditModal(${JSON.stringify(
+          agent
+        )})'><i class="fas fa-edit"></i></button>
+        <button class="btn-icon" onclick='deleteAgent(${agent.id})'>
+      <i class="fa fa-trash"></i>
+    </button>
+      </td>
+      `;
+            tr.addEventListener("click", (e) => {
+              // Ignore clicks inside edit button
+              if (e.target.closest(".no-row-click")) return;
+              window.location.href = `/agent-sol/${agentSolutionId}/agent/${encodeURIComponent(
+                agent.id
+              )}`;
+            });
+            tr.style.cursor = "pointer";
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML =
+            '<tr><td colspan="11">Error loading agents</td></tr>';
+        }
+      }
+
+      // Save handler: add or edit
+      async function saveAgent() {
+        if (isEditMode) {
+          await editAgent();
+          return;
+        }
+        if (!agentSolutionId) {
+          alert("Agent Solution ID missing");
+          return;
+        }
+        const agent = {
+          id: document.getElementById("id").value,
+          name: document.getElementById("agentName").value,
+          code: document.getElementById("code").value,
+          agent_solution_id: agentSolutionId,
+          description: document.getElementById("agentDescription").value,
+          status: document.getElementById("agentStatus").value,
+          provider: document.getElementById("agentProvider").value,
+          url: document.getElementById("agentURL").value,
+          type: document.getElementById("type").value,
+          version: document.getElementById("version").value,
+
+          environment: document.getElementById("environment").value,
+          support: {
+            email: document.getElementById("supportEmail").value,
+            phone: document.getElementById("supportPhone").value,
+          },
+          category: document.getElementById("agentCategory").value,
+          intents: Array.from(document.querySelectorAll(".intent-item")).map(
+            (intentDiv) => {
+              const intentName = intentDiv.querySelector(".intent-name").value;
+              const entities = Array.from(
+                intentDiv.querySelectorAll(".entity-item")
+              ).map((eDiv) => ({
+                type: eDiv.querySelector(".entity-type").value,
+                example: eDiv.querySelector(".entity-example").value,
+                description: eDiv.querySelector(".entity-description").value,
+              }));
+              return { name: intentName, entities };
+            }
+          ),
+        };
+        try {
+          const response = await fetch(`${apiBase}/agents`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(agent),
+          });
+          if (!response.ok) throw new Error("Failed to save agent");
+          clearModal();
+          closeModal();
+          await loadAgents();
+        } catch (err) {
+          console.error(err);
+          alert("Error saving agent");
+        }
+      }
+
+      // Edit/update existing
+      async function editAgent() {
+        if (!currentEditAgentId || !agentSolutionId) {
+          alert("Agent ID missing");
+          return;
+        }
+        const agent = {
+          id: document.getElementById("id").value,
+          name: document.getElementById("agentName").value,
+          code: document.getElementById("code").value,
+          version: document.getElementById("version").value,
+
+          agent_solution_id: agentSolutionId,
+          description: document.getElementById("agentDescription").value,
+          status: document.getElementById("agentStatus").value,
+          provider: document.getElementById("agentProvider").value,
+          url: document.getElementById("agentURL").value,
+          type: document.getElementById("type").value,
+          environment: document.getElementById("environment").value,
+          support: {
+            email: document.getElementById("supportEmail").value,
+            phone: document.getElementById("supportPhone").value,
+          },
+          category: document.getElementById("agentCategory").value,
+          intents: Array.from(document.querySelectorAll(".intent-item")).map(
+            (intentDiv) => {
+              const intentName = intentDiv.querySelector(".intent-name").value;
+              const entities = Array.from(
+                intentDiv.querySelectorAll(".entity-item")
+              ).map((eDiv) => ({
+                type: eDiv.querySelector(".entity-type").value,
+                example: eDiv.querySelector(".entity-example").value,
+                description: eDiv.querySelector(".entity-description").value,
+              }));
+              return { name: intentName, entities };
+            }
+          ),
+        };
+        try {
+          const response = await fetch(
+            `${apiBase}/agents/${currentEditAgentId}`,
+            {
+              method: "PUT", // or PATCH, as per your API
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(agent),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update agent");
+          closeModal();
+          await loadAgents();
+        } catch (err) {
+          console.error(err);
+          alert("Error updating agent");
+        }
+      }
+
+      async function deleteAgent(agentId) {
+  try {
+    const confirmDelete = confirm(`Are you sure you want to delete agent "${agentId}"?`);
+  if (!confirmDelete) {
+    console.log("🟡 Deletion canceled by user");
+    return;
+  }
+    const response = await fetch(`${apiBase}/agents/${agentId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    
+
+    if (!response.ok) {
+      throw new Error("Failed to delete agent");
+    }
+
+    const result = await response.json();
+    console.log("✅ Agent deleted:", result);
+    closeModal();
+    await loadAgents();
+  } catch (error) {
+    console.error("❌ Error deleting agent:", error);
+    alert("Error deleting agent");
+  }
+}
+
+
+     async function fetchIndent(id) {
+  // existing code to open modal and fill agent base info...
+  
+  // Fetch intents and entities dynamically
+  try {
+    const res = await fetch(`${apiBase}/agents/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch intents");
+    const data = await res.json();
+    const intents= data.intents;
+    console.log(data)
+
+    const intentsContainer = document.getElementById("intentsContainer");
+    intentsContainer.innerHTML = "";
+    intents.forEach((intent) => {
+      const intentDiv = document.createElement("div");
+      intentDiv.className = "intent-item";
+      intentDiv.innerHTML = `
+        <input type="text" placeholder="Intent Name" value="${intent.name}" class="intent-name"  />
+        <button type="button" class="btn-icon delete-btn" onclick="removeIntent(this)"><i class="fa fa-minus-circle"></i> Intent</button>
+        <div class="entitiesContainer"></div>
+        <button type="button" class="btn-icon" onclick="addEntity(this)"><i class="fa fa-plus"></i> Entity</button>
+      `;
+      intentsContainer.appendChild(intentDiv);
+
+      const entitiesContainer = intentDiv.querySelector(".entitiesContainer");
+      (intent.entities || []).forEach((entity) => {
+        const entityDiv = document.createElement("div");
+        entityDiv.className = "entity-item";
+        entityDiv.innerHTML = `
+        <div>
+          <input type="text" placeholder="Type" class="entity-type" value="${entity.type}"  />
+          <input type="text" placeholder="Example" class="entity-example" value="${entity.example}"  />
+          <div style="margin-bottom:5px;">
+            <textarea placeholder="Description" class="entity-description"  style="width:100%; min-height:50px;">${entity.description}</textarea>
+          </div>
+          <button type="button" class="btn-icon" onclick="removeEntity(this)"><i class="fa fa-minus-circle"></i> Entity</button>
+
+          </div>
+        `;
+        entitiesContainer.appendChild(entityDiv);
+      });
+    });
+  } catch (err) {
+    console.error('Error loading intents and entities:', err);
+    document.getElementById("intentsContainer").innerHTML =
+      '<p style="color:red;">Failed to load intents.</p>';
+  }
+}
+
+    </script>
+  </body>
+</html>

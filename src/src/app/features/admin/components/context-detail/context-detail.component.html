@@ -1,0 +1,202 @@
+<div class="detail-container">
+  <app-loader *ngIf="loading" size="large" message="Loading context..."></app-loader>
+
+  <div *ngIf="!loading && context" class="detail-content">
+    <div class="detail-header">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to List
+      </button>
+      <div class="header-actions">
+        <app-button variant="secondary" icon="edit" (clicked)="editContext()">
+          Edit
+        </app-button>
+        <app-button variant="danger" icon="trash" (clicked)="deleteContext()">
+          Delete
+        </app-button>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="card-header">
+        <div>
+          <h1 class="context-key">{{ context.PromptCode }}</h1>
+          <div class="meta-badges">
+            <span class="badge category" *ngIf="context.Type">{{ context.Type }}</span>
+            <span class="badge version" *ngIf="context.VersionId">{{ context.VersionId }}</span>
+            <span class="badge context-version" *ngIf="context.ContextVersion">v{{ context.ContextVersion }}</span>
+            <span class="badge default" *ngIf="context.Default">Default</span>
+            <span class="badge latest" *ngIf="context.Latest">Latest</span>
+          </div>
+        </div>
+        <button class="copy-btn" (click)="copyToClipboard(context.PromptCode)" title="Copy code">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+
+      <div class="card-body">
+        <div class="info-section">
+          <h3>
+            <i class="fas fa-file-alt"></i>
+            Content
+          </h3>
+          <div class="value-box">
+            <pre>{{ context.Content }}</pre>
+            <button class="copy-icon" (click)="copyToClipboard(context.Content)" title="Copy content">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item" *ngIf="context.ParentPromptCode">
+            <label>
+              <i class="fas fa-sitemap"></i>
+              Parent Context Code
+            </label>
+            <p>{{ context.ParentPromptCode }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.AgentCode">
+            <label>
+              <i class="fas fa-robot"></i>
+              Agent Code
+            </label>
+            <p>{{ context.AgentCode }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.Intent">
+            <label>
+              <i class="fas fa-bullseye"></i>
+              Intent
+            </label>
+            <p>{{ context.Intent }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.VersionId">
+            <label>
+              <i class="fas fa-tag"></i>
+              Version ID
+            </label>
+            <p>{{ context.VersionId }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.ContextVersion">
+            <label>
+              <i class="fas fa-code-branch"></i>
+              Context Version
+            </label>
+            <p>{{ context.ContextVersion }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>
+              <i class="fas fa-user"></i>
+              Created By
+            </label>
+            <p>{{ context.CreatedBy || 'System' }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>
+              <i class="fas fa-calendar-plus"></i>
+              Created On
+            </label>
+            <p>{{ formatDate(context.CreatedOn) }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.ModifiedBy">
+            <label>
+              <i class="fas fa-user-edit"></i>
+              Modified By
+            </label>
+            <p>{{ context.ModifiedBy }}</p>
+          </div>
+
+          <div class="info-item" *ngIf="context.ModifiedOn">
+            <label>
+              <i class="fas fa-calendar-check"></i>
+              Modified On
+            </label>
+            <p>{{ formatDate(context.ModifiedOn) }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>
+              <i class="fas fa-fingerprint"></i>
+              Context ID
+            </label>
+            <p class="context-id">{{ context.id }}</p>
+          </div>
+        </div>
+
+        <div class="info-section" *ngIf="context.Entity && context.Entity.length > 0">
+          <h3>
+            <i class="fas fa-filter"></i>
+            Entity (Filters)
+          </h3>
+          <div class="entity-display">
+            <div class="entity-badge" *ngFor="let entity of context.Entity">
+              <strong>{{ entity.Key }}:</strong> {{ entity.Value }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-header">
+        <h2>
+          <i class="fas fa-history"></i>
+          Version History
+        </h2>
+        <app-button 
+          variant="secondary" 
+          size="small"
+          [loading]="loadingHistory"
+          (clicked)="toggleHistory()">
+          {{ showHistory ? 'Hide History' : 'View History' }}
+        </app-button>
+      </div>
+
+      <div class="history-content" *ngIf="showHistory">
+        <app-loader *ngIf="loadingHistory" size="small" message="Loading history..."></app-loader>
+
+        <div *ngIf="!loadingHistory && history.length === 0" class="empty-history">
+          <i class="fas fa-history"></i>
+          <p>No version history available</p>
+        </div>
+
+        <div class="history-timeline" *ngIf="!loadingHistory && history.length > 0">
+          <div class="timeline-item" *ngFor="let item of history; let i = index">
+            <div class="timeline-marker">
+              <span class="marker-dot"></span>
+              <div class="marker-line" *ngIf="i < history.length - 1"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="version-badge">v{{ item.ContextVersion }}</span>
+                <span class="version-id-badge">{{ item.VersionId }}</span>
+                <span class="timeline-date">{{ formatDate(item.ModifiedOn) }}</span>
+              </div>
+              <div class="timeline-body">
+                <p class="changed-by">
+                  <i class="fas fa-user"></i>
+                  Modified by: {{ item.ModifiedBy || item.CreatedBy || 'System' }}
+                </p>
+                <div class="value-preview">
+                  <pre>{{ item.Content.substring(0, 150) }}{{ item.Content.length > 150 ? '...' : '' }}</pre>
+                </div>
+                <div class="timeline-badges">
+                  <span class="badge default" *ngIf="item.Default">Default</span>
+                  <span class="badge latest" *ngIf="item.Latest">Latest</span>
+                  <span class="badge intent" *ngIf="item.Intent">{{ item.Intent }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

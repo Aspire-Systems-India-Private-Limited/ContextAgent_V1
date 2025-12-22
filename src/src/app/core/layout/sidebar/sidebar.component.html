@@ -1,0 +1,52 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+  </button>
+
+  <nav class="sidebar-nav">
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-link">
+      <i class="fas fa-home"></i>
+      <span *ngIf="!isCollapsed">Home</span>
+    </a>
+    
+    <a routerLink="/context/create" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-brain"></i>
+      <span *ngIf="!isCollapsed">Context</span>
+    </a>
+    
+    <a routerLink="/agent-sol" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-robot"></i>
+      <span *ngIf="!isCollapsed">Agents</span>
+    </a>
+
+    <a routerLink="/memory" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-database"></i>
+      <span *ngIf="!isCollapsed">Memory</span>
+    </a>
+
+    <a routerLink="/session" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-comments"></i>
+      <span *ngIf="!isCollapsed">Sessions</span>
+    </a>
+
+    <a routerLink="/cost-metrics" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-chart-line"></i>
+      <span *ngIf="!isCollapsed">Cost Metrics</span>
+    </a>
+
+    <a routerLink="/audit" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-clipboard-list"></i>
+      <span *ngIf="!isCollapsed">Audit Logs</span>
+    </a>
+
+    <a routerLink="/sentiment" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-smile"></i>
+      <span *ngIf="!isCollapsed">Sentiment</span>
+    </a>
+
+    <a routerLink="/rbac" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-user-shield"></i>
+      <span *ngIf="!isCollapsed">RBAC</span>
+    </a>
+  </nav>
+</aside>

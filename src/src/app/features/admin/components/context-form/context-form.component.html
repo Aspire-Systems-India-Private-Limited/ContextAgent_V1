@@ -1,0 +1,290 @@
+<div class="form-container">
+  <app-loader *ngIf="loading" size="large" message="Loading..."></app-loader>
+
+  <form [formGroup]="contextForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    
+    <!-- AI-Powered Content Generation -->
+    <div class="form-section ai-section">
+      <div class="section-header-with-icon">
+        <i class="fas fa-magic"></i>
+        <h3>AI-Powered Content Generation</h3>
+      </div>
+      <p class="section-description">Generate content instantly by providing intent, task, and context type.</p>
+
+      <div class="ai-form-grid">
+        <div class="form-group">
+          <label for="aiIntent">Intent for AI</label>
+          <input 
+            type="text" 
+            id="aiIntent"
+            [(ngModel)]="aiIntent"
+            [ngModelOptions]="{standalone: true}"
+            placeholder="e.g., customer_support, data_analysis"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="aiTask">Task for AI</label>
+          <input 
+            type="text" 
+            id="aiTask"
+            [(ngModel)]="aiTask"
+            [ngModelOptions]="{standalone: true}"
+            placeholder="e.g., answer queries, process data"
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="ai-form-grid">
+        <div class="form-group">
+          <label for="aiContextType">Context Type for AI</label>
+          <select 
+            id="aiContextType"
+            [(ngModel)]="aiContextType"
+            [ngModelOptions]="{standalone: true}"
+            class="form-control">
+            <option value="">Select type</option>
+            <option value="taskcontext">taskcontext (system)</option>
+            <option value="domaincontext">domaincontext (user)</option>
+            <option value="responsecontext">responsecontext (assistant)</option>
+            <option value="parentcontext">parentcontext (function)</option>
+            <option value="pastinteraction">pastinteraction (function)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="aiAdditionalInfo">Additional Info (Optional)</label>
+          <input 
+            type="text" 
+            id="aiAdditionalInfo"
+            [(ngModel)]="aiAdditionalInfo"
+            [ngModelOptions]="{standalone: true}"
+            placeholder="Extra context or requirements"
+            class="form-control">
+        </div>
+      </div>
+
+      <button 
+        type="button" 
+        class="ai-generate-btn"
+        (click)="generateWithAI()"
+        [disabled]="aiGenerating">
+        <i class="fas fa-magic"></i>
+        {{ aiGenerating ? 'Generating...' : 'Generate Content with AI' }}
+      </button>
+    </div>
+
+    <!-- Main Form Fields -->
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="PromptCode">
+            Context Code <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="PromptCode"
+            formControlName="PromptCode"
+            placeholder="Enter context code (e.g., customer_greeting)"
+            class="form-control"
+            [class.invalid]="contextForm.get('PromptCode')?.invalid && contextForm.get('PromptCode')?.touched">
+          <div class="error-message" *ngIf="contextForm.get('PromptCode')?.invalid && contextForm.get('PromptCode')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Please enter a valid context code (alphanumeric, hyphens, underscores)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ParentPromptCode">Parent Context Code</label>
+          <input 
+            type="text" 
+            id="ParentPromptCode"
+            formControlName="ParentPromptCode"
+            placeholder="Enter parent context code (optional)"
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="AgentCode">
+            Agent Code <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="AgentCode"
+            formControlName="AgentCode"
+            placeholder="Enter agent code"
+            class="form-control"
+            [class.invalid]="contextForm.get('AgentCode')?.invalid && contextForm.get('AgentCode')?.touched">
+          <div class="error-message" *ngIf="contextForm.get('AgentCode')?.invalid && contextForm.get('AgentCode')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Agent Code is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="Type">
+            Type <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="Type"
+            formControlName="Type"
+            placeholder="Enter type"
+            class="form-control"
+            [class.invalid]="contextForm.get('Type')?.invalid && contextForm.get('Type')?.touched">
+          <div class="error-message" *ngIf="contextForm.get('Type')?.invalid && contextForm.get('Type')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Type is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="Intent">
+            Intent <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="Intent"
+            formControlName="Intent"
+            placeholder="Enter intent"
+            class="form-control"
+            [class.invalid]="contextForm.get('Intent')?.invalid && contextForm.get('Intent')?.touched">
+          <div class="error-message" *ngIf="contextForm.get('Intent')?.invalid && contextForm.get('Intent')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Intent is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="VersionId">
+            Version ID <span class="required">*</span>
+          </label>
+          <div class="input-with-icon">
+            <input 
+              type="text" 
+              id="VersionId"
+              formControlName="VersionId"
+              placeholder="Enter version ID (e.g., v1, v2)"
+              class="form-control"
+              [class.invalid]="contextForm.get('VersionId')?.invalid && contextForm.get('VersionId')?.touched">
+            <i class="fas fa-info-circle input-icon" title="Version identifier for this context"></i>
+          </div>
+          <div class="error-message" *ngIf="contextForm.get('VersionId')?.invalid && contextForm.get('VersionId')?.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            Version ID is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="ContextVersion">
+          Context Version <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="ContextVersion"
+          formControlName="ContextVersion"
+          placeholder="Enter context version (e.g., 1.0, 2.5)"
+          class="form-control"
+          [class.invalid]="contextForm.get('ContextVersion')?.invalid && contextForm.get('ContextVersion')?.touched">
+        <div class="error-message" *ngIf="contextForm.get('ContextVersion')?.invalid && contextForm.get('ContextVersion')?.touched">
+          <i class="fas fa-exclamation-circle"></i>
+          Context Version is required
+        </div>
+      </div>
+    </div>
+
+    <!-- Entity (Filters) Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Entity (Filters)</h3>
+        <button 
+          type="button" 
+          class="add-btn"
+          (click)="addEntity()">
+          <i class="fas fa-plus"></i>
+          Add Entity
+        </button>
+      </div>
+
+      <div class="entity-list" *ngIf="entityArray.length > 0" formArrayName="Entity">
+        <div class="entity-item" *ngFor="let entity of entityArray.controls; let i = index" [formGroupName]="i">
+          <input 
+            type="text" 
+            formControlName="Key"
+            placeholder="Entity key"
+            class="entity-input">
+          <input 
+            type="text" 
+            formControlName="Value"
+            placeholder="Entity value"
+            class="entity-input">
+          <button 
+            type="button" 
+            class="remove-btn"
+            (click)="removeEntity(i)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <p class="no-data" *ngIf="entityArray.length === 0">
+        No entity filters added. Click "Add Entity" to create key-value pairs.
+      </p>
+    </div>
+
+    <!-- Content Section -->
+    <div class="form-section">
+      <div class="form-group">
+        <label for="Content">
+          Content <span class="required">*</span>
+        </label>
+        <textarea 
+          id="Content"
+          formControlName="Content"
+          rows="8"
+          placeholder="Enter content or generate with AI above"
+          class="form-control"
+          [class.invalid]="contextForm.get('Content')?.invalid && contextForm.get('Content')?.touched"></textarea>
+        <div class="error-message" *ngIf="contextForm.get('Content')?.invalid && contextForm.get('Content')?.touched">
+          <i class="fas fa-exclamation-circle"></i>
+          Content is required
+        </div>
+      </div>
+
+      <div class="checkbox-row">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="Default">
+          <span>Default</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="Latest">
+          <span>Latest</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <app-button 
+        type="submit"
+        variant="primary" 
+        size="medium"
+        [loading]="loading"
+        [disabled]="contextForm.invalid || loading">
+        {{ isEditMode ? 'Update Context' : 'Create Context' }}
+      </app-button>
+      <app-button 
+        type="button"
+        variant="secondary"
+        size="medium"
+        (clicked)="onCancel()">
+        Cancel
+      </app-button>
+    </div>
+  </form>
+</div>

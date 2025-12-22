@@ -1,0 +1,112 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 70px;
+  bottom: 0;
+  width: 240px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  transition: width 0.3s;
+  z-index: 100;
+
+  &.collapsed {
+    width: 60px;
+  }
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 12px;
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  z-index: 101;
+
+  &:hover {
+    background: #F3F4F6;
+    transform: scale(1.1);
+  }
+}
+
+.sidebar-nav {
+  padding: 20px 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: white !important;
+  text-decoration: none;
+  transition: all 0.3s ease !important;
+  font-size: 18px !important;
+  border-left: 3px solid transparent;
+
+  i {
+    font-size: 18px !important;
+    min-width: 20px;
+    text-align: center;
+    color: white !important;
+    transition: all 0.3s ease !important;
+  }
+
+  span {
+    font-size: 18px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    transform: scale(1.02) !important;
+    
+    i {
+      font-size: 20px !important;
+      transform: scale(1.1) !important;
+    }
+    
+    span {
+      font-size: 20px !important;
+    }
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white !important;
+    border-left-color: #06B6D4;
+    font-weight: 500;
+  }
+}
+
+.sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}

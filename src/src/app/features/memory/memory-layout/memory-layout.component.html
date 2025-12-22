@@ -1,0 +1,29 @@
+<div class="memory-layout">
+  <!-- Left Sidebar -->
+  <aside class="memory-sidebar">
+    <div class="sidebar-header">
+      <h2>Memory</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a 
+        routerLink="/memory/create" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-plus"></i>
+        <span>Create Memory</span>
+      </a>
+      <a 
+        routerLink="/memory/search" 
+        routerLinkActive="active"
+        class="nav-item">
+        <i class="fas fa-search"></i>
+        <span>Search Memory</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="memory-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,52 @@
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+  }
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &.no-padding {
+    .card-body {
+      padding: 0;
+    }
+  }
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(to right, rgba(139, 92, 246, 0.05), rgba(6, 182, 212, 0.05));
+}
+
+.card-title {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.card-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.card-body {
+  padding: 24px;
+}

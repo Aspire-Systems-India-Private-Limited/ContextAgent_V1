@@ -1,0 +1,300 @@
+<div class="audit-container">
+  <div class="page-header">
+    <h1>Diagnosis - Audit Logs</h1>
+    <p class="subtitle">Search and analyze system audit logs</p>
+  </div>
+
+  <div class="audit-layout">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <h3>Filter Options</h3>
+      <div class="sidebar-menu">
+        <button 
+          class="menu-item"
+          [class.active]="filterMode === 'date'"
+          (click)="setFilterMode('date')">
+          <i class="fas fa-calendar-day"></i>
+          By Date
+        </button>
+
+        <button 
+          class="menu-item"
+          [class.active]="filterMode === 'datetime-range'"
+          (click)="setFilterMode('datetime-range')">
+          <i class="fas fa-calendar-alt"></i>
+          By DateTime Range
+        </button>
+
+        <button 
+          class="menu-item"
+          [class.active]="filterMode === 'minutes'"
+          (click)="setFilterMode('minutes')">
+          <i class="fas fa-clock"></i>
+          Last N Minutes
+        </button>
+
+        <button 
+          class="menu-item"
+          [class.active]="filterMode === 'session'"
+          (click)="setFilterMode('session')">
+          <i class="fas fa-comments"></i>
+          By Session ID
+        </button>
+
+        <button 
+          class="menu-item"
+          [class.active]="filterMode === 'request'"
+          (click)="setFilterMode('request')">
+          <i class="fas fa-exchange-alt"></i>
+          By Request ID
+        </button>
+      </div>
+
+      <!-- Export Options -->
+      <div class="export-section" *ngIf="auditLogs.length > 0">
+        <h4>Export Logs</h4>
+        <button class="btn-export" (click)="exportLogs('csv')">
+          <i class="fas fa-file-csv"></i>
+          Export CSV
+        </button>
+        <button class="btn-export" (click)="exportLogs('json')">
+          <i class="fas fa-file-code"></i>
+          Export JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Filter Form -->
+      <app-card [title]="getFilterTitle()">
+        <div class="filter-form">
+          <!-- By Date -->
+          <div class="form-section" *ngIf="filterMode === 'date'">
+            <div class="form-group">
+              <label for="selectedDate">Select Date (UTC)</label>
+              <input 
+                type="date" 
+                id="selectedDate"
+                [(ngModel)]="selectedDate"
+                class="form-control">
+            </div>
+            <p class="form-hint">
+              <i class="fas fa-info-circle"></i>
+              Fetch all logs for the selected date in UTC timezone
+            </p>
+          </div>
+
+          <!-- By DateTime Range -->
+          <div class="form-section" *ngIf="filterMode === 'datetime-range'">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDateTime">Start DateTime</label>
+                <input 
+                  type="datetime-local" 
+                  id="startDateTime"
+                  [(ngModel)]="startDateTime"
+                  class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="endDateTime">End DateTime</label>
+                <input 
+                  type="datetime-local" 
+                  id="endDateTime"
+                  [(ngModel)]="endDateTime"
+                  class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sourceFilter">Source (Optional)</label>
+              <input 
+                type="text" 
+                id="sourceFilter"
+                [(ngModel)]="sourceFilter"
+                placeholder="e.g., AUTH_SERVICE, CONTEXT_SERVICE"
+                class="form-control">
+            </div>
+            <p class="form-hint">
+              <i class="fas fa-info-circle"></i>
+              Optionally filter by source/context to narrow results
+            </p>
+          </div>
+
+          <!-- Last N Minutes -->
+          <div class="form-section" *ngIf="filterMode === 'minutes'">
+            <div class="form-group">
+              <label for="minutesFilter">Number of Minutes</label>
+              <input 
+                type="number" 
+                id="minutesFilter"
+                [(ngModel)]="minutesFilter"
+                placeholder="e.g., 30, 60, 120"
+                min="1"
+                class="form-control">
+            </div>
+            <p class="form-hint">
+              <i class="fas fa-info-circle"></i>
+              Fetch logs from the last N minutes
+            </p>
+          </div>
+
+          <!-- By Session ID -->
+          <div class="form-section" *ngIf="filterMode === 'session'">
+            <div class="form-group">
+              <label for="sessionIdFilter">Session ID</label>
+              <input 
+                type="text" 
+                id="sessionIdFilter"
+                [(ngModel)]="sessionIdFilter"
+                placeholder="e.g., sess_001"
+                class="form-control">
+            </div>
+            <p class="form-hint">
+              <i class="fas fa-info-circle"></i>
+              Fetch all logs associated with a specific session
+            </p>
+          </div>
+
+          <!-- By Request ID -->
+          <div class="form-section" *ngIf="filterMode === 'request'">
+            <div class="form-group">
+              <label for="requestIdFilter">Request ID</label>
+              <input 
+                type="text" 
+                id="requestIdFilter"
+                [(ngModel)]="requestIdFilter"
+                placeholder="e.g., req_001"
+                class="form-control">
+            </div>
+            <p class="form-hint">
+              <i class="fas fa-info-circle"></i>
+              Fetch all logs associated with a specific request
+            </p>
+          </div>
+
+          <!-- Search Button -->
+          <div class="form-actions">
+            <app-button 
+              variant="primary"
+              icon="search"
+              [loading]="loading"
+              (clicked)="onSearch()">
+              Search Logs
+            </app-button>
+
+            <app-button 
+              variant="secondary"
+              icon="times"
+              (clicked)="clearFilters()">
+              Clear
+            </app-button>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Loading State -->
+      <app-loader *ngIf="loading" size="large" message="Searching audit logs..."></app-loader>
+
+      <!-- Audit Logs Results -->
+      <div class="logs-section" *ngIf="!loading && auditLogs.length > 0">
+        <div class="logs-header">
+          <h3>
+            <i class="fas fa-list"></i>
+            Audit Logs ({{ auditLogs.length }})
+          </h3>
+        </div>
+
+        <div class="logs-list">
+          <div 
+            class="log-card"
+            *ngFor="let log of auditLogs"
+            [class.expanded]="isLogExpanded(log.id)">
+            
+            <!-- Log Header -->
+            <div class="log-header" (click)="toggleLogExpansion(log.id)">
+              <div class="log-info">
+                <div class="log-id">
+                  <i class="fas fa-file-alt"></i>
+                  <strong>{{ log.id }}</strong>
+                </div>
+                <div class="log-preview">
+                  {{ truncateContent(log.content, 100) }}
+                </div>
+                <div class="log-meta">
+                  <span class="badge source" *ngIf="log.source">
+                    <i class="fas fa-server"></i>
+                    {{ log.source }}
+                  </span>
+                  <span class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    {{ formatDate(log.createdOn) }}
+                  </span>
+                </div>
+              </div>
+              <i class="fas" [ngClass]="isLogExpanded(log.id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </div>
+
+            <!-- Log Details (Expanded) -->
+            <div class="log-details" *ngIf="isLogExpanded(log.id)">
+              <div class="detail-section">
+                <h4>
+                  <i class="fas fa-align-left"></i>
+                  Full Content
+                </h4>
+                <div class="detail-content">
+                  <pre>{{ log.content }}</pre>
+                </div>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Log ID</label>
+                  <span>{{ log.id }}</span>
+                </div>
+
+                <div class="detail-item">
+                  <label>Created On</label>
+                  <span>{{ formatDate(log.createdOn) }}</span>
+                </div>
+
+                <div class="detail-item">
+                  <label>Modified On</label>
+                  <span>{{ formatDate(log.modifiedOn) }}</span>
+                </div>
+
+                <div class="detail-item" *ngIf="log.source">
+                  <label>Source</label>
+                  <span class="badge source">{{ log.source }}</span>
+                </div>
+
+                <div class="detail-item" *ngIf="log.session_id">
+                  <label>Session ID</label>
+                  <span class="badge session">{{ log.session_id }}</span>
+                </div>
+
+                <div class="detail-item" *ngIf="log.user_id">
+                  <label>User ID</label>
+                  <span class="badge user">{{ log.user_id }}</span>
+                </div>
+
+                <div class="detail-item" *ngIf="log.request_id">
+                  <label>Request ID</label>
+                  <span class="badge request">{{ log.request_id }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && auditLogs.length === 0">
+        <i class="fas fa-search"></i>
+        <h3>No Audit Logs Found</h3>
+        <p>Use the filter options in the sidebar to search for audit logs</p>
+      </div>
+    </div>
+  </div>
+</div>

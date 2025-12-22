@@ -1,0 +1,227 @@
+<div class="create-context-container">
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-plus-circle"></i>
+      Create Context
+    </h1>
+    <p>Create new context with AI-powered generation</p>
+  </div>
+
+  <div class="form-container">
+    <app-loader *ngIf="loading" size="large" message="Creating context..."></app-loader>
+
+    <form [formGroup]="contextForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+      <!-- AI-Powered Content Generation -->
+      <div class="ai-section">
+        <div class="section-header">
+          <i class="fas fa-magic"></i>
+          <h3>AI-Powered Content Generation</h3>
+        </div>
+        <p class="section-description">Generate content instantly by providing intent, task, and context type.</p>
+
+        <div class="ai-grid">
+          <div class="form-group">
+            <label for="aiIntent">Intent for AI</label>
+            <input 
+              type="text" 
+              id="aiIntent"
+              [(ngModel)]="aiIntent"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="e.g., customer_support, data_analysis"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="aiTask">Task for AI</label>
+            <input 
+              type="text" 
+              id="aiTask"
+              [(ngModel)]="aiTask"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="e.g., answer queries, process data"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="aiContextType">Context Type for AI</label>
+            <select 
+              id="aiContextType"
+              [(ngModel)]="aiContextType"
+              [ngModelOptions]="{standalone: true}"
+              class="form-control">
+              <option value="">Select type</option>
+              <option value="system">taskcontext (system)</option>
+              <option value="user">domaincontext (user)</option>
+              <option value="assistant">responsecontext (assistant)</option>
+              <option value="function">parentcontext (function)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="aiAdditionalInfo">Additional Info (Optional)</label>
+            <input 
+              type="text" 
+              id="aiAdditionalInfo"
+              [(ngModel)]="aiAdditionalInfo"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="Extra context or requirements"
+              class="form-control">
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          class="ai-generate-btn"
+          (click)="generateWithAI()"
+          [disabled]="aiGenerating">
+          <i class="fas fa-magic"></i>
+          {{ aiGenerating ? 'Generating...' : 'Generate Content with AI' }}
+        </button>
+
+        <!-- AI Generation Success Message -->
+        <div class="success-message" *ngIf="aiGenerationSuccess">
+          <strong>✅ Content Generated Successfully!</strong>
+          <p>
+            The generated content has been added to the Content field below.<br>
+            Type and Intent fields can edit them before creating the context.
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Form Fields -->
+      <div class="form-section">
+        <h3 class="section-title">Context Details</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="PromptCode">Context Code</label>
+            <input 
+              type="text" 
+              id="PromptCode"
+              formControlName="PromptCode"
+              placeholder="Enter context code"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="ParentPromptCode">Parent Context Code</label>
+            <input 
+              type="text" 
+              id="ParentPromptCode"
+              formControlName="ParentPromptCode"
+              placeholder="Enter parent context code"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="agentCode">Agent Code</label>
+            <input 
+              type="text" 
+              id="agentCode"
+              formControlName="agentCode"
+              placeholder="Enter agent code"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="type">Type</label>
+            <input 
+              type="text" 
+              id="type"
+              formControlName="type"
+              placeholder="Enter type"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="intent">Intent</label>
+            <input 
+              type="text" 
+              id="intent"
+              formControlName="intent"
+              placeholder="Enter intent"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="versionId">Version ID</label>
+            <input 
+              type="text" 
+              id="versionId"
+              formControlName="versionId"
+              placeholder="Enter version ID"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="contextVersion">Context Version</label>
+          <input 
+            type="text" 
+            id="contextVersion"
+            formControlName="contextVersion"
+            placeholder="Enter context version"
+            class="form-control">
+        </div>
+
+        <!-- Filters/Entities Section -->
+        <div class="form-group full-width">
+          <h3>Filters</h3>
+          <div formArrayName="entities">
+            <div *ngFor="let entity of entities.controls; let i = index" [formGroupName]="i" class="entity-row">
+              <input 
+                type="text" 
+                formControlName="key"
+                placeholder="Key"
+                class="form-control">
+              <input 
+                type="text" 
+                formControlName="value"
+                placeholder="Value"
+                class="form-control">
+              <button type="button" class="btn-remove" (click)="removeEntityRow(i)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-add-filter" (click)="addEntityRow()">Add Filters</button>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="content">Content</label>
+          <textarea 
+            id="content"
+            formControlName="content"
+            rows="6"
+            placeholder="Enter content or generate with AI above"
+            class="form-control"></textarea>
+        </div>
+
+        <!-- Checkboxes -->
+        <div class="checkbox-wrapper">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="default">
+            <span>Default</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="latest">
+            <span>Latest</span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <app-button type="submit" variant="primary" [disabled]="loading">
+            Create Context
+          </app-button>
+          <app-button type="button" variant="secondary" (click)="resetForm()">
+            Reset
+          </app-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

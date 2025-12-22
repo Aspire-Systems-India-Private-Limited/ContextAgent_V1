@@ -1,0 +1,923 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 18px;
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --card: #ffffff;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #667eea;
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.0058 264.53);
+  --secondary-foreground: #667eea;
+  --muted: #ececf0;
+  --muted-foreground: #717182;
+  --accent: #06B6D4;
+  --accent-foreground: #ffffff;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: transparent;
+  --input-background: #f3f3f5;
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #667eea;
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Legacy variables for compatibility */
+  --primary-color: #667eea;
+  --primary-dark: #764ba2;
+  --primary-light: #A78BFA;
+  --accent-color: #06B6D4;
+  --accent-dark: #0891B2;
+  --accent-light: #22D3EE;
+  
+  --success-color: #28a745;
+  --warning-color: #ff9800;
+  --danger-color: #d4183d;
+  --info-color: #2196F3;
+  
+  --text-primary: #1F2937;
+  --text-secondary: #717182;
+  --text-muted: #9CA3AF;
+  
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f5;
+  --bg-tertiary: #e9ebef;
+  
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  
+  /* Gradient variables */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #65336e 0%, #663e8f 100%);
+  --gradient-secondary: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Maven Pro', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.transition-all-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Text Selection */
+::selection {
+  background: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+/* Print Styles */
+@media print {
+  .gradient-primary,
+  .gradient-secondary,
+  .gradient-accent {
+    background: #030213 !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-blob,
+  .animate-pulse-slow {
+    animation: none;
+  }
+}
+
+/* Legacy heading styles */
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
+/* ===== STANDARDIZED FORM STYLES ===== */
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.form-group label .required {
+  color: var(--danger-color);
+}
+
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Maven Pro', sans-serif;
+  transition: all 0.2s ease;
+  background: white;
+  color: var(--text-primary);
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.form-control:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background-color: #F3F4F6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--danger-color);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Select Dropdown Styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B5CF6' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+/* File Upload Styling */
+input[type="file"] {
+  padding: 8px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 12px;
+  transition: all 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #8B5CF6;
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: #8B5CF6;
+}
+
+/* ===== STANDARDIZED TABLE STYLES ===== */
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.data-table,
+.agent-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-table thead,
+agent-table thead {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+}
+
+.data-table thead th,
+agent-table thead th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  border: none;
+}
+
+.data-table tbody tr,
+agent-table tbody tr {
+  border-bottom: 1px solid #E5E7EB;
+  transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover,
+agent-table tbody tr:hover {
+  background: linear-gradient(to right, rgba(139, 92, 246, 0.05), rgba(6, 182, 212, 0.05));
+  transform: translateX(2px);
+}
+
+.data-table tbody td,
+agent-table tbody td {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.data-table tbody tr:last-child,
+agent-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Action Buttons in Tables */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.action-btn.view {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+  color: #8B5CF6;
+}
+
+.action-btn.view:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+  transform: scale(1.1);
+}
+
+.action-btn.edit {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+  color: #8B5CF6;
+}
+
+.action-btn.edit:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+  transform: scale(1.1);
+}
+
+.action-btn.delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+.action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+/* Badges */
+.type-badge,
+status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.type-badge {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15));
+  color: #8B5CF6;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.status-badge {
+  background: #E5E7EB;
+  color: #6B7280;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+  color: #16A34A;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-badge.inactive {
+  background: rgba(239, 68, 68, 0.15);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Grid Layout Utilities */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== STANDARDIZED BUTTON STYLES (Native HTML) ===== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Maven Pro', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  min-width: 120px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: #8B5CF6;
+  border: 2px solid #8B5CF6;
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  background: #F3F4F6;
+  transform: translateY(-2px);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-top: 3px solid transparent;
+  border-image: linear-gradient(90deg, #8B5CF6, #06B6D4) 1;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.no-results i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #E5E7EB;
+}
+
+.no-results p {
+  font-size: 16px;
+}
+
+/* ===== GRADIENT ICON STYLES ===== */
+
+/* Apply gradient color to icons in buttons and action areas */
+.btn i,
+.btn-fetch i,
+.btn-primary i,
+.action-btn i,
+button:not(.btn-secondary):not(.delete-btn) i {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Reset icon colors for specific cases */
+.btn-secondary i,
+.delete-btn i,
+.status-badge i {
+  background: none;
+  -webkit-text-fill-color: inherit;
+  background-clip: border-box;
+}
+
+/* Gradient icons in sidebar navigation */
+.sidebar-nav .nav-item i,
+.sidebar-nav .nav-subitem i {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: white !important;
+  background-clip: unset !important;
+  color: white !important;
+}
+
+/* White icons for navbar links */
+.nav-link i,
+.navbar-links i {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: white !important;
+  background-clip: unset !important;
+  color: white !important;
+}
+
+/* Gradient icons in section headers */
+.section-header i,
+.page-header i,
+h1 i, h2 i, h3 i {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Utility class for gradient icons */
+.icon-gradient {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* ===== BUTTON STYLES ===== */
+
+/* Remove Button - Gradient Blue Theme */
+.btn-remove {
+  padding: 10px 14px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-remove:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #65398b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-remove i {
+  background: none;
+  -webkit-text-fill-color: white;
+  background-clip: border-box;
+}
+
+/* Entity Row Styling */
+.entity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.entity-row input {
+  flex: 1;
+}
+
+/* Checkbox Styling with Broad Outline */
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.checkbox-label:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.checkbox-label input[type='checkbox'] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.checkbox-label span {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Override gradient icons for sidebar and navbar - WHITE ICONS */
+.sidebar-link i,
+.sidebar-nav i,
+.nav-link i,
+.navbar-links i,
+.navbar i {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: white !important;
+  background-clip: unset !important;
+  color: white !important;
+}

@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Interaction</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+<style>
+  :root {
+    --primary-purple: #65336e;
+    --dark-purple: #542d6b;
+    --bg-purple: #692e8b;
+    --light-blue: #80c6ff;
+    --text-light: #eee;
+    --bg: #283149;
+    --card: #65336e;
+    --text: #DBEDF3;
+    --sub: #404B69;
+    --warn: #ff6b6b;
+    --sidebar-width: 250px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #ffffff;
+    color: #333;
+    font-family: "Maven Pro", Arial, sans-serif;
+    overflow-x: hidden;
+  }
+
+  .toolbar {
+    height: 70px;
+    background: var(--primary-purple);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgb(101 51 110);
+    border-bottom: 0.2px solid rgb(101 51 110);
+  }
+
+  .logo {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-image {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .logo .ext {
+    color: var(--light-blue);
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 70px;
+    width: var(--sidebar-width);
+    height: calc(100vh - 70px);
+    background: linear-gradient(180deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    z-index: 999;
+    overflow-y: auto;
+  }
+
+  .sidebar.hidden {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-nav {
+    padding: 20px 0;
+  }
+
+  .sidebar-item {
+    padding: 16px 24px;
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+  }
+
+  .sidebar-item:hover {
+    background: rgba(255,255,255,0.1);
+    border-left-color: var(--light-blue);
+  }
+
+  .sidebar-item.active {
+    background: rgba(128, 198, 255, 0.2);
+    border-left-color: var(--light-blue);
+    font-weight: 600;
+  }
+
+  .sidebar-item i {
+    font-size: 18px;
+    width: 24px;
+  }
+
+  .content-wrapper {
+    margin-top: 70px;
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .content-wrapper.full-width {
+    margin-left: 0;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+  }
+
+  #warning {
+    background: var(--warn);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    display: none;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+
+  #search-form {
+    background: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  #search-form label {
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  input[type="date"], input[type="checkbox"], button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #ffffff;
+    color: #333;
+    font-size: 14px;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    margin: 0;
+  }
+
+  input[type="date"]:focus {
+    outline: none;
+    border-color: var(--light-blue);
+  }
+
+  button {
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  button:hover {
+    background: var(--primary-purple);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .session {
+    background: linear-gradient(135deg, var(--card) 0%, #7a4a82 100%);
+    border: 1px solid rgba(128, 198, 255, 0.3);
+    margin: 16px 0;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(101, 51, 110, 0.25);
+    transition: all 0.3s;
+  }
+
+  .session:hover {
+    box-shadow: 0 6px 20px rgba(101, 51, 110, 0.35);
+    transform: translateY(-3px);
+    border-color: var(--light-blue);
+  }
+
+  .session-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--text);
+    padding: 4px 0;
+  }
+
+  .session-header:hover {
+    color: var(--light-blue);
+  }
+
+  .session-meta {
+    background: #ffffff;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 14px;
+    border-left: 4px solid #00b4b4;
+    line-height: 1.6;
+  }
+
+  .session-meta strong {
+    color: #65336e;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .session-meta em {
+    color: #65336e;
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  .messages {
+    display: none;
+    margin-top: 12px;
+    animation: slideDown 0.3s ease-in-out;
+    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(101, 51, 110, 0.1);
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .message {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    margin: 8px 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    border-left: 4px solid var(--primary-purple);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    color: #2d3748;
+  }
+
+  .message:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+    border-left-color: var(--light-blue);
+    transform: translateX(6px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  }
+
+  .message strong {
+    color: var(--primary-purple);
+  }
+
+  .message pre {
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .feedback-section {
+    background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+    border: 2px solid var(--light-blue);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(128, 198, 255, 0.15);
+  }
+
+  .feedback-section > div {
+    color: #2d3748;
+    margin: 6px 0;
+  }
+
+  .feedback-section strong {
+    color: var(--primary-purple);
+    font-weight: 600;
+  }
+
+  .feedback-section em {
+    color: #4a5568;
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  .feedback-btn {
+    background: var(--light-blue);
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    transition: all 0.3s;
+  }
+
+  .feedback-btn:hover {
+    background: #5ab3ff;
+    transform: translateY(-1px);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(40, 49, 73, 0.96);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    background-color: var(--card);
+    position: relative;
+    top: 60px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--sub);
+    border-radius: 12px;
+    width: 85%;
+    max-width: 900px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: modalSlide 0.3s ease-in-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  @keyframes modalSlide {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+
+  .close:hover {
+    color: var(--warn);
+  }
+
+  pre {
+    white-space: pre-wrap;
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid rgba(219, 237, 243, 0.1);
+    overflow-y: auto;
+    max-height: 80vh;
+    word-break: break-word;
+  }
+
+  .load-more-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  #load-more {
+    padding: 10px 24px;
+    font-size: 15px;
+    background: var(--card);
+    color: var(--text);
+    border: 2px solid var(--sub);
+    display: none;
+  }
+
+  #load-more:hover {
+    background: var(--primary-purple);
+    border-color: var(--light-blue);
+  }
+
+  .no-sessions {
+    text-align: center;
+    padding: 40px;
+    color: rgba(219, 237, 243, 0.6);
+    font-size: 16px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--light-blue);
+    font-size: 14px;
+  }
+
+  .memory-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(40, 49, 73, 0.96);
+    backdrop-filter: blur(4px);
+  }
+
+  .memory-modal-content {
+    background-color: #ffffff;
+    position: relative;
+    top: 60px;
+    margin: 0 auto;
+    padding: 24px;
+    border-radius: 12px;
+    width: 85%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: modalSlide 0.3s ease-in-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .memory-modal-content h2 {
+    color: var(--primary-purple);
+    margin-bottom: 20px;
+  }
+
+  .memory-modal-content label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .memory-modal-content input,
+  .memory-modal-content textarea {
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+    width: 100%;
+    font-family: inherit;
+    margin-bottom: 16px;
+  }
+
+  .memory-modal-content input:not([readonly]):focus,
+  .memory-modal-content textarea:not([readonly]):focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+  }
+
+  .memory-modal-content input:not([readonly]),
+  .memory-modal-content textarea:not([readonly]) {
+    background-color: #ffffff;
+    cursor: text;
+  }
+
+  .memory-modal-content input[readonly],
+  .memory-modal-content textarea[readonly] {
+    background-color: #f0f0f0;
+    cursor: default;
+  }
+
+  .editable-field {
+    background-color: #ffffff !important;
+    border: 2px solid var(--light-blue) !important;
+    cursor: text !important;
+  }
+
+  .editable-field:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 3px rgba(128, 198, 255, 0.2) !important;
+  }
+
+  .memory-submit-btn {
+    background-color: var(--primary-purple);
+    color: var(--text-light);
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    width: 100%;
+  }
+
+  .memory-submit-btn:hover {
+    background-color: var(--dark-purple);
+  }
+
+  .metadata-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .metadata-field input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background-color: white;
+    color: #333;
+  }
+
+  .metadata-field button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 6px;
+    transition: opacity 0.3s;
+  }
+
+  .metadata-field button:hover {
+    opacity: 0.7;
+  }
+
+  .add-meta-btn {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: fit-content;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .add-meta-btn:hover {
+    opacity: 0.85;
+  }
+
+  .memory-modal-content h4 {
+    color: var(--primary-purple);
+    margin: 16px 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #999;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .nav-buttons .user {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .btn-context {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-context:hover {
+    background-color: var(--dark-purple);
+    border-color: var(--light-blue);
+    transform: translateY(-2px);
+  }
+
+  .user-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 14px;
+    padding: 10px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: block;
+    }
+
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+
+    .content-wrapper {
+      margin-left: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="menu-toggle" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="logo">
+    <img src="/static/aspire.svg" alt="Company Logo" class="logo-image" onerror="this.style.display='none'">
+    <span>User Interaction</span>
+  </div>
+  <div class="nav-buttons">
+     <div class="user">{% include "navbar.html" %}</div>
+  </div>
+</div>
+
+<div class="sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <a href="/session" class="sidebar-item active">
+      <i class="fas fa-comments"></i>
+      <span>User Interaction</span>
+    </a>
+    <a href="/sentiment" class="sidebar-item">
+      <i class="fas fa-chart-line"></i>
+      <span>Sentiment Analyzer</span>
+    </a>
+  </nav>
+</div>
+
+<div class="content-wrapper" id="content">
+  <h1>User Interaction</h1>
+
+  <div id="warning">⚠ Unable to fetch Okta token. Please check backend configuration.</div>
+
+  <form id="search-form">
+    <label>Start:</label>
+    <input type="date" id="start-date">
+    <label>End:</label>
+    <input type="date" id="end-date">
+    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+      <input type="checkbox" id="has-feedback" style="cursor: pointer;">
+      <span>Only with Feedback</span>
+    </label>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="sessions"></div>
+
+  <div class="load-more-container">
+    <button id="load-more">Load More Sessions</button>
+  </div>
+</div>
+
+<div id="json-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="modal-close">&times;</span>
+    <h2 style="color: var(--light-blue); margin-bottom: 16px;">Message Details</h2>
+    <pre id="json-content"></pre>
+  </div>
+</div>
+
+<div id="memory-modal" class="memory-modal">
+  <div class="memory-modal-content">
+    <span class="close" id="memory-modal-close">&times;</span>
+    <h2>Add Feedback to Memory</h2>
+    <form id="memory-form">
+      <div>
+        <label>Agent Code <span style="color: var(--light-blue); font-size: 12px;">(Editable)</span></label>
+        <input type="text" id="memory-agent-code" class="editable-field">
+      </div>
+      
+      <div>
+        <label>Content (Feedback Comment)</label>
+        <textarea id="memory-content" rows="4"></textarea>
+      </div>
+
+      <h4>Metadata</h4>
+      <div id="memoryMetadataContainer"></div>
+      <button type="button" class="add-meta-btn" onclick="addMemoryMetadataField()">
+        <i class="fas fa-plus"></i> Add Metadata
+      </button>
+
+      <button type="submit" class="memory-submit-btn">
+        <i class="fas fa-save"></i> Submit to Memory
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="/static/config.js"></script>
+<script>
+// Toggle sidebar on mobile
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('active');
+}
+
+// Navigation functions
+function goToHome() { window.location.href = '/admin'; }
+function goToMemory() { window.location.href = '/memory'; }
+function goToContext() { window.location.href = '/context'; }
+function goToAudit() { window.location.href = '/audit'; }
+function goToMetrics(){ window.location.href="/cost"; }
+function goToAgentSolution(){ window.location.href="/agent-sol"; }
+
+// Main logic
+const container = document.getElementById("sessions");
+const modal = document.getElementById("json-modal");
+const jsonContent = document.getElementById("json-content");
+const warning = document.getElementById("warning");
+const loadMoreBtn = document.getElementById("load-more");
+const memoryModal = document.getElementById("memory-modal");
+const memoryForm = document.getElementById("memory-form");
+
+let token = null;
+let nextOffset = 0;
+let currentLimit = 10;
+let currentAgentCode = null;
+
+// Close modals
+document.getElementById("modal-close").onclick = () => modal.style.display = "none";
+document.getElementById("memory-modal-close").onclick = () => memoryModal.style.display = "none";
+window.onclick = e => { 
+  if (e.target == modal) modal.style.display = "none"; 
+  if (e.target == memoryModal) memoryModal.style.display = "none";
+};
+
+async function getToken() {
+  if (token) return token;
+
+  const storedToken = localStorage.getItem('authToken');
+  if (!storedToken) {
+    console.warn('No token found in localStorage.');
+    warning.style.display = "block";
+    return null;
+  }
+
+  token = storedToken;
+  console.log("🔐 Token loaded globally:", token);
+  return token;
+}
+
+async function fetchSessionsPaginated(start, end, limit = 10, offset = 0, hasFeedback = false) {
+  const t = await getToken();
+  console.log("🪪 Token used in sessions API:", t);
+  if (!t) {
+    throw new Error("No auth token available.");
+  }
+  let endpoint = `${SESSION_API_BASE}/sessions/search`;
+  let q = `limit=${limit}&offset=${offset}`;
+  if (start) q += `&start_date=${start}`;
+  if (end) q += `&end_date=${end}`;
+  if (hasFeedback) q += `&has_feedback=true`;
+  const res = await fetch(`${endpoint}?${q}`, {
+    headers: { "Authorization": `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  nextOffset = data.next_offset;
+  console.log(`📊 Fetched ${data.count} sessions out of ${data.total} total`);
+  return data.sessions || [];
+}
+
+async function fetchSessionMessages(id) {
+  const t = await getToken();
+  const res = await fetch(`${SESSION_API_BASE}/sessions/${id}/messages`, {
+    headers: { "Authorization": `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("messages fetch fail");
+  return await res.json();
+}
+
+async function fetchMessageDetails(id) {
+  const t = await getToken();
+  const res = await fetch(`${SESSION_API_BASE}/messages/${id}`, {
+    headers: { "Authorization": `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("message details fetch fail");
+  return await res.json();
+}
+
+async function addMemoryAPI(data) {
+  const t = await getToken();
+  const res = await fetch(`${API_BASE}/memory/add`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${t}`
+    },
+    body: JSON.stringify(data)
+  });
+  return await res.json();
+}
+
+function addMemoryMetadataField() {
+  const container = document.getElementById('memoryMetadataContainer');
+  const div = document.createElement('div');
+  div.className = 'metadata-field';
+  div.innerHTML = `
+    <input type="text" placeholder="Key" class="meta-key">
+    <input type="text" placeholder="Value" class="meta-value">
+    <button type="button" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+  `;
+  container.appendChild(div);
+}
+
+function openMemoryModal(agentCode, feedbackData) {
+  currentAgentCode = agentCode;
+  document.getElementById('memory-agent-code').value = `agent:${agentCode || 'N/A'}`;
+  document.getElementById('memory-agent-code').readOnly = false;
+  document.getElementById('memory-agent-code').classList.add('editable-field');
+  document.getElementById('memory-content').value = feedbackData.comment || '';
+  
+  const container = document.getElementById('memoryMetadataContainer');
+  container.innerHTML = '';
+  memoryModal.style.display = "block";
+}
+
+memoryForm.onsubmit = async (e) => {
+  e.preventDefault();
+  
+  const user_id = document.getElementById('memory-agent-code').value;
+  const content = document.getElementById('memory-content').value;
+  
+  const metadata = {};
+  document.querySelectorAll('#memoryMetadataContainer .metadata-field').forEach(f => {
+    const key = f.querySelector('.meta-key').value;
+    const value = f.querySelector('.meta-value').value;
+    if (key) metadata[key] = value;
+  });
+
+  const memoryData = {
+    user_id: user_id,
+    content: content,
+    metadata: metadata
+  };
+
+  try {
+    const res = await addMemoryAPI(memoryData);
+    alert('✅ Feedback added to memory successfully!');
+    console.log('Memory Response:', res);
+    memoryModal.style.display = "none";
+  } catch (err) {
+    console.error('Error adding memory:', err);
+    alert('❌ Failed to add feedback to memory');
+  }
+};
+
+function formatUnescaped(content) {
+  if (!content) return '';
+  try {
+    if (typeof content === "string" && content.trim().startsWith("{")) {
+      return JSON.stringify(JSON.parse(content), null, 2);
+    }
+    return content;
+  } catch {
+    return content;
+  }
+}
+
+function extractFeedbackData(feedback) {
+  if (!feedback) return null;
+  if (Array.isArray(feedback)) {
+    return feedback.map(fb => extractFeedbackData(fb));
+  }
+  const rating = feedback.rating || feedback.metadata?.rating || 'N/A';
+  const comment = feedback.comment || feedback.content || 'N/A';
+  const createdAt = feedback.created_at || feedback.timestamp || feedback.created_date || new Date().toISOString();
+  return { rating, comment, created_at: createdAt };
+}
+
+function renderSessions(list, append = false) {
+  if (!append) container.innerHTML = "";
+  if (!list.length) {
+    if (!append) container.innerHTML = '<div class="no-sessions">No sessions found.</div>';
+    return;
+  }
+  list.sort((a, b) => {
+    const parseDate = (value) => {
+      if (!value) return 0;
+      const str = value.toString().trim();
+      const normalized = str.replace(/(\.\d{3})\d+/, '$1');
+      const date = new Date(normalized);
+      return isNaN(date) ? 0 : date.getTime();
+    };
+
+    const dateA = parseDate(a.created_date || a.created_at);
+    const dateB = parseDate(b.created_date || b.created_at);
+    return dateB - dateA;
+  });
+
+  list.forEach(sess => {
+    const sdiv = document.createElement("div");
+    sdiv.className = "session";
+
+    const header = document.createElement("div");
+    header.className = "session-header";
+    header.innerHTML = `
+      <span><i class="fas fa-folder"></i> Session</span>
+      <span style="font-size:18px;">&#9660;</span>
+    `;
+
+    const metaDiv = document.createElement("div");
+    metaDiv.className = "session-meta";
+    metaDiv.innerHTML = `
+      <strong>Session Details</strong>
+      <div><em>Reference ID:</em> <span>${sess.reference_id || "N/A"}</span></div>
+      <div><em>Agent Code:</em> <span>${sess.agent_code || "N/A"}</span></div>
+      <div><em>Created Date:</em> <span>${sess.created_date || sess.created_at || "N/A"}</span></div>
+    `;
+
+    const msgWrap = document.createElement("div");
+    msgWrap.className = "messages";
+    msgWrap.style.display = "none";
+
+    header.onclick = async () => {
+      if (msgWrap.style.display === "none") {
+        msgWrap.style.display = "block";
+        msgWrap.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
+        const full = await fetchSessionMessages(sess.session_id || sess.id);
+        msgWrap.innerHTML = "";
+
+        (full.messages || []).forEach(m => {
+          const mdiv = document.createElement("div");
+          mdiv.className = "message";
+          const sender = m.sender || 'user';
+          const rawContent = m.content || m.text || '';
+
+          mdiv.innerHTML = `<i class="fas fa-comment"></i> <strong>${sender}:</strong>`;
+
+          const pre = document.createElement("pre");
+          pre.textContent = formatUnescaped(rawContent);
+          mdiv.appendChild(pre);
+
+          mdiv.onclick = async (ev) => {
+            ev.stopPropagation();
+            const md = await fetchMessageDetails(m.id);
+            jsonContent.textContent = JSON.stringify(md, null, 2);
+            modal.style.display = "block";
+          };
+
+          if ((m.sender === 'bot' || m.sender === 'assistant') && m.feedback) {
+            const feedbackList = Array.isArray(m.feedback) ? m.feedback : [m.feedback];
+            feedbackList.forEach(fb => {
+              const feedbackData = extractFeedbackData(fb);
+              if (feedbackData) {
+                const feedbackDiv = document.createElement("div");
+                feedbackDiv.className = "feedback-section";
+                feedbackDiv.innerHTML = `
+                  <div><strong>Feedback:</strong></div>
+                  <div><em>Rating:</em> ${feedbackData.rating}</div>
+                  <div><em>Comment:</em> ${feedbackData.comment}</div>
+                  <div><em>Created At:</em> ${feedbackData.created_at}</div>
+                `;
+                const feedbackBtn = document.createElement("button");
+                feedbackBtn.className = "feedback-btn";
+                feedbackBtn.innerHTML = '<i class="fas fa-memory"></i> Add Feedback to Memory';
+                feedbackBtn.onclick = (ev) => {
+                  ev.stopPropagation();
+                  openMemoryModal(sess.agent_code, feedbackData);
+                };
+                feedbackDiv.appendChild(feedbackBtn);
+                mdiv.appendChild(feedbackDiv);
+              }
+            });
+          }
+
+          msgWrap.appendChild(mdiv);
+        });
+
+        if (!full.messages || full.messages.length === 0) {
+          msgWrap.innerHTML = '<div class="no-sessions">No messages in this session.</div>';
+        }
+      } else {
+        msgWrap.style.display = "none";
+      }
+    };
+
+    sdiv.appendChild(header);
+    sdiv.appendChild(metaDiv);
+    sdiv.appendChild(msgWrap);
+    container.appendChild(sdiv);
+  });
+}
+
+document.getElementById("search-form").onsubmit = async e => {
+  e.preventDefault();
+  const s = document.getElementById("start-date").value;
+  const eD = document.getElementById("end-date").value;
+  const hasFeedback = document.getElementById("has-feedback").checked;
+  nextOffset = 0;
+  container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching sessions...</div>';
+  const data = await fetchSessionsPaginated(s, eD, currentLimit, nextOffset, hasFeedback);
+  renderSessions(data);
+  loadMoreBtn.style.display = nextOffset ? "inline-block" : "none";
+};
+
+loadMoreBtn.onclick = async () => {
+  const s = document.getElementById("start-date").value;
+  const eD = document.getElementById("end-date").value;
+  const hasFeedback = document.getElementById("has-feedback").checked;
+  if (nextOffset === null) {
+    alert("No more sessions to load!");
+    return;
+  }
+  const data = await fetchSessionsPaginated(s, eD, currentLimit, nextOffset, hasFeedback);
+  renderSessions(data, true);
+  loadMoreBtn.style.display = nextOffset ? "inline-block" : "none";
+};
+
+window.onbeforeunload = () => container.innerHTML = "";
+
+window.onload = async () => {
+  await getToken();
+};
+</script>
+
+</body>
+</html>

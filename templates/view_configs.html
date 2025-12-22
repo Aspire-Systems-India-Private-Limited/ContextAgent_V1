@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agent Configuration UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+
+<style>
+/* ------------------ THEME COLORS ------------------ */
+:root {
+--primary-purple: #65336e;
+--dark-purple: #542d6b;
+--bg-purple: #692e8b;
+--light-blue: #80c6ff;
+--text-light: #eee;
+--sidebar-width: 200px;
+--toolbar-height: 70px;
+}
+
+/* ------------------ GLOBAL ------------------ */
+body {
+margin: 0;
+background-color: #f1f1f1;
+font-family: 'Maven Pro', Arial, sans-serif;
+overflow: hidden;
+}
+
+/* ------------------ LAYOUT ------------------ */
+.app-wrapper {
+display: flex;
+height: 100vh;
+}
+
+/* ------------------ SIDEBAR ------------------ */
+.sidebar {
+background-color: var(--primary-purple);
+width: var(--sidebar-width);
+height: 100vh;
+padding: 0;
+position: fixed;
+color: white;
+}
+
+.logo {
+text-align: center;
+padding: 24px 0;
+}
+
+.logo-image {
+width: 70px;
+margin-bottom: 8px;
+}
+
+.title-text {
+font-size: 22px;
+font-weight: 600;
+}
+
+.title-text .ext {
+color: var(--light-blue);
+font-weight: 400;
+}
+
+.sidebar .btn {
+width: 100%;       /* Use full width of sidebar */
+margin: 0;        /* Remove top/bottom margin */
+padding: 14px 20px;   /* Standard padding for large click area */
+display: block;
+border: none;      /* REMOVES THE BOX/BORDER */
+background: none;    /* Ensures no purple background */
+color: var(--text-light); /* Sets the text color to white (#eee) */
+cursor: pointer;
+font-size: 15px;
+text-align: left;    /* Align text to the left */
+border-radius: 0;    /* Remove rounded corners */
+transition: background-color 0.3s ease; /* For subtle hover */
+text-align: center;
+}
+
+/* Add hover effect for better user experience */
+.sidebar .btn:hover {
+background-color: var(--dark-purple); /* Background becomes slightly darker purple on hover */
+color: var(--text-light); 
+}
+
+/* Base style for the Back button (Ensure this is the final style) */
+.sidebar .btn.back-link {
+  width: 100%;
+  margin: 0;
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.sidebar .btn.back-link:hover {
+  background-color: var(--dark-purple); 
+  color: var(--text-light); 
+}
+
+/* ------------------ NAVBAR CSS ADDED HERE ------------------ */
+.btn-context {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+  text-decoration:none; /* Ensure links look like buttons */
+ }
+
+ .btn-context:hover {
+  background-color: #542d6b;
+  border-color: #80c6ff;
+ }
+ 
+ .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 14px;
+ }
+/* ------------------ END NAVBAR CSS ------------------ */
+
+
+/* ------------------ CONTENT ------------------ */
+.content {
+margin-left: var(--sidebar-width);
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+/* ------------------ TOOLBAR ------------------ */
+.toolbar {
+height: var(--toolbar-height);
+background: var(--primary-purple);
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 5px 10px;
+margin-left: -20px;
+color: white;
+position: fixed;
+width: calc(100% - var(--sidebar-width));
+left: var(--sidebar-width);
+}
+
+.page-title {
+font-size: 22px;
+}
+
+/* ------------------ CONTENT AREA ------------------ */
+.page-container {
+margin-top: var(--toolbar-height);
+padding: 24px;
+height: calc(100vh - var(--toolbar-height));
+overflow-y: auto;
+}
+
+/* ------------------ CARDS ------------------ */
+.card {
+background: #fff;
+padding: 20px;
+border-radius: 8px;
+margin-bottom: 24px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+color: var(--primary-purple);
+margin-bottom: 16px;
+}
+
+/* ------------------ TABLES ------------------ */
+table {
+width: 100%;
+border-collapse: collapse;
+border-radius: 8px;
+overflow: hidden;
+}
+
+th {
+background: var(--primary-purple);
+color: white;
+padding: 12px 16px;
+text-align: left;
+}
+
+td {
+padding: 12px 16px;
+border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+background: #f4e9f7;
+}
+
+textarea {
+width: 100%;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 6px;
+font-family: monospace;
+font-size: 14px;
+}
+button.btn {
+background: var(--primary-purple);
+color: white;
+padding: 10px 20px;
+border-radius: 6px;
+border: none;
+cursor: pointer;
+margin-top: 10px;
+}
+
+button.btn:hover {
+background: var(--dark-purple);
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-wrapper">
+
+ <div class="sidebar">
+ <div class="logo">
+ <img
+   src="/static/aspire.svg"
+   alt="Company Logo"
+   class="logo-image"
+   onerror="this.style.display='none'"
+  />
+ 
+ </div>
+
+  <button class="btn back-link" onclick="history.back()">
+ Back to Agent
+ </button>
+ 
+</div>
+
+ <div class="content">
+
+  <div class="toolbar">
+   <div class="page-title">Agent Configuration</div>
+   
+      <div class="user" style="display: flex; gap: 10px; align-items: center;">
+            <a class="btn-context" href="/admin">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a class="btn-context" href="/agent-sol">
+                <i class="fa-solid fa-robot"></i>
+                <span>Agent Solution</span>
+            </a>
+            <a class="btn-context" href="/context">
+                <i class="fas fa-cog"></i>
+                <span>Context</span>
+            </a>
+            <a class="btn-context" href="/session">
+                <i class="fa-solid fa-user"></i>
+                <span>User Interaction</span>
+            </a>
+            <a class="btn-context" href="/memory">
+                <i class="fas fa-clock"></i>
+                <span>Memory</span>
+            </a>
+            <a class="btn-context" href="/cost">
+                <i class="fas fa-file-alt"></i>
+                <span>Diagnosis</span>
+            </a>
+            <div class="user-info">
+                <i class="fas fa-user-circle" style="font-size: 20px;"></i>
+                <span>Administrator</span>
+            </div>
+   </div>
+    </div>
+
+  <div class="page-container">
+
+   <div class="card">
+  <h2>Select Options</h2>
+
+    <div style="display:none;">
+      <label>Choose Agent</label>
+      <select id="agentSelect"></select>
+    </div>
+
+  <label style="margin-top:15px;">Choose Configuration Type</label>
+  <select id="configType">
+  <option value="rbac">RBAC</option>
+  <option value="cost">Cost</option>
+  <option value="model_routing">Model Routing</option>
+  <option value="data_scope">Data Scope</option>
+  </select>
+
+  <button class="btn" onclick="loadConfigs()">Load Configurations</button>
+ </div>
+
+   <div class="card">
+  <h2>Configuration List</h2>
+
+  <table id="configTable">
+  <thead>
+   <tr>
+   <th>Agent code</th>
+   <th>Version</th>
+   <th>Configuration/Permission</th>
+   
+   </tr>
+  </thead>
+  <tbody></tbody>
+  </table>
+ </div>
+
+   <div class="card">
+  <h2>Configuration Details</h2>
+  <textarea id="configDetails" readonly rows="12"></textarea>
+ </div>
+
+ </div>
+</div>
+</div>
+
+<script>
+const API_BASE = "http://agent-ops-public.westus2.azurecontainer.io:8009/agents";
+const BASE_URL = "http://agent-ops-public.westus2.azurecontainer.io:8009";
+
+// 1. EXTRACT AGENT ID FROM URL
+// Assuming the URL structure is: http://.../agents/{AGENT_ID}/view-configs
+const pathParts = window.location.pathname.split('/');
+const initialAgentId = pathParts[2]; // Assumes ID is the third segment
+
+let currentAgentCode = null; 
+let currentConfigType = null;
+
+
+/* ---------------- Load Agent and Initial Configs ---------------- */
+
+async function loadInitialData() {
+  // If we fail to get the ID, we load all agents and stop the auto-load process
+ if (!initialAgentId) {
+  console.warn("Agent ID missing in URL. Loading all agents for manual selection.");
+  await loadAllAgentsForDropdown();
+  return;
+ }
+
+ try {
+  // 2. FETCH AGENT DETAILS (using ID to get the CODE)
+  const agentRes = await fetch(`${API_BASE}/${initialAgentId}`);
+  if (!agentRes.ok) throw new Error("Agent not found.");
+  const agent = await agentRes.json();
+  
+  // CRITICAL: Get the Agent's code, which the config API uses
+  currentAgentCode = agent.code; 
+  
+  // 3. Populate and select the Agent in the hidden dropdown
+  await loadAllAgentsForDropdown(currentAgentCode);
+  
+  // 4. Auto-load the default configurations
+    currentConfigType = document.getElementById("configType").value; 
+  await loadConfigs(currentAgentCode, currentConfigType);
+
+ } catch (error) {
+  console.error("Error loading initial agent data:", error);
+  document.querySelector(".page-container").innerHTML = "<p style='color:red;'>Error loading agent or configurations.</p>";
+ }
+}
+
+// Function to fetch all agents (for dropdown use)
+async function loadAllAgentsForDropdown(selectedCode = null) {
+ try {
+    const res = await fetch(`${BASE_URL}/agents`); 
+    if (!res.ok) throw new Error("Failed to fetch agent list.");
+
+    const agents = await res.json();
+    const dropdown = document.getElementById("agentSelect");
+    dropdown.innerHTML = "";
+
+    agents.forEach(a => {
+      const selected = a.code === selectedCode ? 'selected' : '';
+      dropdown.innerHTML += `<option value="${a.code}" ${selected}>${a.name} (${a.code})</option>`;
+    });
+  } catch (error) {
+    console.error("Error populating agent dropdown:", error);
+  }
+}
+
+async function loadConfigs(agentCode = null, configType = null) {
+// Use arguments first (from loadInitialData) or fall back to dropdown selection
+const finalAgentCode = agentCode || document.getElementById("agentSelect").value;
+const finalConfigType = configType || document.getElementById("configType").value;
+
+currentAgentCode = finalAgentCode;
+currentConfigType = finalConfigType;
+
+if (!finalAgentCode || !finalConfigType) return;
+
+const body = document.querySelector("#configTable tbody");
+body.innerHTML = `<tr><td colspan='4'>Loading ${finalConfigType.toUpperCase()} configurations for ${finalAgentCode}...</td></tr>`;
+
+try {
+ // CRITICAL API CALL: Uses Agent Code
+ const res = await fetch(`${API_BASE}/${finalAgentCode}/config/${finalConfigType}`); 
+ const data = await res.json();
+ 
+ body.innerHTML = "";
+ 
+ if (data.length === 0) {
+ body.innerHTML = `<tr><td colspan='4'>No ${finalConfigType.toUpperCase()} configurations found.</td></tr>`;
+ document.getElementById("configDetails").value = "";
+ return;
+ }
+
+ data.forEach(cfg => {
+    let summary = cfg.config_type.toUpperCase(); // Default to the type
+
+    // --- LOGIC TO FIND KEY CONTENT IN cfg.data ---
+
+    if (cfg.data && Object.keys(cfg.data).length > 0) {
+        
+        // 1. Check for specific RBAC fields (based on your input data structure)
+        if (cfg.data.role_name) {
+            summary = `Role: ${cfg.data.role_name}`;
+        }
+        // 2. Check for common cost/model routing fields
+        else if (cfg.data.max_tokens_per_request) {
+            summary = `Max Tokens: ${cfg.data.max_tokens_per_request}`;
+        }
+        else if (cfg.data.default_model) {
+            summary = `Model: ${cfg.data.default_model}`;
+        }
+        // 3. Fallback: If data exists but isn't a known specific key
+        else {
+            const keys = Object.keys(cfg.data);
+            summary = `Configured (${keys.length} keys)`;
+        }
+    } 
+    // If cfg.data is empty or missing, keep the type as the summary
+    
+    // ----------------------------------------------
+    
+    // Fix the broken HTML structure here too (as noted in previous turn)
+    body.innerHTML += `
+    <tr onclick="viewConfig('${cfg.id}')" style="cursor: pointer;">
+        <td>${cfg.agent_code || '-'}</td>
+        <td>${cfg.version || '-'}</td>
+        <td>${summary}</td> 
+    </tr>
+    `;
+});
+ 
+ // Automatically display details for the first config item
+ if (data.length > 0) {
+ await viewConfig(data[0].id);
+ }
+
+} catch (err) {
+ console.error("Error loading configs:", err);
+ body.innerHTML = `<tr><td colspan='4' style='color:red;'>Error loading configurations. Check API.</td></tr>`;
+ document.getElementById("configDetails").value = "";
+}
+}
+
+// The handler for the "View" button in the table
+// This function IS defined and ready to work
+async function viewConfig(id) {
+try {
+ // API call to fetch specific config details by config ID
+ const res = await fetch(`${API_BASE}/config/${id}`); 
+ if (!res.ok) throw new Error("Failed to fetch config details.");
+ 
+ const data = await res.json();
+ 
+ document.getElementById("configDetails").value = JSON.stringify(data.data, null, 4);
+ 
+} catch(err) {
+ console.error("Error viewing config details:", err);
+ document.getElementById("configDetails").value = "Error loading configuration details.";
+}
+}
+
+// Ensure initial load runs when the page loads
+document.addEventListener("DOMContentLoaded", loadInitialData);
+
+</script>
+
+</body>
+</html>

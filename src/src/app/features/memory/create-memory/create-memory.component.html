@@ -1,0 +1,96 @@
+<div class="memory-container">
+  <div class="memory-content">
+    <h2 class="memory-title">Add Memory</h2>
+    <p class="memory-subtitle">Fill the form to add a new memory. You can provide either User ID or Agent ID (both work the same way).</p>
+
+    <form [formGroup]="memoryForm" (ngSubmit)="onSubmit()">
+      <!-- Select ID Type -->
+      <div class="form-section">
+        <label class="form-label">Select ID Type</label>
+        <div class="id-type-buttons">
+          <button 
+            type="button"
+            class="id-type-btn"
+            [class.active]="selectedIdType === 'user'"
+            (click)="selectIdType('user')">
+            <i class="fas fa-user"></i>
+            User ID
+          </button>
+          <button 
+            type="button"
+            class="id-type-btn"
+            [class.active]="selectedIdType === 'agent'"
+            (click)="selectIdType('agent')">
+            <i class="fas fa-robot"></i>
+            Agent ID
+          </button>
+        </div>
+      </div>
+
+      <!-- User ID / Agent ID Input -->
+      <div class="form-section">
+        <label class="form-label">
+          {{ selectedIdType === 'user' ? 'User ID' : 'Agent ID' }} / {{ selectedIdType === 'user' ? 'Agent ID' : 'User ID' }}
+          <span class="optional-badge">Optional: Either one required</span>
+        </label>
+        <input 
+          type="text" 
+          class="form-control"
+          formControlName="idValue"
+          placeholder="Enter {{ selectedIdType === 'user' ? 'User' : 'Agent' }} ID">
+        <div class="error" *ngIf="memoryForm.get('idValue')?.invalid && memoryForm.get('idValue')?.touched">
+          {{ selectedIdType === 'user' ? 'User ID' : 'Agent ID' }} is required
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="form-section">
+        <label class="form-label">Content</label>
+        <textarea 
+          class="form-control"
+          formControlName="content"
+          rows="5"
+          placeholder="Enter memory content"></textarea>
+        <div class="error" *ngIf="memoryForm.get('content')?.invalid && memoryForm.get('content')?.touched">
+          Content is required
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="form-section">
+        <label class="form-label">Metadata</label>
+        <div formArrayName="metadata">
+          <div *ngFor="let item of metadata.controls; let i = index" [formGroupName]="i" class="metadata-row">
+            <input 
+              type="text" 
+              class="form-control metadata-key"
+              formControlName="key"
+              placeholder="memory_type">
+            <input 
+              type="text" 
+              class="form-control metadata-value"
+              formControlName="value"
+              placeholder="Type">
+            <button 
+              type="button" 
+              class="remove-btn"
+              (click)="removeMetadata(i)"
+              *ngIf="metadata.length > 1">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="add-metadata-btn" (click)="addMetadata()">
+          <i class="fas fa-plus"></i>
+          Add Metadata
+        </button>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="submit-btn" [disabled]="saving">
+        <i class="fas fa-plus"></i>
+        {{ saving ? 'Adding Memory...' : 'Add Memory' }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="search-memory-container">
+  <div class="left-panel">
+    <!-- Search Form -->
+    <div class="search-form-section">
+      <form [formGroup]="searchForm" (ngSubmit)="search()">
+        <!-- Select ID Type -->
+        <div class="form-section">
+          <label class="form-label">Select ID Type</label>
+          <div class="id-type-buttons">
+            <button 
+              type="button"
+              class="id-type-btn"
+              [class.active]="selectedIdType === 'user'"
+              (click)="selectIdType('user')">
+              <i class="fas fa-user"></i>
+              User ID
+            </button>
+            <button 
+              type="button"
+              class="id-type-btn"
+              [class.active]="selectedIdType === 'agent'"
+              (click)="selectIdType('agent')">
+              <i class="fas fa-robot"></i>
+              Agent ID
+            </button>
+          </div>
+        </div>
+
+        <!-- User ID / Agent ID Input -->
+        <div class="form-section">
+          <label class="form-label">
+            User ID / Agent ID
+            <span class="optional-badge">Optional: Either one required</span>
+          </label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="user_id"
+            [placeholder]="selectedIdType === 'user' ? 'Enter User ID' : 'Enter Agent ID'">
+        </div>
+
+        <!-- Search Query -->
+        <div class="form-section">
+          <label class="form-label">Query</label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="query"
+            placeholder="Search query"
+            required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn" [disabled]="loading">
+          <i class="fas fa-search"></i>
+          {{ loading ? 'Searching...' : 'Search' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" *ngIf="loading && memories.length === 0">
+      ⏳ Loading...
+    </div>
+
+    <!-- Results Cards -->
+    <div class="results-cards" *ngIf="!loading">
+      <div 
+        *ngFor="let memory of memories" 
+        class="memory-card"
+        (click)="selectMemory(memory)">
+        <h3>User/Agent: {{ memory.user_id || memory.agent_code || 'Unknown' }}</h3>
+        <p><strong>Content:</strong> {{ getContentPreview(memory) }}</p>
+      </div>
+
+      <p class="no-data" *ngIf="memories.length === 0">No results found.</p>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <h3>Details</h3>
+    
+    <div *ngIf="!selectedMemory">
+      <p>Results will appear as cards on the left. You can use either User ID or Agent ID.</p>
+    </div>
+
+    <div *ngIf="selectedMemory" class="memory-details">
+      <h3>User/Agent ID</h3>
+      <p class="id-value">{{ selectedMemory.user_id || selectedMemory.agent_code || 'N/A' }}</p>
+
+      <h4>Content</h4>
+      <p class="content-box">{{ getContent(selectedMemory) }}</p>
+
+      <h4>Metadata</h4>
+      <pre>{{ formatMetadata(selectedMemory.metadata) }}</pre>
+
+      <button class="submit-btn delete-btn" (click)="deleteMemory(selectedMemory)">
+        <i class="fas fa-trash"></i> Delete Memory
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  &.small {
+    .spinner i {
+      font-size: 20px;
+    }
+    .loader-message {
+      font-size: 12px;
+    }
+  }
+
+  &.medium {
+    .spinner i {
+      font-size: 32px;
+    }
+    .loader-message {
+      font-size: 14px;
+    }
+  }
+
+  &.large {
+    .spinner i {
+      font-size: 48px;
+    }
+    .loader-message {
+      font-size: 16px;
+    }
+  }
+}
+
+.spinner {
+  color: var(--primary);
+  margin-bottom: 12px;
+
+  i {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.loader-message {
+  color: #666;
+  margin: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,257 @@
+<div class="agent-container">
+  <div class="agent-header">
+    <div>
+      <h1>Agent Solutions</h1>
+      <p>Manage and monitor AI agent solutions</p>
+    </div>
+    <button class="btn-icon" (click)="openAddAgentModal()">
+      <i class="fas fa-plus"></i> Add Agent Solution
+    </button>
+  </div>
+
+  <app-loader *ngIf="loading" size="large" message="Loading agents..."></app-loader>
+
+  <!-- Agent Table -->
+  <div class="agent-table-container" *ngIf="!loading">
+    <table class="agent-table">
+      <thead>
+        <tr>
+          <th>Thumbnail</th>
+          <th>Name</th>
+          <th>Support Email</th>
+          <th>Support Phone</th>
+          <th>Scopes/Role</th>
+          <th>URL</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let agent of agents">
+          <td class="thumbnail-cell">
+            <div class="thumbnail-wrapper" (click)="openThumbnailModal(agent)">
+              <img 
+                *ngIf="agent.thumbnail || agent.thumbnail_url" 
+                [src]="getFullThumbnailUrl(agent.thumbnail || agent.thumbnail_url)" 
+                alt="Agent thumbnail"
+                class="agent-thumbnail">
+              <div *ngIf="!agent.thumbnail && !agent.thumbnail_url" class="no-thumbnail">
+                <i class="fas fa-robot"></i>
+              </div>
+            </div>
+          </td>
+          <td class="clickable-cell" (click)="editAgent(agent)">
+            <div class="agent-name">{{ agent.name || '—' }}</div>
+            <div class="agent-code">{{ agent.code || agent.agentCode || '—' }}</div>
+          </td>
+          <td>{{ agent.supportEmail || agent.support?.email || '—' }}</td>
+          <td>{{ agent.supportPhone || agent.support?.phone || '—' }}</td>
+          <td>
+            <div class="scopes-cell">
+              <span 
+                *ngFor="let scope of (agent.permission_scopes || agent.scopes || [])" 
+                class="scope-badge">
+                {{ scope }}
+              </span>
+              <span *ngIf="!(agent.permission_scopes || agent.scopes)?.length" class="no-scopes-text">—</span>
+            </div>
+          </td>
+          <td class="url-cell">
+            <a *ngIf="agent.url" [href]="agent.url" target="_blank" class="url-link">
+              <i class="fas fa-external-link-alt"></i> Open
+            </a>
+            <span *ngIf="!agent.url" class="no-url">—</span>
+          </td>
+          <td class="action-cell">
+            <button class="btn-icon btn-edit" (click)="editAgent(agent)" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-delete" (click)="deleteAgent(agent)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="agents.length === 0">
+      <i class="fas fa-robot"></i>
+      <p>No agent solutions found</p>
+      <small>Click "Add Agent Solution" to create one</small>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Agent Modal -->
+<app-modal 
+  [isOpen]="showAgentModal"
+  [title]="editingAgent ? 'Edit Agent Solution' : 'Add Agent Solution'"
+  [showFooter]="false"
+  (close)="closeAgentModal()">
+  <form [formGroup]="agentForm" (ngSubmit)="saveAgent()">
+    <div class="form-group">
+      <label for="name">Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="name" 
+        formControlName="name"
+        class="form-control"
+        placeholder="Enter agent name">
+      <div class="error" *ngIf="agentForm.get('name')?.invalid && agentForm.get('name')?.touched">
+        Name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description <span class="required">*</span></label>
+      <textarea 
+        id="description" 
+        formControlName="description"
+        class="form-control"
+        rows="3"
+        placeholder="Enter agent description"></textarea>
+      <div class="error" *ngIf="agentForm.get('description')?.invalid && agentForm.get('description')?.touched">
+        Description is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="supportEmail">Support Email</label>
+      <input 
+        type="email" 
+        id="supportEmail" 
+        formControlName="supportEmail"
+        class="form-control"
+        placeholder="support@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="supportPhone">Support Phone</label>
+      <input 
+        type="tel" 
+        id="supportPhone" 
+        formControlName="supportPhone"
+        class="form-control"
+        placeholder="+1234567890">
+    </div>
+
+    <div class="form-group">
+      <label for="url">URL</label>
+      <input 
+        type="url" 
+        id="url" 
+        formControlName="url"
+        class="form-control"
+        placeholder="https://example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="agentCode">Agent Code</label>
+      <input 
+        type="text" 
+        id="agentCode" 
+        formControlName="agentCode"
+        class="form-control"
+        placeholder="Enter agent code">
+    </div>
+
+    <div class="form-group">
+      <label for="type">Type/Role</label>
+      <input 
+        type="text" 
+        id="type" 
+        formControlName="type"
+        class="form-control"
+        placeholder="e.g., Support, Sales">
+    </div>
+
+    <div class="form-group">
+      <label for="thumbnail">Thumbnail</label>
+      <input 
+        type="file" 
+        id="thumbnail" 
+        (change)="onFileSelected($event)"
+        accept="image/*"
+        class="form-control">
+      <div class="thumbnail-preview" *ngIf="thumbnailPreview">
+        <img [src]="thumbnailPreview" alt="Thumbnail preview">
+      </div>
+    </div>
+
+    <!-- Scopes/Roles Section -->
+    <div class="form-group">
+      <div class="scopes-header">
+        <label>Scopes/Roles</label>
+        <button type="button" class="btn-add-scope" (click)="addScope()">
+          + Scope
+        </button>
+      </div>
+      <div class="scopes-list" *ngIf="scopes.length > 0">
+        <div class="scope-item" *ngFor="let scope of scopes.controls; let i = index" [formArrayName]="'scopes'">
+          <input 
+            type="text" 
+            [formControlName]="i"
+            class="form-control scope-input"
+            placeholder="Permission scope">
+          <button type="button" class="btn-remove-scope" (click)="removeScope(i)">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="scopes.length === 0" class="no-scopes">
+        No scopes added yet. Click "+ Scope" to add one.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <app-button type="button" variant="secondary" (click)="closeAgentModal()">
+        Cancel
+      </app-button>
+      <app-button type="submit" variant="primary" [disabled]="agentForm.invalid || saving">
+        {{ saving ? 'Saving...' : (editingAgent ? 'Update Agent' : 'Create Agent') }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Thumbnail Update Modal -->
+<app-modal 
+  [isOpen]="showThumbnailModal"
+  [title]="'Update Thumbnail'"
+  [showFooter]="false"
+  (close)="closeThumbnailModal()">
+  <div class="thumbnail-upload-container">
+    <div class="form-group">
+      <label for="thumbnailUpload">Choose image</label>
+      <input 
+        type="file" 
+        id="thumbnailUpload" 
+        accept="image/*" 
+        (change)="onThumbnailFileSelected($event)"
+        class="form-control">
+    </div>
+    
+    <div class="thumbnail-preview" *ngIf="thumbnailPreviewUrl">
+      <img 
+        [src]="thumbnailPreviewUrl" 
+        alt="Thumbnail preview"
+        style="margin-top: 10px; width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+    </div>
+
+    <div class="modal-actions">
+      <button 
+        type="button" 
+        class="btn btn-primary" 
+        (click)="saveThumbnail()"
+        [disabled]="!selectedThumbnailFile || saving">
+        {{ saving ? 'Updating...' : 'Update' }}
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-secondary" 
+        (click)="closeThumbnailModal()"
+        [disabled]="saving">
+        Cancel
+      </button>
+    </div>
+  </div>
+</app-modal>

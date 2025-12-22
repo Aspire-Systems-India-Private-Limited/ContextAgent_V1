@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+h4 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #65336e;
+}
+
+p {
+  font-size: 14px;
+  color: #333;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+}
+
+/* Global Button Styles matching old HTML template */
+.btn {
+  background-color: #65336e;
+  color: #eee;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background-color: #542d6b;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn i {
+  font-size: 14px;
+}
+
+/* Primary button variant */
+.btn-primary {
+  background-color: #65336e;
+  color: #eee;
+}
+
+.btn-primary:hover {
+  background-color: #542d6b;
+}
+
+/* Secondary button variant */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Danger button variant */
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f0f0f0 4%, #f8f8f8 25%, #f0f0f0 36%);
+  background-size: 1000px 100%;
+}
+
+/* Select dropdown styling */
+select,
+select.form-control {
+  color: #333 !important;
+}
+
+select option {
+  color: #333 !important;
+  background-color: white !important;
+}
+
+select option:hover,
+select option:checked {
+  color: #4e94f0 !important;
+  background-color: #e3f2fd !important;
+}
+
+/* Date/Time picker styling */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color: #333 !important;
+}

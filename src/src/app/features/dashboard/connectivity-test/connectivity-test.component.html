@@ -1,0 +1,104 @@
+<div class="connectivity-test-container">
+  <div class="page-header">
+    <h1>🔌 Backend Connectivity Test</h1>
+    <p>Test all backend API endpoints to verify connectivity and functionality</p>
+  </div>
+
+  <div class="action-buttons">
+    <button class="btn btn-primary" (click)="runQuickHealthCheck()" [disabled]="testing">
+      <i class="fas fa-heartbeat"></i>
+      Quick Health Check
+    </button>
+    <button class="btn btn-success" (click)="runFullTest()" [disabled]="testing">
+      <i class="fas fa-play"></i>
+      Run Full Test
+    </button>
+    <button 
+      class="btn btn-secondary" 
+      (click)="downloadReport()" 
+      [disabled]="!testComplete || testResults.length === 0">
+      <i class="fas fa-download"></i>
+      Download Report
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="testing">
+    <div class="spinner"></div>
+    <p>Testing backend endpoints...</p>
+  </div>
+
+  <!-- Health Check Result -->
+  <div class="health-check-result" *ngIf="healthCheckPassed !== null && !testing">
+    <div class="alert" [class.alert-success]="healthCheckPassed" [class.alert-danger]="!healthCheckPassed">
+      <i class="fas" [class.fa-check-circle]="healthCheckPassed" [class.fa-times-circle]="!healthCheckPassed"></i>
+      <span *ngIf="healthCheckPassed">
+        Health Check PASSED - All critical services are responding
+      </span>
+      <span *ngIf="!healthCheckPassed">
+        Health Check FAILED - Some services are not responding
+      </span>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards" *ngIf="testComplete && testResults.length > 0">
+    <div class="stat-card total">
+      <div class="stat-value">{{ testResults.length }}</div>
+      <div class="stat-label">Total Tests</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-value">{{ successCount }}</div>
+      <div class="stat-label">Successful ({{ successRate.toFixed(1) }}%)</div>
+    </div>
+    <div class="stat-card failed">
+      <div class="stat-value">{{ failedCount }}</div>
+      <div class="stat-label">Failed</div>
+    </div>
+    <div class="stat-card timing">
+      <div class="stat-value">{{ avgResponseTime.toFixed(0) }}ms</div>
+      <div class="stat-label">Avg Response Time</div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="results-section" *ngIf="testComplete && testResults.length > 0">
+    <h2>Test Results</h2>
+    <div class="table-container">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Endpoint</th>
+            <th>Status</th>
+            <th>Response Time</th>
+            <th>Error</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let result of testResults" [class.row-success]="result.status === 'SUCCESS'" [class.row-failed]="result.status === 'FAILED'">
+            <td>{{ result.service }}</td>
+            <td><code>{{ result.endpoint }}</code></td>
+            <td>
+              <span class="status-badge" [class.badge-success]="result.status === 'SUCCESS'" [class.badge-failed]="result.status === 'FAILED'">
+                <i class="fas" [class.fa-check]="result.status === 'SUCCESS'" [class.fa-times]="result.status === 'FAILED'"></i>
+                {{ result.status }}
+              </span>
+            </td>
+            <td>{{ result.responseTime ? result.responseTime + 'ms' : '-' }}</td>
+            <td class="error-cell">{{ result.error || '-' }}</td>
+            <td class="timestamp">{{ result.timestamp | date: 'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!testing && !testComplete">
+    <i class="fas fa-flask"></i>
+    <h3>No Tests Run Yet</h3>
+    <p>Click "Quick Health Check" for a fast test or "Run Full Test" for comprehensive testing</p>
+  </div>
+</div>

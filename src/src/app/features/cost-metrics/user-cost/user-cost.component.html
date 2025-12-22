@@ -1,0 +1,78 @@
+<div class="user-cost-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h3>Monthly User Cost</h3>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <form [formGroup]="filterForm">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Select Agent:</label>
+          <select formControlName="filterAgent" class="form-select">
+            <option value="all">All Agents</option>
+            <option *ngFor="let agent of allAgents" [value]="agent">{{ agent }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Filter by User:</label>
+          <select formControlName="filterUser" class="form-select">
+            <option value="all">All Users</option>
+            <option *ngFor="let user of allUsers" [value]="user">{{ user }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Filter by Month:</label>
+          <select formControlName="filterMonth" class="form-select">
+            <option value="all">All Months</option>
+            <option *ngFor="let month of allMonths" [value]="month">{{ month }}</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading monthly user cost data..."></app-loader>
+
+  <!-- Cost Table -->
+  <div class="results-section" *ngIf="!loading">
+    <div class="table-container">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>User</th>
+            <th>Month</th>
+            <th>Total Cost</th>
+            <th>Updated On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of paginatedData">
+            <td>{{ data.AgentCode }}</td>
+            <td>{{ data.UserName }}</td>
+            <td>{{ data.Month }}</td>
+            <td>{{ data.TotalCost.toFixed(6) }}</td>
+            <td>{{ formatDate(data.UpdatedOn) }}</td>
+          </tr>
+          <tr *ngIf="filteredData.length === 0">
+            <td colspan="5" class="no-data">No data available</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">First</button>
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+      <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+      <button class="page-btn next-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      <button class="page-btn last-btn" (click)="lastPage()" [disabled]="currentPage === totalPages">Last</button>
+    </div>
+  </div>
+</div>

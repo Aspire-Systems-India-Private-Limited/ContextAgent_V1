@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <body>
+    <p>Signing you in...</p>
+    <script type="module">
+      import OktaClient from "./okta-client.js";
+      const okta = new OktaClient();
+      okta.handleRedirect().catch(err => {
+        console.error("Callback error:", err);
+        // optionally show an error UI
+      });
+    </script>
+  </body>
+</html>

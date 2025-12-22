@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'assets/styles/globals.css';
+@import 'assets/styles/ats-utilities.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Maven Pro', 'Segoe UI', Arial, sans-serif;
+  background-color: #f5f5f5;
+}

@@ -1,0 +1,77 @@
+<div class="diagnosis-container">
+  <div class="page-header">
+    <h1>Inferences</h1>
+  </div>
+
+  <div class="card">
+    <form (ngSubmit)="onSubmit()" #diagnosisForm="ngForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDateTime">Start Date & Time (UTC)</label>
+          <input 
+            type="datetime-local" 
+            id="startDateTime" 
+            name="startDateTime"
+            [(ngModel)]="startDateTime"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="endDateTime">End Date & Time (UTC)</label>
+          <input 
+            type="datetime-local" 
+            id="endDateTime"
+            name="endDateTime"
+            [(ngModel)]="endDateTime"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="sourceFilter">Source (Optional)</label>
+          <select 
+            id="sourceFilter"
+            name="sourceFilter"
+            [(ngModel)]="selectedSource"
+            class="form-select">
+            <option value="">-- All Sources --</option>
+            <option *ngFor="let source of sources" [value]="source">{{ source }}</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-fetch" [disabled]="loading">
+        <i class="fas fa-sync-alt"></i>
+        {{ loading ? 'Fetching...' : 'Fetch' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading inference logs..."></app-loader>
+
+  <!-- Results Section -->
+  <div class="results-section" *ngIf="!loading && showResults">
+    <h3 *ngIf="inferenceLogs.length > 0">Found {{ inferenceLogs.length }} Inference Log{{ inferenceLogs.length !== 1 ? 's' : '' }}</h3>
+    <p *ngIf="inferenceLogs.length === 0" class="no-data">ℹ️ No inferences found for the specified criteria.</p>
+
+    <div class="log-item" *ngFor="let log of inferenceLogs">
+      <p><strong>ID:</strong> {{ log.id }}</p>
+      <p><strong>Source:</strong> {{ log.source || 'N/A' }}</p>
+      <p><strong>Session ID:</strong> {{ log.sessionId || 'N/A' }}</p>
+      <p><strong>User ID:</strong> {{ log.userId || 'N/A' }}</p>
+      <p><strong>Request ID:</strong> {{ log.requestId || 'N/A' }}</p>
+      <p><strong>Created On:</strong> {{ formatDate(log.createdOn) }}</p>
+      <p><strong>Modified On:</strong> {{ formatDate(log.modifiedOn) }}</p>
+      
+      <div class="content-section" *ngIf="log.content && log.content.length > 0">
+        <h4>Content:</h4>
+        <div class="content-block" *ngFor="let item of log.content">
+          <h5 *ngIf="item.iteration">Iteration {{ item.iteration }}</h5>
+          <pre>{{ formatContent(item) }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

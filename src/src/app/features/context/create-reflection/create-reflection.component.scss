@@ -1,0 +1,206 @@
+.reflection-container {
+  padding: 32px;
+  background: var(--bg-secondary);
+  min-height: calc(100vh - 60px);
+
+  .page-header {
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: 28px;
+      font-weight: 600;
+    }
+  }
+
+  .example-boxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .example-box {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      border: 2px solid;
+
+      &.good {
+        border-color: var(--success-color);
+        background: #f0fff4;
+      }
+
+      &.bad {
+        border-color: var(--warning-color);
+        background: #fffbeb;
+      }
+
+      .icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .label {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .sublabel {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .form-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-md);
+
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        transition: var(--transition-normal);
+        font-family: 'Maven Pro', sans-serif;
+
+        &:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.1);
+        }
+
+        &::placeholder {
+          color: var(--text-muted);
+        }
+      }
+
+      textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .error {
+        color: var(--danger-color);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+
+    .form-section {
+      margin-bottom: 24px;
+
+      .section-label {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 15px;
+      }
+
+      .filter-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        align-items: flex-start;
+
+        .filter-inputs {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 12px;
+
+          .filter-key,
+          .filter-value {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+
+            &:focus {
+              outline: none;
+              border-color: var(--primary-color);
+              box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.1);
+            }
+          }
+        }
+
+        .btn-remove {
+          padding: 10px 16px;
+          border: none;
+          background: var(--danger-color);
+          color: white;
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          font-weight: 500;
+          font-size: 14px;
+          transition: var(--transition-normal);
+          white-space: nowrap;
+
+          &:hover {
+            background: #d32f2f;
+          }
+        }
+      }
+
+      .btn-add-filter {
+        padding: 10px 20px;
+        border: none;
+        background: var(--primary-color);
+        color: white;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: var(--transition-normal);
+
+        &:hover {
+          background: var(--primary-dark);
+        }
+      }
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      background: var(--primary-color);
+      color: white;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: var(--transition-normal);
+
+      &:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

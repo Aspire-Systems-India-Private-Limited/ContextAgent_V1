@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Solutions Dashboard</title>
+<link rel="icon" type="image/x-icon" href="https://www.aspiresys.com/themes/custom/asp_website/favicon.ico"/>
+  
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-purple: #65336e;
+        --dark-purple: #542d6b;
+        --bg-purple: #692e8b;
+        --light-blue: #80c6ff;
+        --text-light: #eee;
+        --sidebar-width: 200px;
+        --toolbar-height: 70px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--text-light);
+        color: #333;
+        font-family: "Maven Pro", "Segoe UI", Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      .app-wrapper {
+        display: flex;
+        height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar {
+        background-color: var(--primary-purple);
+        width: var(--sidebar-width);
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 0;
+        z-index: 100;
+        transition: width 0.3s ease;
+      }
+
+      .title-text {
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--text-light);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 10px;
+        cursor: pointer;
+      }
+
+      .title-text .ext {
+        color: var(--text-light);
+        margin-left: 4px;
+      }
+
+      .sidebar button {
+        background: none;
+        border: none;
+        color: var(--text-light);
+        width: 100%;
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.3s ease;
+        margin-bottom: 4px;
+      }
+
+      .sidebar button:hover,
+      .sidebar button.is-active {
+        background-color: var(--dark-purple);
+        border-radius: 8px;
+        padding: 14px 20px;
+      }
+
+      .icon {
+        font-size: 1.3rem;
+        color: var(--text-light);
+      }
+      .content {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        transition: margin-left 0.3s ease;
+      }
+
+      .toolbar {
+        height: var(--toolbar-height);
+        background: var(--primary-purple);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        width: calc(100% - var(--sidebar-width));
+        left: var(--sidebar-width);
+        padding: 0 24px;
+        z-index: 99;
+        border-bottom: 0.2px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        font-size: 26px;
+        font-weight: 500;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-image {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .logo .ext {
+        color: var(--text-light);
+      }
+      .user {
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .page-container {
+        margin-top: var(--toolbar-height);
+        padding: 24px;
+        overflow-y: auto;
+        height: calc(100vh - var(--toolbar-height));
+      }
+
+      .card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(101, 51, 110, 0.15);
+        border-color: var(--primary-purple);
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        color: var(--primary-purple);
+        font-weight: 600;
+      }
+
+      .card p {
+        font-size: 13px;
+        color: #555;
+        margin: 6px 0 0 0;
+        line-height: 1.5;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      input,
+      textarea {
+        padding: 10px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        background-color: white;
+        color: #333;
+        width: 100%;
+        font-family: inherit;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 2px rgba(101, 51, 110, 0.1);
+      }
+
+      button.submit-btn {
+        background-color: var(--primary-purple);
+        color: var(--text-light);
+        border: none;
+        padding: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background-color 0.3s;
+      }
+
+      button.submit-btn:hover {
+        background-color: var(--dark-purple);
+      }
+
+      .metadata-field {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .metadata-field input {
+        flex: 1;
+      }
+
+      .metadata-field button {
+        background: none;
+        border: none;
+        color: #ef4444;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 6px;
+        transition: opacity 0.3s;
+      }
+
+      .metadata-field button:hover {
+        opacity: 0.7;
+      }
+
+      .add-meta-btn {
+        background-color: #10b981;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        width: fit-content;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .add-meta-btn:hover {
+        opacity: 0.85;
+      }
+
+      h4 {
+        color: var(--primary-purple);
+        margin: 16px 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .form-section {
+        grid-column: 1 / -1;
+      }
+
+      .delete-btn {
+        background-color: #ef4444 !important;
+      }
+
+      .delete-btn:hover {
+        background-color: #dc2626 !important;
+      }
+
+      .left-panel::-webkit-scrollbar,
+      .right-panel::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .left-panel::-webkit-scrollbar-track,
+      .right-panel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb,
+      .right-panel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+
+      .left-panel::-webkit-scrollbar-thumb:hover,
+      .right-panel::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+
+      pre {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 8px 0;
+        font-size: 13px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .btn-context {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn-context:hover {
+        background-color: var(--dark-purple);
+        border-color: var(--light-blue);
+      }
+
+      .id-toggle-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .id-toggle-btn {
+        flex: 1;
+        padding: 10px;
+        border: 2px solid var(--primary-purple);
+        background: white;
+        color: var(--primary-purple);
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .id-toggle-btn.active {
+        background: var(--primary-purple);
+        color: white;
+      }
+
+      .id-toggle-btn:hover {
+        background: var(--dark-purple);
+        color: white;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .optional-badge {
+        position: absolute;
+        top: -8px;
+        right: 8px;
+        background: var(--light-blue);
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        grid-column: 1 / -1;
+        height: 150px;
+        font-size: 16px;
+        color: #666;
+      }
+      .loading::after {
+        content: "⏳ Loading...";
+        animation: blink 1s linear infinite;
+      }
+      @keyframes blink {
+        0%,
+        50%,
+        100% {
+          opacity: 1;
+        }
+        25%,
+        75% {
+          opacity: 0.3;
+        }
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 14px;
+      }
+      th {
+        background-color: var(--primary-purple);
+        color: #eee;
+      }
+      td img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal.show {
+        display: flex;
+      }
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .modal-header h2 {
+        color: var(--primary-purple);
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: #999;
+      }
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+      }
+      input[type="file"] {
+        padding: 4px;
+      }
+      .permission-item {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .permission-item input {
+        flex: 1;
+      }
+      .permission-item button {
+        background: #d9534f;
+        color: #fff;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .permission-item button:hover {
+        background: #c9302c;
+      }
+
+      .button-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
+
+      .btn-icon {
+        background-color: var(--primary-purple);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease;
+      }
+
+      .btn-icon:hover {
+        background-color: #5c2dbf;
+      }
+
+      .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .form-header label {
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .add-btn {
+        background-color: var(--primary-purple);
+        border: none;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+      }
+
+      .add-btn:hover {
+        background-color: var(--dark-purple);
+        transform: translateY(-1px);
+      }
+
+      .action-cell {
+  white-space: nowrap;
+}
+
+.action-cell > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <div class="sidebar">
+        <div class="logo">
+          <img
+            src="/static/aspire.svg"
+            alt="Company Logo"
+            class="logo-image"
+            onerror="this.style.display='none'"
+          />
+          <span class="title-text"
+            >Agent <span class="ext">Solutions</span></span
+          >
+        </div>
+        <button class="is-active" onclick="openModal()">
+          <i class="fas fa-plus icon"></i> Add Agent Solution
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="toolbar">
+          <div class="page-title"></div>
+          <div class="user">{% include "navbar.html" %}</div>
+        </div>
+
+        <div class="page-container">
+          <table id="agentSolutionTable">
+            <thead>
+              <tr>
+                <th>Thumbnail</th>
+                <th>Name</th>
+                <th>Support Email</th>
+                <th>Support Phone</th>
+                <th>Scopes/Role</th>
+                <th>URL</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be injected here -->
+            </tbody>
+          </table>
+        </div>
+        <!-- page-container -->
+      </div>
+      <!-- content -->
+    </div>
+    <!-- app-wrapper -->
+
+    <!-- Thumbnail Upload Modal -->
+    <div class="modal" id="thumbnailModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Update Thumbnail</h2>
+          <button class="close-btn" onclick="closeThumbnailModal()">
+            &times;
+          </button>
+        </div>
+        <div class="form-group">
+          <label for="thumbnailUpload">Choose image</label>
+          <input
+            type="file"
+            id="thumbnailUpload"
+            accept="image/*"
+            onchange="previewModalThumbnail(event)"
+          />
+          <img
+            id="modalThumbnailPreview"
+            style="
+              margin-top: 10px;
+              width: 60px;
+              height: 60px;
+              display: none;
+              object-fit: cover;
+              border-radius: 4px;
+            "
+          />
+        </div>
+        <button class="btn" onclick="saveThumbnail()" id="thumbnailSaveBtn">
+          Update
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add Agent Solution</h2>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="name" />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="agentDescription"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Support Email</label>
+          <input type="email" id="supportEmail" />
+        </div>
+
+        <div class="form-group">
+          <label>Support Phone</label>
+          <input type="text" id="supportPhone" />
+        </div>
+
+        <div class="form-group">
+          <label>URL</label>
+          <input type="text" id="url" />
+        </div>
+
+        <div class="form-group" id="divThumbnail">
+          <label>Thumbnail</label>
+          <input
+            type="file"
+            id="thumbnailFile"
+            accept="image/*"
+            onchange="previewThumbnail(event)"
+          />
+          <img
+            id="thumbnailPreview"
+            style="
+              margin-top: 10px;
+              width: 60px;
+              height: 60px;
+              display: none;
+              object-fit: cover;
+              border-radius: 4px;
+            "
+          />
+        </div>
+
+        <div class="form-group">
+          <div class="form-header">
+            <label>Scopes/Roles</label
+            ><button type="button" class="btn-icon" onclick="addPermission()">
+              <i class="fa fa-plus"></i> Scope
+            </button>
+            </div>
+            <div id="permissionContainer"></div>
+          
+        </div>
+        <div class="button-row">
+          <button
+            class="btn-icon"
+            onclick="saveAgentSolution()"
+            id="saveBtn"
+          >
+         <!--  <i class="fa-solid fa-floppy-disk"></i>-->
+ Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+     const API_BASE = "http://agent-ops-public.westus2.azurecontainer.io:8009/agent-solutions";
+     //const API_BASE = "http://localhost:8009/agent-solutions";
+
+      const imageBasePath =
+        "https://agentdashboardaiui.z5.web.core.windows.net/";
+
+      let agentSolutionsData = [];
+      let isEditMode = false;
+      let currentAgentId = null;
+
+      document.addEventListener("DOMContentLoaded", loadAgents);
+
+      // ==============================
+      // 🟣 Load all agents
+      // ==============================
+      async function loadAgents() {
+        try {
+          const res = await fetch(API_BASE);
+          if (!res.ok) throw new Error("Failed to fetch agent solutions");
+          const data = await res.json();
+          agentSolutionsData = data;
+          renderTable(data);
+        } catch (err) {
+          console.error(err);
+          alert("Error loading agent solutions!");
+        }
+      }
+
+      // ==============================
+      // 🟣 Open Add / Edit popup
+      // ==============================
+      function openModal(agent = null) {
+        const modal = document.getElementById("modal");
+        modal.classList.add("show");
+        const container = document.getElementById("permissionContainer");
+        console.log(container);
+        if (container && container.children.length === 0) {
+          addPermission(); // default empty row
+        }
+
+        if (agent) {
+          console.log(agent);
+          // Edit Mode
+          isEditMode = true;
+          document.getElementById("divThumbnail").style.display = "none";
+          currentAgentId = agent.id;
+          document.querySelector("#modal h2").innerText = "Edit Agent Solution";
+          //document.getElementById("saveBtn").innerText = "Update";
+
+          document.getElementById("name").value = agent.name || "";
+          document.getElementById("agentDescription").value =
+            agent.description || "";
+          document.getElementById("supportEmail").value =
+            agent.support?.email || "";
+          document.getElementById("supportPhone").value =
+            agent.support?.phone || "";
+          document.getElementById("url").value = agent.url || "";
+          // Set permissions
+          const container = document.getElementById("permissionContainer");
+          container.innerHTML = "";
+          (agent.permission_scopes || []).forEach((scope) => {
+            const div = document.createElement("div");
+            div.className = "permission-item";
+            div.innerHTML = `<input type="text" value="${scope}" />
+             <button type="button" onclick="removePermission(this)"><i class="fa fa-minus-circle"></i></button>`;
+            container.appendChild(div);
+          });
+
+          // Show thumbnail if exists
+          if (agent.thumbnail_url) {
+            const preview = document.getElementById("thumbnailPreview");
+            preview.src = agent.thumbnail_url;
+            preview.style.display = "block";
+          }
+        } else {
+          // Add Mode
+          const el = document.getElementById("divThumbnail");
+          el.style.display = "block";
+          isEditMode = false;
+          currentAgentId = null;
+          document.querySelector("#modal h2").innerText = "Add Agent Solution";
+          //document.getElementById("saveBtn").innerText = "Save";
+          clearModal();
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("show");
+        clearModal();
+      }
+
+      // ==============================
+      // 🟣 Render agent table
+      // ==============================
+      function renderTable(data) {
+        const tbody = document.querySelector("#agentSolutionTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach((agent) => {
+          const tr = document.createElement("tr");
+          imagePath = `${imageBasePath}${agent.thumbnail || ""}`;
+          tr.innerHTML = `
+      <td class="no-row-click"><img src="${imagePath}" onclick="openThumbnailModal('${
+            agent.id
+          }')" /></td>
+      <td title="${agent.name}">${agent.name}</td>
+      <td>${agent.support?.email || ""}</td>
+      <td>${agent.support?.phone || ""}</td>
+      <td>${(agent.permission_scopes || []).join(", ")}</td>
+      <td class="no-row-click"><a href="${
+        agent.url
+      }" target="_blank">Click Here</a></td>
+     <td class="action-cell no-row-click">
+        <button class="btn-icon " onclick='openModal(${JSON.stringify(
+          agent
+        )})'><i class="fas fa-edit"></i></button>
+        <button class="btn-icon" onclick='deleteAgent("${agent.id}","${agent.name}")'>
+      <i class="fa fa-trash"></i>
+    </button>
+      </td>
+    `;
+
+          tr.addEventListener("click", (e) => {
+            if (e.target.closest(".no-row-click")) return;
+            if (e.target.tagName !== "BUTTON") {
+              window.location.href = `/agent-sol/${encodeURIComponent(
+                agent.id
+              )}/agent`;
+            }
+          });
+          tr.style.cursor = "pointer";
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ==============================
+      // 🟣 Save / Update Agent
+      // ==============================
+
+      async function editSolution() {
+        const name = document.getElementById("name").value.trim();
+        const description = document
+          .getElementById("agentDescription")
+          .value.trim();
+        const email = document.getElementById("supportEmail").value.trim();
+        const phone = document.getElementById("supportPhone").value.trim();
+        const url = document.getElementById("url").value.trim();
+        const permissions = Array.from(
+          document.querySelectorAll("#permissionContainer input")
+        )
+          .map((i) => i.value)
+          .filter((v) => v);
+
+        const payload = {
+          name,
+          description,
+          url,
+          permission_scopes: permissions,
+          support: {
+            email,
+            phone,
+          },
+        };
+
+        try {
+          const res = await fetch(`${API_BASE}/${currentAgentId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to save agent solution");
+
+          closeModal();
+          loadAgents();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      async function saveAgentSolution() {
+        if (isEditMode) {
+          editSolution();
+          return;
+        }
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("supportEmail").value;
+        const phone = document.getElementById("supportPhone").value;
+        const url = document.getElementById("url").value;
+        const thumbnailFile = document.getElementById("thumbnailFile").files[0];
+        const permissions = Array.from(
+          document.querySelectorAll("#permissionContainer input")
+        )
+          .map((i) => i.value)
+          .filter((v) => v);
+
+        if (!name || !url || !thumbnailFile) {
+          alert("Name, URL, and thumbnail are required");
+          return; // ❌ don’t close modal on validation error
+        }
+        const formData = new FormData();
+
+        // append form values exactly matching backend parameter names
+        formData.append("name", name);
+        formData.append(
+          "description",
+          document.getElementById("agentDescription").value
+        );
+        formData.append("support_email", email);
+        formData.append("support_phone", phone);
+        formData.append("url", url);
+
+        // permission_scopes should be JSON string (or comma-separated string if backend expects JSON string)
+        formData.append("permission_scopes", JSON.stringify(permissions));
+
+        // if file is optional and you have a selected file, add it
+        if (thumbnailFile) {
+          formData.append("file", thumbnailFile);
+        }
+
+        fetch(`${API_BASE}`, {
+          method: "POST",
+          body: formData,
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              const err = await res.json();
+              console.error("Error:", err);
+              alert("Failed to save agent solution. Please check your inputs.");
+            } else {
+              alert("Agent solution saved successfully!");
+              loadAgents();
+              closeModal();
+            }
+          })
+          .catch((err) => {
+            console.error("Network error:", err);
+          });
+      }
+
+      // ==============================
+      // 🟣 Utility functions
+      // ==============================
+      function previewThumbnail(event) {
+        const preview = document.getElementById("thumbnailPreview");
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.style.display = "block";
+      }
+
+      function addPermission() {
+        const container = document.getElementById("permissionContainer");
+        const div = document.createElement("div");
+        div.className = "permission-item";
+        div.innerHTML = `<input type="text" placeholder="Permission scope" /> <button type="button" onclick="removePermission(this)">
+        <i class="fa fa-minus-circle"></i></button>`;
+        container.appendChild(div);
+        console.log(container);
+      }
+
+      function removePermission(btn) {
+        btn.parentElement.remove();
+      }
+
+      function clearModal() {
+        document.getElementById("name").value = "";
+        document.getElementById("agentDescription").value = "";
+        document.getElementById("supportEmail").value = "";
+        document.getElementById("supportPhone").value = "";
+        document.getElementById("url").value = "";
+        document.getElementById("thumbnailFile").value = "";
+        document.getElementById("thumbnailPreview").style.display = "none";
+        document.getElementById("permissionContainer").innerHTML = "";
+      }
+
+      let currentThumbnailAgentId = null;
+      let selectedThumbnailFile = null;
+
+      // Open thumbnail modal with agent ID and current image
+      function openThumbnailModal(agentId, thumbnail) {
+        currentThumbnailAgentId = agentId;
+        document.getElementById("thumbnailModal").classList.add("show");
+        const preview = document.getElementById("modalThumbnailPreview");
+        if (thumbnail) {
+          preview.src = imageBasePath + thumbnail;
+          preview.style.display = "block";
+        } else {
+          preview.style.display = "none";
+          preview.src = "";
+        }
+        document.getElementById("thumbnailUpload").value = "";
+        selectedThumbnailFile = null;
+      }
+
+      // Close thumbnail modal
+      function closeThumbnailModal() {
+        document.getElementById("thumbnailModal").classList.remove("show");
+        document.getElementById("thumbnailUpload").value = "";
+        document.getElementById("modalThumbnailPreview").style.display = "none";
+        selectedThumbnailFile = null;
+      }
+
+      // Preview thumbnail inside the modal
+      function previewModalThumbnail(event) {
+        const preview = document.getElementById("modalThumbnailPreview");
+        const file = event.target.files[0];
+        if (!file) {
+          preview.style.display = "none";
+          return;
+        }
+        selectedThumbnailFile = file;
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+
+      // Save updated thumbnail (API call)
+      async function saveThumbnail() {
+        if (!selectedThumbnailFile || !currentThumbnailAgentId) {
+          alert("Please select an image to upload.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedThumbnailFile);
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/${currentThumbnailAgentId}/image`,
+            {
+              method: "PUT", // or POST based on your backend, adjust as needed
+              body: formData,
+            }
+          );
+          if (!res.ok) {
+            const err = await res.json();
+            console.error("Error:", err);
+            alert("Failed to update thumbnail.");
+          } else {
+            closeThumbnailModal();
+            loadAgents(); // Refresh the table to show new thumbnail
+          }
+        } catch (err) {
+          console.error("Network error:", err);
+          alert("Failed to update thumbnail due to network error.");
+        }
+      }
+
+    async function deleteAgent(agentId,name) {
+    try {
+     
+    const confirmDelete = confirm(`Are you sure you want to delete  "${name}"?`);
+  if (!confirmDelete) {
+    console.log("🟡 Deletion canceled by user");
+    return;
+  }
+  const response = await fetch(`${API_BASE}/${agentId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete agent");
+    }
+
+    const result = await response.json();
+    console.log("✅ Agent deleted:", result);
+    closeModal();
+    await loadAgents();
+   
+  }catch (err) {
+          console.error("Network error:", err);
+        }
+  }
+
+    </script>
+  </body>
+</html>

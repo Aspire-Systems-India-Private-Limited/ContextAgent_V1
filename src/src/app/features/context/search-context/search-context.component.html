@@ -1,0 +1,130 @@
+<div class="search-context-container">
+  <div class="card">
+    <h2>Search Contexts</h2>
+    <form [formGroup]="searchForm" (ngSubmit)="searchContexts()">
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Agent Code</label>
+          <input 
+            id="agentSearch" 
+            formControlName="agentCode"
+            placeholder="Enter agent code" 
+            class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Version ID (optional)</label>
+          <input 
+            id="versionSearch" 
+            formControlName="versionId"
+            placeholder="Enter version ID"
+            class="form-control">
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+        <button type="submit" class="btn">Search</button>
+        <button type="button" class="btn" (click)="importContext()">Import</button>
+        <button type="button" class="btn" (click)="exportContext()">Export</button>
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 1px;">
+          <input 
+            type="checkbox" 
+            id="showTreeView" 
+            [(ngModel)]="showTreeView"
+            [ngModelOptions]="{standalone: true}"
+            (change)="toggleTreeView()"
+            style="width: 18px; height: 18px;">
+          <span style="font-weight: 500;">Enable Context Tree</span>
+        </label>
+      </div>
+    </form>
+
+    <!-- Tree View Container -->
+    <div id="treeViewContainer" *ngIf="showTreeView" style="margin-top: 24px;">
+      <div style="background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: var(--primary-color); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-code-branch" style="width: 20px; height: 20px;"></i>
+          Context Tree View
+        </h3>
+        <div id="treeContainer" class="tree-container">
+          <div class="tree-node" *ngFor="let node of treeData">
+            <div class="tree-item" (click)="toggleNode(node)">
+              <i class="fas" [ngClass]="node.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+              <i class="fas fa-folder"></i>
+              <span>{{ node.name }}</span>
+            </div>
+            <div class="tree-children" *ngIf="node.expanded">
+              <div class="tree-item child" *ngFor="let child of node.children" (click)="selectNode(child)">
+                <i class="fas fa-file"></i>
+                <span>{{ child.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="treeDetailPanel" *ngIf="selectedNode" class="tree-detail">
+          <h4>{{ selectedNode.name }}</h4>
+          <p><strong>Type:</strong> {{ selectedNode.type }}</p>
+          <p><strong>Description:</strong> {{ selectedNode.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div id="searchResults" style="margin-top: 24px;" *ngIf="!loading && contexts.length > 0">
+      <div class="result-card" *ngFor="let context of contexts">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <p><strong>ID:</strong> {{ context.id }}</p>
+          <p><strong>Context Code:</strong> {{ context.PromptCode }}</p>
+          <p><strong>Parent Context Code:</strong> {{ context.ParentPromptCode || 'None' }}</p>
+          <p><strong>Agent Code:</strong> {{ context.AgentCode }}</p>
+          <p><strong>Type:</strong> {{ context.Type }}</p>
+          <p><strong>Intent:</strong> {{ context.Intent }}</p>
+          <p><strong>Version ID:</strong> {{ context.VersionId }}</p>
+          <p><strong>Default:</strong> {{ context.Default ? '✅' : '❌' }}</p>
+          <p><strong>Latest:</strong> {{ context.Latest ? '✅' : '❌' }}</p>
+        </div>
+        <div style="margin-bottom:12px;">
+          <strong>Context Version:</strong>
+          <input 
+            type="text" 
+            [(ngModel)]="context.ContextVersion"
+            [ngModelOptions]="{standalone: true}"
+            readonly
+            style="width: 100%; margin-top: 8px; padding: 10px; background-color: #f5f5f5; cursor: not-allowed; border: 1px solid #ddd; border-radius: 4px;" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <strong>Content:</strong>
+          <textarea 
+            [(ngModel)]="context.Content"
+            [ngModelOptions]="{standalone: true}"
+            rows="3" 
+            style="width: 100%; margin-top: 8px; height: 350px;"
+            class="form-control"></textarea>
+        </div>
+        <div style="margin-bottom:12px;">
+          <strong>Filter:</strong>
+          <ul style="margin-top:4px; margin-left:20px;">
+            <li *ngFor="let entity of context.Entity">{{ entity.Key }}: {{ entity.Value }}</li>
+            <li *ngIf="!context.Entity || context.Entity.length === 0">None</li>
+          </ul>
+        </div>
+        <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+          <button class="btn" (click)="updateContext(context)">
+            <i class="fas fa-save"></i> Save
+          </button>
+          <button class="btn btn-danger" (click)="deleteContext(context)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+          <button class="btn" style="padding: 6px 12px; font-size: 12px;" (click)="testContext(context)">
+            <i class="fas fa-flask"></i> Test
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && contexts.length === 0 && searched" class="no-results">
+      <i class="fas fa-search"></i>
+      <p>No contexts found. Try adjusting your search filters.</p>
+    </div>
+
+    <app-loader *ngIf="loading" size="large" message="Loading contexts..."></app-loader>
+  </div>
+</div>

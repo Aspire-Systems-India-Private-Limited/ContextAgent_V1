@@ -1,0 +1,113 @@
+<div class="reflection-container">
+  <div class="page-header">
+    <h1>Create Reflection Context</h1>
+  </div>
+
+  <!-- Example Boxes -->
+  <div class="example-boxes">
+    <div class="example-box good">
+      <div class="icon">💡</div>
+      <div class="label">Good Example</div>
+      <div class="sublabel">Positive feedback context</div>
+    </div>
+    <div class="example-box bad">
+      <div class="icon">⚠️</div>
+      <div class="label">Bad Example</div>
+      <div class="sublabel">Negative feedback context</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <form [formGroup]="reflectionForm" (ngSubmit)="onSubmit()">
+      <!-- Agent Code -->
+      <div class="form-group">
+        <label for="agentCode">Agent Code</label>
+        <input
+          type="text"
+          id="agentCode"
+          class="form-control"
+          formControlName="agentCode"
+          placeholder="Enter agent code">
+        <div class="error" *ngIf="reflectionForm.get('agentCode')?.invalid && reflectionForm.get('agentCode')?.touched">
+          Agent Code is required
+        </div>
+      </div>
+
+      <!-- Reflect -->
+      <div class="form-group">
+        <label for="reflect">Reflect</label>
+        <input
+          type="text"
+          id="reflect"
+          class="form-control"
+          formControlName="reflect"
+          placeholder="Enter reflect">
+        <div class="error" *ngIf="reflectionForm.get('reflect')?.invalid && reflectionForm.get('reflect')?.touched">
+          Reflect is required
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="form-group">
+        <label for="reason">Reason</label>
+        <input
+          type="text"
+          id="reason"
+          class="form-control"
+          formControlName="reason"
+          placeholder="Enter reason for feedback">
+      </div>
+
+      <!-- Filters -->
+      <div class="form-section">
+        <label class="section-label">Filters</label>
+        <div formArrayName="filters">
+          <div *ngFor="let filter of filters.controls; let i = index" [formGroupName]="i" class="filter-row">
+            <div class="filter-inputs">
+              <input
+                type="text"
+                class="form-control filter-key"
+                formControlName="key"
+                placeholder="Key">
+              <input
+                type="text"
+                class="form-control filter-value"
+                formControlName="value"
+                placeholder="Value">
+            </div>
+            <button
+              type="button"
+              class="btn-remove"
+              (click)="removeFilter(i)"
+              *ngIf="filters.length > 1">
+              Remove
+            </button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-filter" (click)="addFilter()">
+          Add Filter
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="form-group">
+        <label for="content">Content</label>
+        <textarea
+          id="content"
+          class="form-control"
+          formControlName="content"
+          rows="6"
+          placeholder="Enter feedback content"></textarea>
+        <div class="error" *ngIf="reflectionForm.get('content')?.invalid && reflectionForm.get('content')?.touched">
+          Content is required
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-submit" [disabled]="saving">
+        {{ saving ? 'Creating...' : 'Create Reflection Context' }}
+      </button>
+    </form>
+  </div>
+</div>

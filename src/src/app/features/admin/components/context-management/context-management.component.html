@@ -1,0 +1,304 @@
+<div class="context-management-wrapper">
+  <!-- Sidebar -->
+  <div class="context-sidebar">
+    <div class="logo">
+      <span class="title-text">Context<span class="ext">Admin</span></span>
+    </div>
+    <div class="sidebar-item" [class.active]="currentView === 'create'" (click)="setView('create')">
+      <i class="fas fa-plus-circle"></i>
+      <span>Create Context</span>
+    </div>
+    <div class="sidebar-item" [class.active]="currentView === 'search'" (click)="setView('search')">
+      <i class="fas fa-search"></i>
+      <span>Search Contexts</span>
+    </div>
+    <div class="sidebar-item" [class.active]="currentView === 'create-reflection'" (click)="setView('create-reflection')">
+      <i class="fas fa-lightbulb"></i>
+      <span>Create Reflection Context</span>
+    </div>
+    <div class="sidebar-item" [class.active]="currentView === 'search-reflection'" (click)="setView('search-reflection')">
+      <i class="fas fa-search-plus"></i>
+      <span>Search Reflection Context</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="context-management-container">
+    <div class="page-container">
+      <!-- CREATE CONTEXT PANEL -->
+      <div *ngIf="currentView === 'create'" class="card">
+        <app-context-form></app-context-form>
+      </div>
+
+      <!-- SEARCH CONTEXT PANEL -->
+      <div *ngIf="currentView === 'search'" class="card">
+        <h2>Search Contexts</h2>
+        <form [formGroup]="searchForm" (ngSubmit)="searchContexts()">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Agent Code</label>
+              <input formControlName="agentCode" placeholder="Enter agent code" required/>
+            </div>
+            <div class="form-group">
+              <label>Version ID (optional)</label>
+              <input formControlName="versionId" placeholder="Enter version ID"/>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+            <button type="submit" class="btn" [disabled]="loading">
+              {{ loading ? 'Searching...' : 'Search' }}
+            </button>
+            <button type="button" class="btn">Import</button>
+            <button type="button" class="btn">Export</button>
+          </div>
+        </form>
+        
+        <div id="searchResults" style="margin-top:24px;">
+          <p *ngIf="loading">Loading...</p>
+          <p *ngIf="!loading && contexts.length === 0 && searchForm.get('agentCode')?.value">No results found.</p>
+          
+          <!-- Display search results as cards matching old HTML -->
+          <div *ngIf="!loading && contexts.length > 0">
+            <div class="result-card" *ngFor="let context of contexts; let i = index">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <p><strong>ID:</strong> {{ context.id }}</p>
+                <p><strong>Context Code:</strong> {{ context.PromptCode }}</p>
+                <p><strong>Parent Context Code:</strong> {{ context.ParentPromptCode || 'None' }}</p>
+                <p><strong>Agent Code:</strong> {{ context.AgentCode }}</p>
+                <p><strong>Type:</strong> {{ context.Type }}</p>
+                <p><strong>Intent:</strong> {{ context.Intent }}</p>
+                <p><strong>Version ID:</strong> {{ context.VersionId }}</p>
+                <p>
+                  <strong>Default:</strong> 
+                  <span *ngIf="context.Default" class="badge badge-success">Yes</span>
+                  <span *ngIf="!context.Default" class="badge badge-secondary">No</span>
+                </p>
+                <p>
+                  <strong>Latest:</strong> 
+                  <span *ngIf="context.Latest" class="badge badge-info">Yes</span>
+                  <span *ngIf="!context.Latest" class="badge badge-secondary">No</span>
+                </p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong>Context Version:</strong>
+                <input type="text" [id]="'contextVersion-' + i" [value]="context.ContextVersion || ''" 
+                       [readonly]="!updateContextVersion[i]"
+                       [style.background-color]="updateContextVersion[i] ? '#fff' : '#f5f5f5'"
+                       [style.cursor]="updateContextVersion[i] ? 'text' : 'not-allowed'"
+                       style="width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong>Content:</strong>
+                <textarea [id]="'content-' + i" rows="3" style="width: 100%; margin-top: 8px; height: 350px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ context.Content }}</textarea>
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong>Filter:</strong>
+                <ul style="margin-top:4px; margin-left:20px;">
+                  <li *ngFor="let e of context.Entity">{{ e.Key }}: {{ e.Value }}</li>
+                  <li *ngIf="!context.Entity || context.Entity.length === 0">None</li>
+                </ul>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="checkbox" [id]="'updateVersion-' + i" 
+                         style="width:16px; height:16px;" 
+                         [(ngModel)]="updateContextVersion[i]"
+                         (change)="toggleUpdateVersion(i)"/>
+                  <span>Update Context Version</span>
+                </label>
+                <div *ngIf="updateContextVersion[i]" class="update-version-warning" style="display:flex; align-items:center; gap:8px; margin-top: 8px; padding: 12px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+                  <i class="fas fa-exclamation-circle" style="font-size: 16px;"></i>
+                  <span>⚠️ Context Version field is now editable. Please update the version number before saving.</span>
+                </div>
+              </div>
+              <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+                <button class="btn" (click)="updateContextInline(i)">Save</button>
+                <button class="btn" style="background-color: #d9534f;" (click)="onDeleteContext(context)">Delete</button>
+                <button class="btn" style="padding: 6px 12px; font-size: 12px;" (click)="openTestModal(context)">Test</button>
+                <button class="btn-history" (click)="openHistoryModal(context.PromptCode)">
+                  <i class="fas fa-history" style="font-size: 14px; margin-right: 4px;"></i>
+                  History
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE REFLECTION PANEL -->
+      <div *ngIf="currentView === 'create-reflection'" class="card">
+        <h2>Create Reflection Context</h2>
+        
+        <div class="feedback-type-selector">
+          <div class="feedback-option good" 
+               [class.selected]="createReflectionType === 'good'" 
+               (click)="createReflectionType = 'good'">
+            <div class="feedback-option-icon">👍</div>
+            <div class="feedback-option-title">Good Example</div>
+            <div class="feedback-option-desc">Positive feedback context</div>
+          </div>
+          <div class="feedback-option bad" 
+               [class.selected]="createReflectionType === 'bad'"
+               (click)="createReflectionType = 'bad'">
+            <div class="feedback-option-icon">👎</div>
+            <div class="feedback-option-title">Bad Example</div>
+            <div class="feedback-option-desc">Negative feedback context</div>
+          </div>
+        </div>
+
+        <form [formGroup]="createReflectionForm" (ngSubmit)="createReflection()">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Agent Code *</label>
+              <select formControlName="agentCode" required>
+                <option value="">Select agent code</option>
+                <option *ngFor="let code of agentCodes" [value]="code">{{ code }}</option>
+              </select>
+              <small *ngIf="loadingAgents" style="color: #999; font-size: 12px;">Loading agents...</small>
+              <small *ngIf="!loadingAgents && agentCodes.length === 0" style="color: #dc3545; font-size: 12px;">
+                No agents found. You can still type manually.
+              </small>
+            </div>
+            <div class="form-group">
+              <label>Intent *</label>
+              <input formControlName="intent" placeholder="Enter intent" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Reason *</label>
+            <input formControlName="reason" placeholder="Enter reason for feedback" required/>
+          </div>
+
+          <div class="form-group">
+            <h3>Filters</h3>
+            <div formArrayName="entities">
+              <div *ngFor="let entity of getReflectionEntities().controls; let i = index" 
+                   [formGroupName]="i"
+                   style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 12px; align-items: end;">
+                <div>
+                  <label style="margin-bottom:4px;">Key</label>
+                  <input formControlName="Key" placeholder="Key" />
+                </div>
+                <div>
+                  <label style="margin-bottom:4px;">Value</label>
+                  <input formControlName="Value" placeholder="Value" />
+                </div>
+                <div>
+                  <button type="button" class="btn" style="background-color: #d9534f;" (click)="removeReflectionEntity(i)">Remove</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn" style="margin-top:12px;" (click)="addReflectionEntity()">Add Filters</button>
+          </div>
+
+          <div class="form-group">
+            <label>Content *</label>
+            <textarea formControlName="content" rows="8" placeholder="Enter feedback content" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn" [disabled]="reflectionLoading || createReflectionForm.invalid">
+            {{ reflectionLoading ? 'Creating...' : 'Create Reflection Context' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- SEARCH REFLECTION PANEL -->
+      <div *ngIf="currentView === 'search-reflection'" class="card">
+        <h2>Search Reflection Contexts</h2>
+        
+        <div class="feedback-type-selector">
+          <div class="feedback-option good" 
+               [class.selected]="selectedFeedbackType === 'good'"
+               (click)="selectFeedbackType('good')">
+            <div class="feedback-option-icon">👍</div>
+            <div class="feedback-option-title">Good Example</div>
+            <div class="feedback-option-desc">Search positive feedback</div>
+          </div>
+          <div class="feedback-option bad"
+               [class.selected]="selectedFeedbackType === 'bad'"
+               (click)="selectFeedbackType('bad')">
+            <div class="feedback-option-icon">👎</div>
+            <div class="feedback-option-title">Bad Example</div>
+            <div class="feedback-option-desc">Search negative feedback</div>
+          </div>
+        </div>
+
+        <form [formGroup]="searchReflectionForm" (ngSubmit)="searchReflections()">
+          <div class="form-group">
+            <label>Agent Code *</label>
+            <select formControlName="agentCode" required>
+              <option value="">Select agent code</option>
+              <option *ngFor="let code of agentCodes" [value]="code">{{ code }}</option>
+            </select>
+            <small *ngIf="loadingAgents" style="color: #999; font-size: 12px;">Loading agents...</small>
+            <small *ngIf="!loadingAgents && agentCodes.length === 0" style="color: #dc3545; font-size: 12px;">
+              No agents found. You can still type manually.
+            </small>
+          </div>
+          
+          <button type="submit" class="btn" [disabled]="reflectionLoading">
+            {{ reflectionLoading ? 'Searching...' : 'Search Feedback' }}
+          </button>
+        </form>
+        
+        <div id="searchFeedbackResults" style="margin-top:24px;">
+          <p *ngIf="reflectionLoading">Loading feedback contexts...</p>
+          <p *ngIf="!reflectionLoading && reflections.length === 0 && searchReflectionForm.get('agentCode')?.value">
+            No {{selectedFeedbackType}} feedback contexts found.
+          </p>
+          
+          <!-- Display reflection results -->
+          <div *ngIf="!reflectionLoading && reflections.length > 0">
+            <div class="result-card" *ngFor="let reflection of reflections; let idx = index" 
+                 [style.border-left]="selectedFeedbackType === 'good' ? '4px solid #28a745' : '4px solid #dc3545'">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0;">Feedback Context
+                  <span class="feedback-badge" 
+                        [ngClass]="selectedFeedbackType === 'good' ? 'good' : 'bad'">
+                    {{ selectedFeedbackType === 'good' ? '👍 Good' : '👎 Bad' }}
+                  </span>
+                </h3>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <p><strong>ID:</strong> {{ reflection.id || 'N/A' }}</p>
+                <p><strong>Agent Code:</strong> {{ reflection.AgentCode || 'N/A' }}</p>
+                <p><strong>Intent:</strong> {{ reflection.Intent || 'N/A' }}</p>
+                <p><strong>Reason:</strong> {{ reflection.Reason || 'N/A' }}</p>
+                <p><strong>Created By:</strong> {{ reflection.CreatedBy || 'N/A' }}</p>
+                <p><strong>Created On:</strong> {{ reflection.CreatedOn || 'N/A' }}</p>
+                <p><strong>Modified By:</strong> {{ reflection.ModifiedBy || 'N/A' }}</p>
+                <p><strong>Modified On:</strong> {{ reflection.ModifiedOn || 'N/A' }}</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong>Filters:</strong>
+                <ul style="margin-top:4px; margin-left:20px;">
+                  <li *ngFor="let e of reflection.Entity">{{ e.Key }}: {{ e.Value }}</li>
+                  <li *ngIf="!reflection.Entity || reflection.Entity.length === 0">None</li>
+                </ul>
+              </div>
+              <div style="margin-bottom:12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <strong>Content:</strong>
+                  <button type="button" class="btn" style="padding: 4px 12px; font-size: 12px;" 
+                          (click)="toggleContentExpand(idx)">
+                    <span>{{ expandedContents[idx] ? 'Collapse' : 'Expand' }}</span>
+                  </button>
+                </div>
+                <div [style.max-height]="expandedContents[idx] ? 'none' : '100px'" 
+                     [style.overflow]="expandedContents[idx] ? 'visible' : 'hidden'" 
+                     style="transition: max-height 0.3s ease;">
+                  <textarea rows="4" style="width: 100%; min-height: 100px; resize: vertical; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ reflection.Content || '' }}</textarea>
+                </div>
+              </div>
+              <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+                <button class="btn" (click)="updateReflection(reflection)">Save</button>
+                <button class="btn" style="background-color: #d9534f;" (click)="deleteReflection(reflection)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

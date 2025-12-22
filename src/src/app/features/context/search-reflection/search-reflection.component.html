@@ -1,0 +1,101 @@
+<div class="search-reflection-container">
+  <div class="page-header">
+    <h1>Search Reflection Contexts</h1>
+  </div>
+
+  <!-- Example Boxes -->
+  <div class="example-boxes">
+    <div class="example-box good" 
+         [class.selected]="selectedFeedbackType === 'good'"
+         (click)="selectFeedbackType('good')">
+      <div class="icon">💡</div>
+      <div class="label">Good Example</div>
+      <div class="sublabel">Positive feedback context</div>
+    </div>
+    <div class="example-box bad"
+         [class.selected]="selectedFeedbackType === 'bad'"
+         (click)="selectFeedbackType('bad')">
+      <div class="icon">⚠️</div>
+      <div class="label">Bad Example</div>
+      <div class="sublabel">Negative feedback context</div>
+    </div>
+  </div>
+
+  <!-- Search Form -->
+  <div class="search-card">
+    <form [formGroup]="searchForm" (ngSubmit)="search()">
+      <div class="form-group">
+        <label for="agentCode">Agent Code</label>
+        <input
+          type="text"
+          id="agentCode"
+          class="form-control"
+          formControlName="agentCode"
+          placeholder="Enter agent code">
+      </div>
+
+      <button type="submit" class="btn-search">
+        Search Reflection
+      </button>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading reflection contexts..."></app-loader>
+
+  <!-- Results -->
+  <div class="results-section" *ngIf="!loading && reflections.length > 0">
+    <div class="results-header">
+      <h3>Search Results</h3>
+      <span class="count">{{ reflections.length }} reflection contexts found</span>
+    </div>
+
+    <div class="results-grid">
+      <div *ngFor="let reflection of reflections" class="reflection-card">
+        <div class="card-header">
+          <div class="agent-info">
+            <span class="agent-badge">
+              <i class="fas fa-robot"></i>
+              {{ reflection.AgentCode }}
+            </span>
+            <span 
+              class="reflect-badge" 
+              [class.positive]="selectedFeedbackType === 'good'"
+              [class.negative]="selectedFeedbackType === 'bad'">
+              {{ selectedFeedbackType === 'good' ? 'Good' : 'Bad' }}
+            </span>
+          </div>
+          <div class="timestamp" *ngIf="reflection.CreatedOn">
+            <i class="fas fa-clock"></i>
+            {{ reflection.CreatedOn | date:'short' }}
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="reason" *ngIf="reflection.Reason">
+            <strong>Reason:</strong> {{ reflection.Reason }}
+          </div>
+          <div class="content" *ngIf="reflection.Content">
+            <strong>Content:</strong>
+            <p>{{ reflection.Content }}</p>
+          </div>
+          <div class="filters" *ngIf="reflection.Entity && reflection.Entity.length > 0">
+            <strong>Filters:</strong>
+            <div class="filter-tags">
+              <span class="filter-tag" *ngFor="let item of reflection.Entity">
+                <strong>{{ item.Key }}:</strong> {{ item.Value }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && reflections.length === 0">
+    <i class="fas fa-search"></i>
+    <p>No reflection contexts found</p>
+    <small>Try adjusting your search criteria</small>
+  </div>
+</div>

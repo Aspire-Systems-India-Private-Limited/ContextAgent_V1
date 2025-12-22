@@ -1,0 +1,97 @@
+<div class="diagnosis-layout">
+  <!-- Left Sidebar -->
+  <aside class="diagnosis-sidebar">
+    <nav class="sidebar-nav">
+      <!-- Metrics Section -->
+      <div class="nav-section">
+        <a 
+          class="nav-item collapsible"
+          (click)="toggleMetrics()">
+          <div class="nav-item-content">
+            <i class="fas fa-chart-line"></i>
+            <span>Metrics</span>
+          </div>
+          <i class="fas fa-chevron-right toggle-icon" [class.expanded]="metricsExpanded"></i>
+        </a>
+        <div class="nav-submenu" *ngIf="metricsExpanded">
+          <a 
+            routerLink="/cost-metrics" 
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="nav-subitem">
+            <i class="fas fa-dollar-sign"></i>
+            <span>Cost</span>
+          </a>
+          <a 
+            routerLink="/cost-metrics/performance" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Performance</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Diagnosis Section -->
+      <div class="nav-section">
+        <a 
+          routerLink="/cost-metrics/diagnosis"
+          routerLinkActive="active"
+          class="nav-item">
+          <div class="nav-item-content">
+            <i class="fas fa-stethoscope"></i>
+            <span>Diagnosis</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Aggregated Cost Section -->
+      <div class="nav-section">
+        <a 
+          class="nav-item collapsible"
+          (click)="toggleAggregatedCost()">
+          <div class="nav-item-content">
+            <i class="fas fa-coins"></i>
+            <span>Aggregated Cost</span>
+          </div>
+          <i class="fas fa-chevron-right toggle-icon" [class.expanded]="aggregatedCostExpanded"></i>
+        </a>
+        <div class="nav-submenu" *ngIf="aggregatedCostExpanded">
+          <a 
+            routerLink="/cost-metrics/agent" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-robot"></i>
+            <span>Agent</span>
+          </a>
+          <a 
+            routerLink="/cost-metrics/user" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-user"></i>
+            <span>User</span>
+          </a>
+          <a 
+            routerLink="/cost-metrics/notifications" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+          </a>
+          <a 
+            routerLink="/cost-metrics/violations" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Violations</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="diagnosis-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>
