@@ -1,5 +1,8 @@
 # Angular cache and build output
 .angular/
+.angular/cache/
+# Angular cache and build output
+.angular/
 build/
 tmp/
 out-tsc/
