@@ -154,7 +154,7 @@
                   transition: all 0.2s;
 
                   &.edit {
-                    background: #8b5cf6;
+                    background: #65336e;
                     color: white;
 
                     &:hover {
@@ -294,7 +294,7 @@
             transition: all 0.2s;
 
             &.btn-edit {
-              background: #8b5cf6;
+              background: #65336e;
               color: white;
 
               &:hover {
@@ -421,7 +421,7 @@
 
       &:focus {
         outline: none;
-        border-color: #8b5cf6;
+        border-color: #65336e;
         box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
       }
     }

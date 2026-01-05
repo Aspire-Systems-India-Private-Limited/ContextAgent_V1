@@ -50,7 +50,7 @@
 
         &:focus {
           outline: none;
-          border-color: #8B5CF6;
+          border-color: #65336e;
           box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
         }
       }
@@ -79,7 +79,7 @@
       border-collapse: collapse;
 
       thead {
-        background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+        background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
 
         th {
           padding: 12px;

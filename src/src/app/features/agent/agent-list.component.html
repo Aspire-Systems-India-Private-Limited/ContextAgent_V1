@@ -7,6 +7,9 @@
     <button class="btn-icon" (click)="openAddAgentModal()">
       <i class="fas fa-plus"></i> Add Agent Solution
     </button>
+    <button class="btn" *ngIf="solutionId" (click)="loadAgentsForSolution()">
+      Load Agents for Solution
+    </button>
   </div>
 
   <app-loader *ngIf="loading" size="large" message="Loading agents..."></app-loader>

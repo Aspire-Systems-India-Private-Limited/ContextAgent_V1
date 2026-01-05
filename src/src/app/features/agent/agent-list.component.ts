@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AgentService, Agent } from '../../core/services/agent.service';
 import { ToastrService } from 'ngx-toastr';
@@ -23,11 +24,17 @@ export class AgentListComponent implements OnInit {
   selectedThumbnailFile: File | null = null;
   readonly IMAGE_BASE_PATH = 'https://agentdashboardaiui.z5.web.core.windows.net/';
 
+  solutionId: string | null = null;
   constructor(
     private agentService: AgentService,
     private toastr: ToastrService,
-    private fb: FormBuilder
-  ) {}
+    private fb: FormBuilder,
+    private route: ActivatedRoute
+  ) {
+    this.route.paramMap.subscribe(params => {
+      this.solutionId = params.get('solutionId');
+    });
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -50,22 +57,34 @@ export class AgentListComponent implements OnInit {
 
   loadAgents(): void {
     this.loading = true;
-    console.log('Loading agent solutions from API...');
     this.agentService.getAllAgentSolutions().subscribe({
       next: (agents: Agent[]) => {
-        console.log('Agent solutions loaded:', agents);
         this.agents = agents;
         this.loading = false;
         this.toastr.success(`Loaded ${agents.length} agent solution(s)`, 'Success');
       },
       error: (error) => {
-        console.error('Error loading agent solutions:', error);
-        console.error('Error details:', {
-          status: error.status,
-          message: error.message,
-          url: error.url
-        });
         this.toastr.error('Failed to load agent solutions', 'Error');
+        this.loading = false;
+        this.agents = [];
+      }
+    });
+  }
+
+  loadAgentsForSolution(): void {
+    if (!this.solutionId) {
+      this.toastr.warning('No solutionId in route', 'Warning');
+      return;
+    }
+    this.loading = true;
+    this.agentService.getAgentsForSolution(this.solutionId).subscribe({
+      next: (agents: Agent[]) => {
+        this.agents = agents;
+        this.loading = false;
+        this.toastr.success(`Loaded ${agents.length} agent(s) for solution`, 'Success');
+      },
+      error: (error) => {
+        this.toastr.error('Failed to load agents for solution', 'Error');
         this.loading = false;
         this.agents = [];
       }

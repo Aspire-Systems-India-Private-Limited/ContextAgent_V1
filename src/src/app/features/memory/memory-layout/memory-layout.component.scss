@@ -5,7 +5,7 @@
 
   .memory-sidebar {
     width: 240px;
-    background: linear-gradient(180deg, #8B5CF6 0%, #7C3AED 100%);
+    background: linear-gradient(180deg, #65336e 0%, #7C3AED 100%);
     color: white;
     display: flex;
     flex-direction: column;
@@ -55,7 +55,7 @@
         &.active {
           background: rgba(255, 255, 255, 0.15);
           color: white;
-          border-left-color: #06B6D4;
+          border-left-color: #65336e;
           font-weight: 500;
         }
       }

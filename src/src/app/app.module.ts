@@ -21,9 +21,20 @@ import { SharedModule } from './shared/shared.module';
     CoreModule,
     SharedModule,
     ToastrModule.forRoot({
-      positionClass: 'toast-top-right',
+      positionClass: 'toast-bottom-right',
       preventDuplicates: true,
-      timeOut: 3000
+      timeOut: 5000,
+      progressBar: true,
+      progressAnimation: 'decreasing',
+      closeButton: true,
+      newestOnTop: false,
+      enableHtml: true,
+      tapToDismiss: true,
+      maxOpened: 5,
+      autoDismiss: true,
+      toastClass: 'ngx-toastr custom-toast',
+      titleClass: 'toast-title',
+      messageClass: 'toast-message'
     })
   ],
   providers: [],

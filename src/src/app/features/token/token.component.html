@@ -1,0 +1,16 @@
+<div class="token-container">
+  <h2>Manage Token in localStorage</h2>
+  <form class="token-form" (ngSubmit)="saveToken()">
+    <label for="token">Token</label>
+    <input id="token" [(ngModel)]="token" name="token" placeholder="Enter token here" autocomplete="off" />
+    <div class="button-row">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-success" (click)="showToken()">Show</button>
+      <button type="button" class="btn btn-danger" (click)="clearToken()">Clear</button>
+    </div>
+  </form>
+  <div class="status-msg" *ngIf="status">{{ status }}</div>
+  <div class="show-token" *ngIf="showValue">
+    <input type="text" [value]="showValue" readonly style="width:100%;margin-top:10px;" />
+  </div>
+</div>

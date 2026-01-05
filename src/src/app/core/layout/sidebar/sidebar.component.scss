@@ -4,7 +4,7 @@
   top: 70px;
   bottom: 0;
   width: 240px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #65336e;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transition: width 0.3s;
   z-index: 100;
@@ -21,14 +21,14 @@
   width: 24px;
   height: 24px;
   background: white;
-  color: #667eea;
+    color: #65336e;
   border: none;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(101, 51, 110, 0.15);
   z-index: 101;
 
   &:hover {
@@ -83,7 +83,7 @@
   &.active {
     background: rgba(255, 255, 255, 0.15);
     color: white !important;
-    border-left-color: #06B6D4;
+       border-left-color: #65336e;
     font-weight: 500;
   }
 }

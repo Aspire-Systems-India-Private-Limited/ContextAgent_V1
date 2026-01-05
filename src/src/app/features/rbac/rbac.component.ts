@@ -74,7 +74,7 @@ export class RbacComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required],
       icon: ['user'],
-      color: ['#8b5cf6']
+      color: ['#65336e']
     });
   }
 
@@ -144,7 +144,7 @@ export class RbacComponent implements OnInit {
   // Role Management
   openAddRoleModal(): void {
     this.editingRole = null;
-    this.roleForm.reset({ icon: 'user', color: '#8b5cf6' });
+    this.roleForm.reset({ icon: 'user', color: '#65336e' });
     this.showRoleModal = true;
   }
 

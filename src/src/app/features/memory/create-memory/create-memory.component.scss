@@ -51,7 +51,7 @@
             position: absolute;
             right: 0;
             top: -8px;
-            background: #80c6ff;
+            background: #93c7f8;
             color: #333;
             padding: 2px 8px;
             border-radius: 10px;
@@ -68,9 +68,9 @@
           .id-type-btn {
             flex: 1;
             padding: 10px;
-            border: 2px solid #8B5CF6;
+            border: 2px solid #65336e;
             background: white;
-            color: #8B5CF6;
+            color: #65336e;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
@@ -88,13 +88,13 @@
             }
 
             &:hover {
-              background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+              background: #65336e;
               color: white;
               border-color: transparent;
             }
 
             &.active {
-              background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+              background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
               color: white;
               border-color: transparent;
             }
@@ -161,7 +161,7 @@
         }
 
         .add-metadata-btn {
-          background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+          background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
           color: white;
           padding: 10px 16px;
           border-radius: 4px;
@@ -182,7 +182,7 @@
           }
 
           &:hover {
-            background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+            background: #65336e;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
           }
@@ -190,7 +190,7 @@
       }
 
       .submit-btn {
-        background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+        background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
         color: white;
         border: none;
         padding: 12px 24px;
@@ -213,7 +213,7 @@
         }
 
         &:hover {
-          background: linear-gradient(135deg, #7C3AED 0%, #0891B2 100%);
+          background: #65336e;
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }

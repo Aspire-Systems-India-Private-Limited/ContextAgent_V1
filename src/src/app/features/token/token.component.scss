@@ -1,0 +1,72 @@
+.token-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  .token-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-align: left;
+    color: #65336e; // This line is redundant and can be removed
+    }
+    input {
+      padding: 8px 12px;
+      border-radius: 4px;
+    border: 1px solid #65336e;
+      font-size: 15px;
+      margin-bottom: 10px;
+    color: #65336e; // This line is redundant and can be removed
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+    }
+    .btn {
+      padding: 8px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #65336e;
+      color: #fff;
+    }
+    .btn-success {
+  background: #65336e;
+      color: #fff;
+    }
+    .btn-danger {
+      color: #fff;
+    }
+    .btn:active, .btn:focus {
+      outline: 2px solid #65336e;
+    }
+  }
+  .status-msg {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 15px;
+    text-align: left;
+  }
+  .show-token input {
+    background: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 15px;
+    margin-top: 6px;
+  }
+}

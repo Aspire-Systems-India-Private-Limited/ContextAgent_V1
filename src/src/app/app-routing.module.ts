@@ -44,6 +44,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/rbac/rbac.module').then(m => m.RbacModule)
   },
   {
+    path: 'token',
+    loadChildren: () => import('./features/token/token.module').then(m => m.TokenModule)
+  },
+  {
     path: '**',
     redirectTo: '/admin'
   }

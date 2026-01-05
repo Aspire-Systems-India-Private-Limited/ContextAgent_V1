@@ -3,7 +3,7 @@
   --primary-purple: #65336e;
   --dark-purple: #542d6b;
   --bg-purple: #692e8b;
-  --light-blue: #80c6ff;
+  --light-blue: #65336e;
   --text-light: #eee;
 }
 
@@ -46,7 +46,7 @@
     // AI Section
     .ai-section {
       background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      border: 2px dashed #667eea;
+      border: 2px dashed #65336e;
       border-radius: 8px;
       padding: 20px;
       margin-bottom: 24px;
@@ -58,12 +58,12 @@
         margin-bottom: 16px;
 
         i {
-          color: #667eea;
+          color: #65336e;
           font-size: 20px;
         }
 
         h3 {
-          color: #667eea;
+          color: #65336e;
           margin: 0;
           font-size: 18px;
           font-weight: 500;
@@ -84,7 +84,7 @@
       }
 
       .ai-generate-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #65336e 0%, #764ba2 100%);
         color: white;
         padding: 10px 24px;
         border-radius: 4px;

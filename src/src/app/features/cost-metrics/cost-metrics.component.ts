@@ -237,14 +237,14 @@ export class CostMetricsComponent implements OnInit, AfterViewInit {
         datasets: [{
           label: 'Cost ($)',
           data: values,
-          borderColor: '#06B6D4',
+          borderColor: '#65336e',
           backgroundColor: 'rgba(6, 182, 212, 0.1)',
           borderWidth: 3,
           tension: 0.4,
           fill: true,
           pointRadius: 4,
           pointHoverRadius: 6,
-          pointBackgroundColor: '#06B6D4',
+          pointBackgroundColor: '#65336e',
           pointBorderColor: '#fff',
           pointBorderWidth: 2
         }]
@@ -261,7 +261,7 @@ export class CostMetricsComponent implements OnInit, AfterViewInit {
             display: true,
             text: `Cost Metrics${this.selectedIntent !== 'all' ? ' - ' + this.selectedIntent : ''}`,
             font: { size: 16, weight: 'bold' },
-            color: '#06B6D4'
+            color: '#65336e'
           },
           tooltip: {
             mode: 'index',

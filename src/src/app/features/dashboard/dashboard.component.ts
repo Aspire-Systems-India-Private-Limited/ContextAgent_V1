@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
     { title: 'Memory Management', icon: 'brain', route: '/memory', color: '#FF9800' },
     { title: 'Audit Logs', icon: 'clipboard-list', route: '/audit', color: '#FF5722' },
     { title: 'Cost Metrics', icon: 'dollar-sign', route: '/cost-metrics', color: '#10b981' },
-    { title: 'Sentiment Analysis', icon: 'chart-line', route: '/sentiment', color: '#8b5cf6' },
+    { title: 'Sentiment Analysis', icon: 'chart-line', route: '/sentiment', color: '#65336e' },
     { title: 'RBAC Management', icon: 'user-shield', route: '/rbac', color: '#ef4444' }
   ];
 
