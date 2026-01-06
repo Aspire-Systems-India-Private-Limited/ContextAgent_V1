@@ -1090,6 +1090,17 @@ status-badge {
 
 /* ===== MODERN BUTTON STYLES ===== */
 
+/* CRITICAL: Ensure all buttons are visible and properly styled */
+button,
+.btn,
+input[type="submit"],
+input[type="button"],
+a.btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1109,12 +1120,31 @@ status-badge {
   white-space: nowrap;
   font-family: var(--font-sans);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  vertical-align: middle;
+}
+
+/* Default button styling - Purple Theme (for buttons without specific classes) */
+button:not([class*="btn-"]):not([class*="secondary"]):not([class*="delete"]):not([class*="cancel"]):not([class*="ghost"]):not([class*="mat-"]):not(.close),
+.btn:not([class*="secondary"]):not([class*="outline"]):not([class*="ghost"]) {
+  background: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+}
+
+button:not([class*="btn-"]):not([class*="secondary"]):not([class*="delete"]):not([class*="cancel"]):not([class*="ghost"]):not([class*="mat-"]):not(.close):hover:not(:disabled),
+.btn:not([class*="secondary"]):not([class*="outline"]):not([class*="ghost"]):hover:not(:disabled) {
+  background: var(--primary-hover) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(101, 51, 110, 0.25),
+              0 2px 4px rgba(101, 51, 110, 0.15) !important;
 }
 
 /* Primary Button - Modern Purple */
 .btn-primary,
 button[type="submit"],
-input[type="submit"] {
+input[type="submit"],
+button.primary {
   background: var(--primary);
   color: var(--primary-foreground);
   border: 1px solid transparent;
@@ -1122,7 +1152,8 @@ input[type="submit"] {
 
 .btn-primary:hover,
 button[type="submit"]:hover,
-input[type="submit"]:hover {
+input[type="submit"]:hover,
+button.primary:hover {
   background: var(--primary-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(101, 51, 110, 0.25),
@@ -1130,7 +1161,9 @@ input[type="submit"]:hover {
   color: white !important;
 }
 
-.btn-primary:active {
+.btn-primary:active,
+button[type="submit"]:active,
+input[type="submit"]:active {
   transform: translateY(0);
   box-shadow: 0 1px 2px rgba(101, 51, 110, 0.2);
 }
@@ -1138,18 +1171,24 @@ input[type="submit"]:hover {
 /* Secondary Button - Subtle Gray */
 .btn-secondary,
 button.secondary {
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-  border: 1px solid var(--border);
+  background: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: 1px solid var(--border) !important;
 }
 
 .btn-secondary:hover,
 button.secondary:hover {
-  background: #e4e4e7 !important;
+  background: #e9e9ec !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   color: var(--foreground) !important;
-  border-color: #d4d4d8;
+  border-color: #d4d4d8 !important;
+}
+
+.btn-secondary:active,
+button.secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Outline Button */
@@ -1245,6 +1284,226 @@ button.danger:hover {
   border-radius: 50%;
   border-top-color: white;
   animation: spin 0.6s linear infinite;
+}
+
+/* ===== BUTTON ALIGNMENT UTILITIES ===== */
+
+/* Button Container/Wrapper Alignment */
+.button-group,
+.form-actions,
+.actions,
+.action-buttons,
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button-group.right,
+.form-actions.right,
+.actions.right {
+  justify-content: flex-end;
+}
+
+.button-group.center,
+.form-actions.center,
+.actions.center {
+  justify-content: center;
+}
+
+.button-group.left,
+.form-actions.left,
+.actions.left {
+  justify-content: flex-start;
+}
+
+.button-group.space-between,
+.form-actions.space-between {
+  justify-content: space-between;
+}
+
+/* Ensure buttons within containers are aligned properly */
+.button-group > button,
+.form-actions > button,
+.actions > button,
+.action-buttons > button {
+  margin: 0;
+}
+
+/* ===== CRITICAL BUTTON FIXES ===== */
+
+/* Ensure all buttons have proper default styling */
+button:not(.mat-button):not(.mat-raised-button):not(.mat-icon-button):not(.mat-fab):not(.mat-mini-fab) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 20px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-in-out-smooth);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Fix for buttons without explicit class - make them primary by default */
+button:not([class*="btn"]):not([class*="mat-"]):not(.close):not(.navbar-toggler) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 1px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+button:not([class*="btn"]):not([class*="mat-"]):not(.close):not(.navbar-toggler):hover {
+  background: var(--primary-hover);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary);
+}
+
+/* Specific fix for Add Filter button and similar action buttons */
+button[type="button"],
+.filters button,
+.filter-section button,
+.add-filter-button,
+button.add-button,
+button.action-button {
+  background: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+  min-width: 120px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+button[type="button"]:hover,
+.filters button:hover,
+.filter-section button:hover,
+.add-filter-button:hover,
+button.add-button:hover,
+button.action-button:hover {
+  background: var(--primary-hover) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary) !important;
+}
+
+/* Fix alignment issues in action containers */
+.actions,
+.action-buttons,
+.filter-actions,
+.form-actions,
+.header-actions,
+.toolbar-actions,
+.card-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Right-aligned actions */
+.actions-right,
+.action-buttons-right {
+  justify-content: flex-end !important;
+  margin-left: auto;
+}
+
+/* Center-aligned actions */
+.actions-center,
+.action-buttons-center {
+  justify-content: center !important;
+}
+
+/* Space between actions */
+.actions-between,
+.action-buttons-between {
+  justify-content: space-between !important;
+}
+
+/* Ensure buttons in tables/grids are visible and aligned */
+table button,
+.table button,
+.grid button,
+tr button,
+td button {
+  display: inline-flex !important;
+  align-items: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: auto !important;
+  padding: 8px 16px !important;
+  margin: 2px !important;
+}
+
+/* Fix for icon buttons in action columns */
+.action-column button,
+.actions-column button,
+td.actions button,
+td .actions button {
+  min-width: 36px !important;
+  padding: 8px !important;
+  border-radius: 8px !important;
+}
+
+/* Ensure filter section is properly visible */
+.filters,
+.filter-section,
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.filters > div,
+.filter-section > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Filter input groups */
+.filter-row,
+.filter-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Ensure input labels and fields are visible */
+.filter-row label,
+.filter-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  margin-bottom: 6px;
+}
+
+.filter-row input,
+.filter-row select,
+.filter-row textarea,
+.filter-group input,
+.filter-group select,
+.filter-group textarea {
+  flex: 1;
+  min-width: 200px;
 }
 
 /* ===== MODERN CARD STYLES ===== */
@@ -1409,16 +1668,42 @@ input[type="radio"] {
   accent-color: var(--primary);
 }
 
-/* ===== LEGACY COMPATIBILITY ===== */
+/* ===== LEGACY COMPATIBILITY & GLOBAL BUTTON FIXES ===== */
 
-/* Ensure all button types maintain purple theme on hover */
-button:hover:not(.btn-secondary):not(:disabled),
+/* Ensure all buttons have proper default styling - NO WHITE BUTTONS! */
+button:not([class*="btn-secondary"]):not([class*="secondary"]):not([class*="cancel"]):not([class*="ghost"]):not(:disabled),
+.btn:not([class*="secondary"]):not([class*="outline"]):not([class*="ghost"]):not(:disabled),
+.btn-primary:not(:disabled),
+.btn-icon:not(:disabled),
+.btn-fetch:not(:disabled),
+.action-btn:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Ensure purple hover state for all primary buttons */
+button:not([class*="btn-secondary"]):not([class*="secondary"]):not([class*="cancel"]):not([class*="ghost"]):hover:not(:disabled),
+.btn:not([class*="secondary"]):not([class*="outline"]):not([class*="ghost"]):hover:not(:disabled),
 .btn-primary:hover:not(:disabled),
 .btn-icon:hover:not(:disabled),
 .btn-fetch:hover:not(:disabled),
 .action-btn:hover:not(:disabled) {
-  background: #65336e !important;
+  background: var(--primary-hover) !important;
   color: #fff !important;
+}
+
+/* Explicitly set secondary button colors */
+.btn-secondary,
+button.secondary {
+  background: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.btn-secondary:hover:not(:disabled),
+button.secondary:hover:not(:disabled) {
+  background: #e9e9ec !important;
+  color: var(--foreground) !important;
 }
 
 /* ===== ENHANCED CARD STYLES ===== */
@@ -1626,6 +1911,504 @@ h1 i, h2 i, h3 i {
   color: white !important;
 }
 
+/* ===== ACTION BUTTONS (Tables, Grids, Cards) ===== */
+
+.action-btn,
+button.edit,
+button.view,
+button.delete,
+button.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s var(--ease-in-out-smooth);
+  background: var(--primary);
+  color: white;
+}
+
+.action-btn:hover,
+button.edit:hover,
+button.view:hover {
+  background: var(--primary-hover) !important;
+  color: white !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(101, 51, 110, 0.25);
+}
+
+.action-btn.delete,
+button.delete {
+  background: var(--destructive);
+}
+
+.action-btn.delete:hover,
+button.delete:hover {
+  background: var(--destructive-hover) !important;
+  color: white !important;
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+}
+
+/* Action button groups in tables */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ===== TABLE AND DATA GRID BUTTON FIXES ===== */
+
+/* Table styling with proper button visibility */
+table,
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+table thead,
+.table thead {
+  background: var(--secondary);
+  border-bottom: 2px solid var(--border);
+}
+
+table th,
+.table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+table td,
+.table td {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+table tr:hover,
+.table tr:hover {
+  background: var(--secondary);
+}
+
+/* Action buttons in table cells */
+table td button,
+.table td button,
+table .actions button,
+.table .actions button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: auto !important;
+  padding: 8px 14px !important;
+  margin: 2px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+  gap: 6px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Open/View buttons in tables */
+table td button.open-button,
+table td a.open-button,
+.table td button.open-button,
+.table td a.open-button,
+table td button:contains("Open"),
+.table td button:contains("Open") {
+  background: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+  text-decoration: none !important;
+}
+
+/* Icon-only action buttons (edit, delete, etc.) */
+table td button[title],
+.table td button[title],
+table td .icon-button,
+.table td .icon-button {
+  min-width: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 8px !important;
+  border-radius: 8px !important;
+  background: var(--secondary) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+table td button[title]:hover,
+.table td button[title]:hover,
+table td .icon-button:hover,
+.table td .icon-button:hover {
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Delete/danger buttons in tables */
+table td button.delete,
+table td button.danger,
+table td button[title*="Delete"],
+table td button[title*="Remove"],
+.table td button.delete,
+.table td button.danger {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: var(--destructive) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+table td button.delete:hover,
+table td button.danger:hover,
+.table td button.delete:hover,
+.table td button.danger:hover {
+  background: var(--destructive) !important;
+  color: white !important;
+  border-color: var(--destructive) !important;
+}
+
+/* Ensure action column has proper layout */
+table td.actions,
+.table td.actions,
+table td.action-column,
+.table td.action-column {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+}
+
+/* Badge/Tag styling in tables */
+table td .badge,
+.table td .badge,
+table td .tag,
+.table td .tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+}
+
+/* ===== GLOBAL ALIGNMENT & LAYOUT FIXES ===== */
+
+/* Header Actions - Top Right Buttons */
+.header-actions,
+.page-header-actions,
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* Form Actions - Bottom Right Buttons */
+.form-actions,
+.modal-actions,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Action Buttons in Tables/Cards - Right Aligned */
+.action-buttons,
+.row-actions,
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Button Groups - Horizontal Layout */
+.button-group,
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Filters Section - Left Aligned */
+.filters,
+.filter-container,
+.search-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Page Header with Title and Actions */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-header .page-title {
+  margin: 0;
+  flex: 1;
+}
+
+/* Table Actions Row */
+.table-actions,
+.data-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.table-actions .left-actions,
+.table-actions .filter-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.table-actions .right-actions,
+.table-actions .action-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* Context Management Specific */
+.context-management-header,
+.agent-management-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+/* Filter Button Groups */
+.filter-buttons,
+.filter-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Icon Buttons in Tables */
+.icon-btn,
+.btn-icon,
+button.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: all 0.2s var(--ease-in-out-smooth);
+}
+
+.icon-btn:hover,
+.btn-icon:hover,
+button.icon-only:hover {
+  background: var(--secondary);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+/* Edit/Delete Action Buttons */
+.edit-btn,
+button[aria-label*="Edit"],
+button[title*="Edit"] {
+  background: transparent !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--primary) !important;
+  padding: 8px 12px !important;
+  min-width: auto !important;
+}
+
+.edit-btn:hover,
+button[aria-label*="Edit"]:hover,
+button[title*="Edit"]:hover {
+  background: rgba(101, 51, 110, 0.08) !important;
+  border-color: var(--primary-hover) !important;
+}
+
+.delete-btn,
+button[aria-label*="Delete"],
+button[title*="Delete"] {
+  background: transparent !important;
+  color: var(--destructive) !important;
+  border: 1px solid var(--destructive) !important;
+  padding: 8px 12px !important;
+  min-width: auto !important;
+}
+
+.delete-btn:hover,
+button[aria-label*="Delete"]:hover,
+button[title*="Delete"]:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: var(--destructive-hover) !important;
+}
+
+/* Open/View Buttons */
+button[aria-label*="Open"],
+button[title*="Open"],
+.open-btn {
+  background: transparent !important;
+  color: var(--info) !important;
+  border: 1px solid var(--info) !important;
+  padding: 8px 12px !important;
+  min-width: auto !important;
+}
+
+button[aria-label*="Open"]:hover,
+button[title*="Open"]:hover,
+.open-btn:hover {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border-color: var(--info-hover) !important;
+}
+
+/* Search Bar Alignment */
+.search-bar,
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 400px;
+}
+
+/* Scope/Role Tags */
+.scope-tag,
+.role-tag,
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  background: rgba(101, 51, 110, 0.08);
+  color: var(--primary);
+  border: 1px solid rgba(101, 51, 110, 0.2);
+  line-height: 1.4;
+}
+
+/* Ensure all buttons have proper display */
+button,
+.btn,
+[role="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+/* Fix for hidden buttons */
+button[hidden],
+.btn[hidden] {
+  display: none !important;
+}
+
+/* Toolbar Alignment */
+.toolbar,
+.action-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--card);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+/* Card Header with Actions */
+.card-header-with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Modal Header Actions */
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Flex Utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 /* ===== RESPONSIVE BREAKPOINTS ===== */
 
 @media (max-width: 640px) {
@@ -1640,6 +2423,54 @@ h1 i, h2 i, h3 i {
   
   .metric-value {
     font-size: 1.5rem;
+  }
+  
+  /* Mobile Button Alignment */
+  .header-actions,
+  .page-header-actions,
+  .toolbar-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .form-actions,
+  .modal-actions,
+  .dialog-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-actions button,
+  .modal-actions button,
+  .dialog-actions button {
+    width: 100%;
+  }
+  
+  .button-group,
+  .btn-group {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .table-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .table-actions .left-actions,
+  .table-actions .right-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .search-bar,
+  .search-input-wrapper {
+    max-width: 100%;
   }
 }
 
@@ -1692,25 +2523,6 @@ h1 i, h2 i, h3 i {
   .interactive {
     display: none !important;
   }
-}
-
-/* ===== GLOBAL BUTTON HOVER FIX - ENFORCE PURPLE THEME ===== */
-
-/* Prevent any button from turning white on hover */
-button:not(.btn-secondary):not([class*="delete"]):not([class*="cancel"]):hover,
-.btn:not(.btn-secondary):hover,
-.btn-primary:hover,
-input[type="submit"]:hover,
-input[type="button"]:hover {
-  background: #65336e !important;
-  color: #fff !important;
-}
-
-/* Ensure secondary buttons have light gray, not white */
-.btn-secondary:hover,
-button.secondary:hover {
-  background: #f3f4f6 !important;
-  color: #65336e !important;
 }
 
 /* ===== STATUS BADGES & CHIPS ===== */
