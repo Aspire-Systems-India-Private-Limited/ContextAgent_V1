@@ -8,18 +8,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 11000;
   animation: fadeIn 0.2s ease-in-out;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .modal-container {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  max-height: 90vh;
+  max-height: 85vh;
+  max-width: 95vw;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease-out;
+  margin: auto;
 
   &.small {
     width: 400px;
@@ -44,7 +48,7 @@
 
 .modal-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
 }
