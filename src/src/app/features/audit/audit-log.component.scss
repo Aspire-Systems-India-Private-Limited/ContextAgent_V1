@@ -5,17 +5,19 @@
 }
 
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 
   h1 {
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     color: #333;
+    font-size: 24px;
+    font-weight: 600;
   }
 
   .subtitle {
     margin: 0;
     color: #666;
-    font-size: 16px;
+    font-size: 13px;
   }
 }
 
@@ -218,16 +220,10 @@
   border-bottom: 2px solid #65336e;
 
   h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
     margin: 0;
     color: #333;
     font-size: 20px;
-
-    i {
-      color: #65336e;
-    }
+    font-weight: 600;
   }
 }
 
@@ -365,16 +361,10 @@
   margin-bottom: 20px;
 
   h4 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     margin: 0 0 12px 0;
     color: #333;
     font-size: 15px;
-
-    i {
-      color: #65336e;
-    }
+    font-weight: 600;
   }
 }
 

@@ -27,10 +27,7 @@
   <!-- User Management Tab -->
   <div class="tab-content" *ngIf="activeTab === 'users'">
     <div class="content-header">
-      <h2>
-        <i class="fas fa-users"></i>
-        User Management
-      </h2>
+      <h2>User Management</h2>
       <app-button variant="primary" icon="user-plus" (click)="openAddUserModal()">
         Add User
       </app-button>
@@ -86,10 +83,7 @@
   <!-- Role Management Tab -->
   <div class="tab-content" *ngIf="activeTab === 'roles'">
     <div class="content-header">
-      <h2>
-        <i class="fas fa-user-shield"></i>
-        Role Management
-      </h2>
+      <h2>Role Management</h2>
       <app-button variant="primary" icon="plus" (click)="openAddRoleModal()">
         Add Role
       </app-button>
@@ -146,10 +140,7 @@
   <!-- Permissions Tab -->
   <div class="tab-content" *ngIf="activeTab === 'permissions'">
     <div class="content-header">
-      <h2>
-        <i class="fas fa-key"></i>
-        Permissions Matrix
-      </h2>
+      <h2>Permissions Matrix</h2>
     </div>
 
     <app-loader *ngIf="loading" size="large" message="Loading permissions..."></app-loader>

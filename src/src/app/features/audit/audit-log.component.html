@@ -200,10 +200,7 @@
       <!-- Audit Logs Results -->
       <div class="logs-section" *ngIf="!loading && auditLogs.length > 0">
         <div class="logs-header">
-          <h3>
-            <i class="fas fa-list"></i>
-            Audit Logs ({{ auditLogs.length }})
-          </h3>
+          <h3>Audit Logs ({{ auditLogs.length }})</h3>
         </div>
 
         <div class="logs-list">
@@ -239,10 +236,7 @@
             <!-- Log Details (Expanded) -->
             <div class="log-details" *ngIf="isLogExpanded(log.id)">
               <div class="detail-section">
-                <h4>
-                  <i class="fas fa-align-left"></i>
-                  Full Content
-                </h4>
+                <h4>Full Content</h4>
                 <div class="detail-content">
                   <pre>{{ log.content }}</pre>
                 </div>

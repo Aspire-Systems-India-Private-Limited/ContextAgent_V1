@@ -89,17 +89,19 @@
 }
 
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 
   h1 {
-    margin: 0 0 8px 0;
-  color: #65336e;
+    margin: 0 0 6px 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
   }
 
   .subtitle {
     margin: 0;
-  color: #65336e;
-    font-size: 16px;
+    color: #666;
+    font-size: 13px;
   }
 }
 
@@ -414,16 +416,10 @@
   margin-bottom: 12px;
 
   h4 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     margin: 0;
     color: #333;
     font-size: 15px;
-
-    i {
-      color: #65336e;
-    }
+    font-weight: 600;
   }
 }
 
