@@ -1191,6 +1191,30 @@ button.secondary:active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+/* Lavender Button - Toast Inspired */
+.btn-lavender,
+button.lavender {
+  background: #d8c5db !important;
+  color: #4d1d59 !important;
+  border: 1px solid rgba(101, 51, 110, 0.35) !important;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(101, 51, 110, 0.18), 0 2px 6px rgba(101, 51, 110, 0.15);
+}
+
+.btn-lavender:hover,
+button.lavender:hover {
+  background: #e6d6e7 !important;
+  color: #3c1345 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(101, 51, 110, 0.22), 0 4px 10px rgba(101, 51, 110, 0.16) !important;
+}
+
+.btn-lavender:active,
+button.lavender:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(101, 51, 110, 0.18) !important;
+}
+
 /* Outline Button */
 .btn-outline {
   background: transparent;
@@ -1760,16 +1784,31 @@ button.secondary:hover:not(:disabled) {
 
 /* ===== GRADIENT ICON STYLES ===== */
 
-/* Apply gradient color to icons in buttons and action areas */
+/* Ensure icons in primary buttons are white and visible */
 .btn i,
 .btn-fetch i,
 .btn-primary i,
 .action-btn i,
 button:not(.btn-secondary):not(.delete-btn) i {
-  background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none !important;
+  color: #fff !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #fff !important;
+  background-clip: unset !important;
+}
+
+/* For secondary, outline, and ghost buttons, use purple icon */
+.btn-secondary i,
+.btn-outline i,
+.btn-ghost i,
+button.secondary i,
+button.outline i,
+button.ghost i {
+  color: #65336e !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #65336e !important;
+  background-clip: unset !important;
 }
 
 /* Reset icon colors for specific cases */
@@ -2111,6 +2150,115 @@ table td .tag,
   border: 1px solid var(--border);
 }
 
+/* ===== UNIVERSAL CLOSE BUTTON STYLE ===== */
+
+/*
+   Dedicated styling for close buttons to ensure consistency
+   Usage: Add class "close-btn", "btn-close", or "app-close-button" to your button
+*/
+.close-btn,
+.btn-close,
+.app-close-button,
+.modal-close,
+.dialog-close,
+.toast-close {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 8px;
+  background: #e9dded !important;
+  color: #c582d1 !important;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-in-out-smooth);
+  opacity: 1;
+  visibility: visible !important;
+  box-shadow: none;
+  z-index: 10;
+}
+
+.close-btn i,
+.btn-close i,
+.app-close-button i,
+.modal-close i,
+.dialog-close i,
+.toast-close i {
+  color: #c582d1 !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+.close-btn:hover,
+.btn-close:hover,
+.app-close-button:hover,
+.modal-close:hover,
+.dialog-close:hover,
+.toast-close:hover,
+.close-btn:focus,
+.btn-close:focus,
+.app-close-button:focus,
+.modal-close:focus,
+.dialog-close:focus,
+.toast-close:focus {
+  background: #d8c5db !important;
+  color: #c582d1 !important;
+  transform: scale(1.08);
+  box-shadow: 0 3px 12px rgba(101, 51, 110, 0.25);
+  opacity: 1;
+  outline: none;
+}
+
+.close-btn:hover i,
+.btn-close:hover i,
+.app-close-button:hover i,
+.modal-close:hover i,
+.dialog-close:hover i,
+.toast-close:hover i {
+  color: #c582d1 !important;
+}
+
+.close-btn:active,
+.btn-close:active,
+.app-close-button:active,
+.modal-close:active,
+.dialog-close:active,
+.toast-close:active {
+  transform: scale(0.95);
+  background: #d8c5db !important;
+}
+
+/* Small variant */
+.close-btn-sm,
+.app-close-button.sm {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  font-size: 15px;
+  border-radius: 5px;
+}
+
+/* Large variant */
+.close-btn-lg,
+.app-close-button.lg {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  font-size: 22px;
+  border-radius: 8px;
+}
+
 /* ===== GLOBAL ALIGNMENT & LAYOUT FIXES ===== */
 
 /* Header Actions - Top Right Buttons */
@@ -2219,6 +2367,60 @@ table td .tag,
   background: var(--card);
   border-radius: 12px;
   border: 1px solid var(--border);
+}
+
+/* Ensure Add Agent button is right-aligned and vertically centered */
+/* Add Agent Solution button - larger and more readable */
+.agent-management-header .add-button,
+.agent-management-header .add-agent-btn,
+.agent-management-header .add-agent-solution-btn,
+.agent-management-header button[type="button"],
+.agent-management-header button.btn-primary,
+button.add-button,
+button.add-agent-btn,
+button.add-agent-solution-btn {
+  margin-left: auto;
+  align-self: center;
+  min-width: 160px;
+  height: 48px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  padding: 0 32px;
+  letter-spacing: 0.01em;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  background: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.agent-management-header .add-button:hover,
+.agent-management-header .add-agent-btn:hover,
+.agent-management-header .add-agent-solution-btn:hover,
+.agent-management-header button[type="button"]:hover,
+.agent-management-header button.btn-primary:hover,
+button.add-button:hover,
+button.add-agent-btn:hover,
+button.add-agent-solution-btn:hover,
+.agent-management-header .add-button:active,
+.agent-management-header .add-agent-btn:active,
+.agent-management-header .add-agent-solution-btn:active,
+.agent-management-header button[type="button"]:active,
+.agent-management-header button.btn-primary:active,
+button.add-button:active,
+button.add-agent-btn:active,
+button.add-agent-solution-btn:active {
+  background: var(--primary) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary) !important;
+  border: 1px solid var(--primary) !important;
 }
 
 /* Filter Button Groups */
@@ -3290,33 +3492,41 @@ button[hidden],
 }
 
 /* Close Button */
+/* Toast close button: visible background and cross */
 #toast-container > div .toast-close-button {
   position: relative;
-  right: -0.3em;
-  top: -0.3em;
+  right: -0.2em;
+  top: -0.2em;
   float: right;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--muted-foreground);
+  color: #65336e !important;
   text-shadow: none;
-  opacity: 0.6;
+  opacity: 1;
   line-height: 1;
-  background: transparent;
+  background: #d8c5db !important;
   border: none;
   padding: 0;
   cursor: pointer;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: all 0.2s;
 }
 
-#toast-container > div .toast-close-button:hover {
+#toast-container > div .toast-close-button:hover,
+#toast-container > div .toast-close-button:active,
+#toast-container > div .toast-close-button:focus {
   opacity: 1;
-  background: var(--secondary);
+  background: #d8c5db !important;
+  transform: scale(1.08);
+  color: #65336e !important;
+  box-shadow: 0 2px 8px rgba(101, 51, 110, 0.15);
 }
 
 /* Animations */
@@ -3418,5 +3628,263 @@ button[hidden],
 }
 
 .dark #toast-container > div .toast-close-button:hover {
-  background: #27272a;
+  background: #d8c5db !important;
+  color: #65336e !important;
 }
+
+/* ============================================
+   GLOBAL DATETIME PICKER STYLES - PURPLE THEME
+   ============================================ */
+
+/* Base input styling - applies to all inputs */
+input.form-control,
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+textarea.form-control {
+  padding: 10px 14px !important;
+  border-radius: 20px !important;
+  border: 2px solid #d8c5db !important;
+  font-size: 14px !important;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  color: #333 !important;
+  background-color: white !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+input.form-control:focus,
+.form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea.form-control:focus {
+  outline: none !important;
+  border-color: #65336e !important;
+  box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.1) !important;
+}
+
+/* Select dropdown styling */
+select.form-select,
+.form-select,
+select.form-control {
+  padding: 10px 14px !important;
+  padding-right: 36px !important;
+  border-radius: 20px !important;
+  border: 2px solid #d8c5db !important;
+  font-size: 14px !important;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  color: #333 !important;
+  background-color: white !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2365336e' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+}
+
+select.form-select:focus,
+.form-select:focus,
+select.form-control:focus {
+  outline: none !important;
+  border-color: #65336e !important;
+  box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.1) !important;
+}
+
+/* Base datetime-local input styling with maximum specificity */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
+input[type="month"],
+input[type="week"],
+input.form-control[type="datetime-local"],
+input.form-control[type="date"],
+input.form-control[type="time"],
+.form-control[type="datetime-local"],
+.form-control[type="date"],
+.form-control[type="time"] {
+  padding: 10px 14px !important;
+  border-radius: 20px !important;
+  border: 2px solid #d8c5db !important;
+  font-size: 14px !important;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  color: #65336e !important;
+  background-color: #faf9fb !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  min-height: 42px !important;
+  box-sizing: border-box !important;
+}
+
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="month"]:focus,
+input[type="week"]:focus,
+input.form-control[type="datetime-local"]:focus,
+input.form-control[type="date"]:focus,
+input.form-control[type="time"]:focus {
+  outline: none !important;
+  border-color: #65336e !important;
+  box-shadow: 0 0 0 3px rgba(101, 51, 110, 0.12) !important;
+  background-color: white !important;
+}
+
+input[type="datetime-local"]:hover:not(:focus),
+input[type="date"]:hover:not(:focus),
+input[type="time"]:hover:not(:focus),
+input[type="month"]:hover:not(:focus),
+input[type="week"]:hover:not(:focus) {
+  border-color: #b89dbe !important;
+  background-color: white !important;
+}
+
+/* Style the calendar/clock picker icon */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator,
+input.form-control[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input.form-control[type="date"]::-webkit-calendar-picker-indicator,
+input.form-control[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  padding: 6px !important;
+  transition: background-color 0.2s ease !important;
+  filter: invert(26%) sepia(25%) saturate(1574%) hue-rotate(259deg) brightness(93%) contrast(91%) !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: 4px !important;
+  opacity: 1 !important;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="month"]::-webkit-calendar-picker-indicator:hover,
+input[type="week"]::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(101, 51, 110, 0.1) !important;
+  transform: scale(1.05);
+}
+
+/* Style the actual calendar dropdown */
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit {
+  padding: 2px !important;
+  color: #65336e !important;
+  font-weight: 500 !important;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0 !important;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-text {
+  color: #b89dbe !important;
+  padding: 0 2px !important;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field {
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  color: #65336e !important;
+  font-weight: 600 !important;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-month-field:focus,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field:focus,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field:focus,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field:focus,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field:focus,
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus,
+input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+  background-color: rgba(101, 51, 110, 0.1) !important;
+  color: #542d6b !important;
+  outline: none !important;
+}
+
+/* Clear button styling */
+input[type="datetime-local"]::-webkit-clear-button,
+input[type="date"]::-webkit-clear-button,
+input[type="time"]::-webkit-clear-button {
+  filter: invert(26%) sepia(25%) saturate(1574%) hue-rotate(259deg) brightness(93%) contrast(91%) !important;
+  cursor: pointer !important;
+  margin-right: 4px !important;
+}
+
+input[type="datetime-local"]::-webkit-clear-button:hover,
+input[type="date"]::-webkit-clear-button:hover,
+input[type="time"]::-webkit-clear-button:hover {
+  filter: invert(20%) sepia(35%) saturate(2000%) hue-rotate(259deg) brightness(80%) contrast(95%) !important;
+}
+
+/* Disabled state */
+input[type="datetime-local"]:disabled,
+input[type="date"]:disabled,
+input[type="time"]:disabled,
+input[type="month"]:disabled,
+input[type="week"]:disabled {
+  background-color: #f4f4f5 !important;
+  border-color: #e4e4e7 !important;
+  color: #a1a1aa !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Invalid state */
+input[type="datetime-local"]:invalid,
+input[type="date"]:invalid,
+input[type="time"]:invalid {
+  border-color: #ef4444 !important;
+}
+
+input[type="datetime-local"]:invalid:focus,
+input[type="date"]:invalid:focus,
+input[type="time"]:invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+/* Dark mode support */
+.dark input[type="datetime-local"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="month"],
+.dark input[type="week"] {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #d8c5db !important;
+}
+
+.dark input[type="datetime-local"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="time"]:focus {
+  border-color: #8b5cf6 !important;
+  background-color: #18181b !important;
+}
+
+/* ============================================
+   END DATETIME PICKER STYLES
+   ============================================ */

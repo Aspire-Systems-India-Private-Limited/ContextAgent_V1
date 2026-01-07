@@ -1,12 +1,30 @@
+/* Ensure agent table edit/delete icons are always visible */
+.btn-icon.btn-edit i {
+  color: #65336e !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #65336e !important;
+}
+.btn-icon.btn-delete i {
+  color: #ef4444 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #ef4444 !important;
+}
 .agent-container {
   padding: 24px;
   background-color: #eee;
   min-height: calc(100vh - 70px);
+  overflow: visible;
 
   .agent-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 24px;
 
     h1 {
@@ -24,26 +42,31 @@
 
     .btn-icon {
       background: linear-gradient(135deg, #65336e 0%, #65336e 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 10px;
       padding: 10px 20px;
+  min-width: 180px !important;
+  height: 44px !important;
+      margin-left: auto;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       transition: all 0.3s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 18px rgba(101, 51, 110, 0.25);
 
       i {
-        font-size: 14px;
+        font-size: 16px;
+        color: inherit;
       }
 
       &:hover {
-        background: #65336e;
-        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        background: #7a3c85;
+        box-shadow: 0 8px 24px rgba(101, 51, 110, 0.3);
         transform: translateY(-2px);
       }
     }
@@ -210,33 +233,43 @@
               align-items: center;
               justify-content: center;
               margin-right: 8px;
-              padding: 8px 10px;
-              background: transparent;
-              color: #6b7280;
-              border: 1px solid #d1d5db;
-              border-radius: 6px;
+              width: 38px !important;
+              height: 38px !important;
+              border-radius: 10px;
+              background: #fff !important;
+              color: #6b7280 !important;
+              border: 1px solid #d1d5db !important;
               cursor: pointer;
-              transition: all 0.2s;
-              font-size: 14px;
+              transition: all 0.2s ease;
+              font-size: 15px;
+              box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+
+              i {
+                color: inherit;
+                font-size: 15px;
+              }
 
               &:hover {
-                background: #f3f4f6;
-                border-color: #9ca3af;
+                background: #f9fafb !important;
+                border-color: #cbd5f5 !important;
+                color: #4c1d95 !important;
+                box-shadow: 0 4px 12px rgba(76, 29, 149, 0.15);
+                transform: translateY(-1px);
               }
 
               &.btn-edit {
                 &:hover {
-                  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
-                  border-color: #65336e;
-                  color: #65336e;
+                  background: rgba(101, 51, 110, 0.08) !important;
+                  border-color: #65336e !important;
+                  color: #65336e !important;
                 }
               }
 
               &.btn-delete {
                 &:hover {
-                  background: rgba(239, 68, 68, 0.1);
-                  border-color: #ef4444;
-                  color: #ef4444;
+                  background: rgba(239, 68, 68, 0.1) !important;
+                  border-color: #ef4444 !important;
+                  color: #ef4444 !important;
                 }
               }
 
@@ -277,6 +310,45 @@
 }
 
 // Modal Styles
+.modal-close {
+  background: #f8f2fa !important; /* even lighter lavender */
+  color: #c582d1 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(197, 130, 209, 0.12);
+}
+.modal-close:hover, .modal-close:focus {
+  background: #ede0f0 !important;
+  color: #c582d1 !important;
+  box-shadow: 0 4px 16px rgba(197, 130, 209, 0.18);
+  transform: scale(1.12);
+}
+.modal-close i {
+  color: #c582d1 !important;
+  font-size: 24px;
+  font-weight: 900;
+}
+// Improve agent modal close button visibility
+.modal-close {
+  background: #f3e6f7 !important; /* lighter lavender */
+  color: #c582d1 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(197, 130, 209, 0.12);
+}
+.modal-close:hover, .modal-close:focus {
+  background: #e9dded !important;
+  color: #c582d1 !important;
+  box-shadow: 0 4px 16px rgba(197, 130, 209, 0.18);
+  transform: scale(1.12);
+}
+.modal-close i {
+  color: #c582d1 !important;
+  font-size: 24px;
+  font-weight: 900;
+}
+// Ensure agent modal close icon uses purple theme
+.modal-close, .modal-close i {
+  color: #c582d1 !important;
+}
 
 // Modal form styles
 .form-group {
@@ -353,19 +425,29 @@
     }
 
     .btn-add-scope {
-      background: white;
-      color: #65336e;
-      border: none;
-      padding: 6px 16px;
-      border-radius: 6px;
+      background: #ffffff !important;
+      color: #65336e !important;
+      border: 1px solid rgba(101, 51, 110, 0.18) !important;
+      padding: 8px 18px !important;
+      border-radius: 999px !important;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(101, 51, 110, 0.12);
 
       &:hover {
-        background: #F3F4F6;
+        background: #f9f5fb !important;
+        border-color: rgba(101, 51, 110, 0.4) !important;
         transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 6px rgba(101, 51, 110, 0.15);
       }
     }
   }
@@ -393,22 +475,34 @@
       }
 
       .btn-remove-scope {
-        background: transparent;
-        border: none;
-        color: #EF4444;
-        font-size: 20px;
+        background: #fff !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        color: #ef4444 !important;
+        font-size: 16px;
         cursor: pointer;
         transition: all 0.2s ease;
         padding: 0;
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.12);
+
+        i {
+          pointer-events: none;
+        }
 
         &:hover {
-          color: #DC2626;
-          transform: scale(1.1);
+          background: rgba(239, 68, 68, 0.08) !important;
+          border-color: #ef4444 !important;
+          color: #dc2626 !important;
+          transform: translateY(-1px);
+        }
+
+        &:active {
+          transform: scale(0.95);
         }
       }
     }
@@ -433,6 +527,12 @@
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
+
+  .btn-lavender {
+    min-width: 180px;
+    padding: 12px 28px;
+    font-weight: 600;
+  }
 }
 
 // Thumbnail Upload Modal Styles

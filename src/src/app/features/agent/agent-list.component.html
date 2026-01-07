@@ -209,7 +209,7 @@
       <app-button type="button" variant="secondary" (click)="closeAgentModal()">
         Cancel
       </app-button>
-      <app-button type="submit" variant="primary" [disabled]="agentForm.invalid || saving">
+      <app-button type="submit" variant="lavender" [disabled]="agentForm.invalid || saving">
         {{ saving ? 'Saving...' : (editingAgent ? 'Update Agent' : 'Create Agent') }}
       </app-button>
     </div>

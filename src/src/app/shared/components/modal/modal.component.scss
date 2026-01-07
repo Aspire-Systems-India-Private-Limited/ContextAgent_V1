@@ -50,22 +50,41 @@
 }
 
 .modal-close {
-  background: none;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: none;
-  font-size: 20px;
-  color: #666;
-  cursor: pointer;
-  padding: 4px 8px;
-  display: flex;
+  background: #e9dded;
+  color: #c582d1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
+  font-size: 22px;
+  font-weight: 900;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(101, 51, 110, 0.12);
+}
 
-  &:hover {
-    background: #f5f5f5;
-    color: #333;
-  }
+.modal-close:hover,
+.modal-close:focus {
+  background: #d8c5db;
+  color: #c582d1;
+  box-shadow: 0 4px 16px rgba(101, 51, 110, 0.18);
+  transform: scale(1.12);
+}
+
+.modal-close:active {
+  transform: scale(0.98);
+}
+
+.modal-close i {
+  font-size: 24px;
+  color: #c582d1 !important;
+  pointer-events: none;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .modal-body {

@@ -228,15 +228,27 @@ export class PerformanceComponent implements OnInit, AfterViewInit {
           label: 'Performance (sec)',
           data: values,
           borderColor: '#65336e',
-          backgroundColor: 'rgba(6, 182, 212, 0.1)',
+          backgroundColor: (context) => {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+            if (!chartArea) return 'rgba(101, 51, 110, 0.1)';
+            const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+            gradient.addColorStop(0, 'rgba(216, 197, 219, 0.1)');
+            gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(101, 51, 110, 0.3)');
+            return gradient;
+          },
           borderWidth: 3,
           tension: 0.4,
           fill: true,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: 5,
+          pointHoverRadius: 8,
           pointBackgroundColor: '#65336e',
           pointBorderColor: '#fff',
-          pointBorderWidth: 2
+          pointBorderWidth: 2,
+          pointHoverBackgroundColor: '#d8c5db',
+          pointHoverBorderColor: '#65336e',
+          pointHoverBorderWidth: 3
         }]
       },
       options: {
@@ -245,17 +257,51 @@ export class PerformanceComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             display: true,
-            position: 'top'
+            position: 'top',
+            labels: {
+              font: {
+                size: 16,
+                weight: 700,
+                family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              },
+              color: '#c582d1',
+              padding: 20,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
           },
           title: {
             display: true,
             text: `Performance Metrics${this.selectedIntent !== 'all' ? ' - ' + this.selectedIntent : ''}`,
-            font: { size: 16, weight: 'bold' },
-            color: '#65336e'
+            font: { 
+              size: 22, 
+              weight: 900,
+              family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+            },
+            color: '#c582d1',
+            padding: {
+              top: 16,
+              bottom: 24
+            }
           },
           tooltip: {
             mode: 'index',
-            intersect: false
+            intersect: false,
+            backgroundColor: 'rgba(101, 51, 110, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            titleFont: {
+              size: 14,
+              weight: 600,
+              family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+            },
+            bodyFont: {
+              size: 13,
+              family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+            },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true
           }
         },
         scales: {
@@ -264,21 +310,46 @@ export class PerformanceComponent implements OnInit, AfterViewInit {
             title: {
               display: true,
               text: 'Time (seconds)',
-              color: '#666'
+              color: '#c582d1',
+              font: {
+                size: 16,
+                weight: 700,
+                family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              }
+            },
+            ticks: {
+              color: '#c582d1',
+              font: {
+                size: 15,
+                weight: 700,
+                family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              }
             },
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(197, 130, 209, 0.12)',
+              lineWidth: 2
             }
           },
           x: {
             title: {
               display: true,
               text: 'Date & Time',
-              color: '#666'
+              color: '#c582d1',
+              font: {
+                size: 16,
+                weight: 700,
+                family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              }
             },
             ticks: {
               maxRotation: 45,
-              minRotation: 45
+              minRotation: 45,
+              color: '#c582d1',
+              font: {
+                size: 14,
+                weight: 700,
+                family: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              }
             },
             grid: {
               display: false

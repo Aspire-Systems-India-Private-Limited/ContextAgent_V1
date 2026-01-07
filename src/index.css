@@ -9348,7 +9348,7 @@
 }
 
 .modal-close {
-  color: #666;
+  color: #c582d1;
   cursor: pointer;
   background: none;
   border: none;
@@ -9362,7 +9362,7 @@
 }
 
 .modal-close:hover {
-  color: #333;
+  color: #c582d1;
   background: #f5f5f5;
 }
 

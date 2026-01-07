@@ -1,7 +1,9 @@
-<button 
-  [type]="type"
-  [class]="'btn btn-' + variant + ' btn-' + size"
+<button
+  [attr.type]="type"
+  [class]="buttonClasses"
   [disabled]="disabled || loading"
+  [attr.aria-busy]="loading"
+  [attr.aria-disabled]="disabled || loading"
   (click)="onClick($event)">
   <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
   <i *ngIf="!loading && icon" [class]="'fas fa-' + icon"></i>

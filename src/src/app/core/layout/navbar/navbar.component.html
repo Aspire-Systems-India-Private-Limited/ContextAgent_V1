@@ -31,14 +31,19 @@
 
       <!-- Context (Dropdown) -->
       <div class="nav-dropdown" 
-           (mouseenter)="showDropdown('context')" 
+           (mouseenter)="showDropdown('context', $event)" 
            (mouseleave)="hideDropdown('context')">
-        <a class="nav-link" [class.active]="isContextActive()">
+        <a class="nav-link" 
+           [class.active]="isContextActive()"
+           (click)="toggleDropdown('context', $event)">
           <i class="fas fa-database" aria-hidden="true"></i>
           <span>Context</span>
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </a>
-        <div class="dropdown-menu" *ngIf="activeDropdown === 'context'">
+        <div class="dropdown-menu" 
+             *ngIf="activeDropdown === 'context'"
+             [style.top.px]="dropdownPosition.top"
+             [style.left.px]="dropdownPosition.left">
           <a routerLink="/context/create" class="dropdown-item">
             <i class="fas fa-plus-circle"></i>
             Create Context
@@ -60,14 +65,19 @@
 
       <!-- User Interaction (Dropdown) -->
       <div class="nav-dropdown" 
-           (mouseenter)="showDropdown('interaction')" 
+           (mouseenter)="showDropdown('interaction', $event)" 
            (mouseleave)="hideDropdown('interaction')">
-        <a class="nav-link" [class.active]="isInteractionActive()">
+        <a class="nav-link" 
+           [class.active]="isInteractionActive()"
+           (click)="toggleDropdown('interaction', $event)">
           <i class="fas fa-comments" aria-hidden="true"></i>
           <span>User Interaction</span>
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </a>
-        <div class="dropdown-menu" *ngIf="activeDropdown === 'interaction'">
+        <div class="dropdown-menu" 
+             *ngIf="activeDropdown === 'interaction'"
+             [style.top.px]="dropdownPosition.top"
+             [style.left.px]="dropdownPosition.left">
           <a routerLink="/session" class="dropdown-item">
             <i class="fas fa-comments"></i>
             User Interaction
@@ -81,14 +91,19 @@
 
       <!-- Memory (Dropdown) -->
       <div class="nav-dropdown" 
-           (mouseenter)="showDropdown('memory')" 
+           (mouseenter)="showDropdown('memory', $event)" 
            (mouseleave)="hideDropdown('memory')">
-        <a class="nav-link" [class.active]="isMemoryActive()">
+        <a class="nav-link" 
+           [class.active]="isMemoryActive()"
+           (click)="toggleDropdown('memory', $event)">
           <i class="fas fa-brain" aria-hidden="true"></i>
           <span>Memory</span>
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </a>
-        <div class="dropdown-menu" *ngIf="activeDropdown === 'memory'">
+        <div class="dropdown-menu" 
+             *ngIf="activeDropdown === 'memory'"
+             [style.top.px]="dropdownPosition.top"
+             [style.left.px]="dropdownPosition.left">
           <a routerLink="/memory" class="dropdown-item">
             <i class="fas fa-database"></i>
             Memory Management
@@ -98,14 +113,19 @@
 
       <!-- Diagnosis (Dropdown) -->
       <div class="nav-dropdown" 
-           (mouseenter)="showDropdown('diagnosis')" 
+           (mouseenter)="showDropdown('diagnosis', $event)" 
            (mouseleave)="hideDropdown('diagnosis')">
-        <a class="nav-link" [class.active]="isDiagnosisActive()">
+        <a class="nav-link" 
+           [class.active]="isDiagnosisActive()"
+           (click)="toggleDropdown('diagnosis', $event)">
           <i class="fas fa-stethoscope" aria-hidden="true"></i>
           <span>Diagnosis</span>
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </a>
-        <div class="dropdown-menu" *ngIf="activeDropdown === 'diagnosis'">
+        <div class="dropdown-menu" 
+             *ngIf="activeDropdown === 'diagnosis'"
+             [style.top.px]="dropdownPosition.top"
+             [style.left.px]="dropdownPosition.left">
           <a routerLink="/cost-metrics" class="dropdown-item">
             <i class="fas fa-chart-bar"></i>
             Metrics - Cost and Performance
