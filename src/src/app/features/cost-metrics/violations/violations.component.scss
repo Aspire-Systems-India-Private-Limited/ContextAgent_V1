@@ -141,6 +141,19 @@
           color: white;
         }
       }
+
+      .threshold-link {
+        color: #3b82f6;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: #2563eb;
+          text-decoration: underline;
+        }
+      }
     }
   }
 }

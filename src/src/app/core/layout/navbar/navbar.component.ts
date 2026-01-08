@@ -12,6 +12,7 @@ export class NavbarComponent {
   currentRoute: string = '';
   private hideTimeout: any;
   dropdownPosition: { top: number; left: number } = { top: 0, left: 0 };
+  mobileMenuOpen: boolean = false;
 
   constructor(private router: Router) {
     this.router.events
@@ -20,6 +21,8 @@ export class NavbarComponent {
         this.currentRoute = event.url;
         // Close any open dropdown when navigating
         this.activeDropdown = null;
+        // Close mobile menu on navigation
+        this.mobileMenuOpen = false;
       });
   }
 
@@ -98,7 +101,15 @@ export class NavbarComponent {
     return this.currentRoute.includes('/memory');
   }
 
-  isDiagnosisActive(): boolean {
+  isGovernanceActive(): boolean {
     return this.currentRoute.includes('/cost-metrics') || this.currentRoute.includes('/audit');
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
   }
 }

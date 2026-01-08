@@ -1,0 +1,272 @@
+<div class="test-reports-container">
+  <div class="card">
+    <div class="header">
+      <h2><i class="fas fa-chart-bar"></i> Test Reports</h2>
+    </div>
+    
+    <div class="filters-section">
+      <form [formGroup]="filterForm" class="filter-form" (ngSubmit)="applyFilters()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>User</label>
+            <select formControlName="user" class="form-control" [disabled]="loadingUsers">
+              <option value="">All Users</option>
+              <option *ngFor="let user of users" [value]="user">{{ user }}</option>
+            </select>
+            <small *ngIf="loadingUsers" class="loading-text">Loading users...</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Agent Code</label>
+            <select formControlName="agentCode" class="form-control" [disabled]="loadingAgents">
+              <option value="">All Agents</option>
+              <option *ngFor="let agent of agentCodes" [value]="agent">{{ agent }}</option>
+            </select>
+            <small *ngIf="loadingAgents" class="loading-text">Loading agents...</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Intent</label>
+            <input type="text" formControlName="intent" class="form-control" placeholder="Filter by intent" />
+          </div>
+          
+          <div class="form-group">
+            <label>From Date & Time</label>
+            <input type="datetime-local" formControlName="fromDate" class="form-control" />
+          </div>
+          
+          <div class="form-group">
+            <label>To Date & Time</label>
+            <input type="datetime-local" formControlName="toDate" class="form-control" />
+          </div>
+          
+          <div class="form-group action-group">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <i class="fas fa-filter"></i> Apply Filters
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="clearFilters()" [disabled]="loading">
+              <i class="fas fa-times"></i> Clear
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="error-message" *ngIf="error && !loading">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ error }}
+    </div>
+    
+    <div class="results-section">
+      <app-loader *ngIf="loading" size="large" message="Loading test reports..."></app-loader>
+      
+      <div *ngIf="!loading && totalReports > 0">
+        <div class="table-wrapper">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>User ID</th>
+                <th>Agent Code</th>
+                <th>Intent</th>
+                <th>Created On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let report of displayedReports">
+                <td class="request-id-col">{{ report.request_id }}</td>
+                <td>{{ report.user_id }}</td>
+                <td>{{ report.agent_code }}</td>
+                <td>{{ report.intent }}</td>
+                <td>{{ formatDate(getCreatedOn(report)) }}</td>
+                <td>
+                  <button class="btn btn-sm btn-view" (click)="viewReport(report)">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="pagination-container" *ngIf="totalReports > pageSize">
+          <div class="pagination-info">
+            Showing {{ (page - 1) * pageSize + 1 }} to {{ Math.min(page * pageSize, totalReports) }} of {{ totalReports }} reports
+          </div>
+          <div class="pagination">
+            <button class="btn btn-sm page-btn" [disabled]="page === 1" (click)="onPageChange(page - 1)">
+              <i class="fas fa-chevron-left"></i> Prev
+            </button>
+            
+            <button *ngFor="let pageNum of pageNumbers" 
+                    class="btn btn-sm page-btn" 
+                    [class.active]="pageNum === page"
+                    [disabled]="pageNum === -1"
+                    (click)="pageNum !== -1 && onPageChange(pageNum)">
+              {{ pageNum === -1 ? '...' : pageNum }}
+            </button>
+            
+            <button class="btn btn-sm page-btn" [disabled]="page === totalPages" (click)="onPageChange(page + 1)">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loading && totalReports === 0" class="no-results">
+        <i class="fas fa-inbox"></i>
+        <p>No test reports found. Try adjusting your filters.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for report details -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fas fa-file-alt"></i>
+        Test Report Details
+      </h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="selectedReport">
+      <!-- Basic Information -->
+      <section class="modal-section">
+        <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Request ID:</strong>
+            <span>{{ selectedReport.request_id || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>User ID:</strong>
+            <span>{{ selectedReport.user_id || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Agent Code:</strong>
+            <span>{{ selectedReport.agent_code || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Intent:</strong>
+            <span>{{ selectedReport.intent || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Created On:</strong>
+            <span>{{ formatDate(getCreatedOn(selectedReport)) }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedReport.user_msg">
+            <strong>User Message:</strong>
+            <span>{{ selectedReport.user_msg }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedReport.top_results">
+            <strong>Top Results:</strong>
+            <span>{{ selectedReport.top_results }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedReport.default !== undefined">
+            <strong>Default:</strong>
+            <span>{{ selectedReport.default === 'true' || selectedReport.default === 'True' ? '✅' : '❌' }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedReport.latest !== undefined">
+            <strong>Latest:</strong>
+            <span>{{ selectedReport.latest === 'true' || selectedReport.latest === 'True' ? '✅' : '❌' }}</span>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Entity Filters -->
+      <section class="modal-section" *ngIf="selectedReport.entity && isArray(selectedReport.entity) && selectedReport.entity.length > 0">
+        <h4><i class="fas fa-filter"></i> Entity Filters</h4>
+        <div class="detail-list">
+          <div class="detail-row" *ngFor="let filter of selectedReport.entity">
+            <span class="detail-label">{{ filter.Key || filter.key || 'N/A' }}:</span>
+            <span class="detail-value">{{ filter.Value || filter.value || 'N/A' }}</span>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Context List -->
+      <section class="modal-section" *ngIf="selectedReport.context_list && isArray(selectedReport.context_list) && selectedReport.context_list.length > 0">
+        <h4><i class="fas fa-list"></i> Context List</h4>
+        <div class="detail-list">
+          <div class="context-item" *ngFor="let context of selectedReport.context_list">
+            <div class="context-item-row">
+              <span class="detail-label">Type:</span>
+              <span class="detail-value">{{ context.context_type || 'N/A' }}</span>
+            </div>
+            <div class="context-item-row">
+              <span class="detail-label">Name:</span>
+              <span class="detail-value">{{ context.context_name || 'N/A' }}</span>
+            </div>
+            <div class="context-item-row">
+              <span class="detail-label">Value:</span>
+              <span class="detail-value">{{ context.context_value || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Image Set -->
+      <section class="modal-section" *ngIf="selectedReport.image_set && isArray(selectedReport.image_set) && selectedReport.image_set.length > 0">
+        <h4><i class="fas fa-images"></i> Image Set</h4>
+        <div class="image-gallery">
+          <div class="image-item" *ngFor="let image of selectedReport.image_set">
+            <img [src]="image.image_url" [alt]="image.image_type || 'Image'" class="preview-image" />
+            <div class="image-type">{{ image.image_type || 'url' }}</div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Test Results -->
+      <section class="modal-section" *ngIf="selectedReport.test_reports">
+        <h4><i class="fas fa-chart-line"></i> Test Results</h4>
+        
+        <ng-container *ngIf="isObject(selectedReport.test_reports) && selectedReport.test_reports.success && isArray(selectedReport.test_reports.success)">
+          <div class="result-set" *ngFor="let setResult of selectedReport.test_reports.success; let setIdx = index">
+            <div class="result-set-header">
+              <div class="result-set-title">
+                <i class="fas fa-layer-group"></i>
+                Version Set {{ setResult.set || (setIdx + 1) }}
+              </div>
+              <span class="model-pill">Model: gpt-4o-mini</span>
+            </div>
+            
+            <div class="result-item" *ngFor="let result of setResult.results; let resIdx = index">
+              <div class="result-item-title">
+                Result {{ resIdx + 1 }}
+              </div>
+              
+              <div class="result-section" *ngIf="result.created_on || result.createdOn">
+                <strong>Created On:</strong>
+                <span>{{ formatDate(result.created_on || result.createdOn) }}</span>
+              </div>
+              
+              <div class="result-section" *ngIf="result.request_context_versions">
+                <strong>Context Versions Used:</strong>
+                <pre class="code-block">{{ formatJson(result.request_context_versions) }}</pre>
+              </div>
+              
+              <div class="result-section" *ngIf="result.refined_output || result.refinedOutput">
+                <strong>Refined Output:</strong>
+                <div class="refined-output" [innerHTML]="formatRefinedOutput(result.refined_output || result.refinedOutput)"></div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+        <div *ngIf="!selectedReport.test_reports.success || !isArray(selectedReport.test_reports.success)" class="empty-state">
+          <p>No test results available</p>
+        </div>
+      </section>
+      
+      <!-- Raw JSON -->
+      <section class="modal-section collapsible">
+        <h4><i class="fas fa-code"></i> Raw Data (JSON)</h4>
+        <pre class="code-block">{{ formatJson(selectedReport) }}</pre>
+      </section>
+    </div>
+  </div>
+</div>

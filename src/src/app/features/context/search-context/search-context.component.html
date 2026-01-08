@@ -20,10 +20,12 @@
             class="form-control">
         </div>
       </div>
-      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
-        <button type="submit" class="btn">Search</button>
-        <button type="button" class="btn" (click)="importContext()">Import</button>
-        <button type="button" class="btn" (click)="exportContext()">Export</button>
+      <div class="form-actions">
+        <button type="submit" class="btn" [disabled]="loading">
+          {{ loading ? 'Searching…' : 'Search' }}
+        </button>
+        <button type="button" class="btn" (click)="importContext()" [disabled]="loading">Import</button>
+        <button type="button" class="btn" (click)="exportContext()" [disabled]="loading">Export</button>
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 1px;">
           <input 
             type="checkbox" 
@@ -38,48 +40,201 @@
     </form>
 
     <!-- Tree View Container -->
-    <div id="treeViewContainer" *ngIf="showTreeView" style="margin-top: 24px;">
-      <div style="background: linear-gradient(135deg, rgba(101, 51, 110, 0.1) 0%, rgba(128, 198, 255, 0.1) 100%); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-        <h3 style="color: var(--primary-color); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-          <i class="fas fa-code-branch" style="width: 20px; height: 20px;"></i>
+    <div class="tree-view" *ngIf="showTreeView">
+      <div class="tree-panel">
+        <h3>
+          <i class="fas fa-code-branch"></i>
           Context Tree View
         </h3>
-        <div id="treeContainer" class="tree-container">
-          <div class="tree-node" *ngFor="let node of treeData">
-            <div class="tree-item" (click)="toggleNode(node)">
-              <i class="fas" [ngClass]="node.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
-              <i class="fas fa-folder"></i>
-              <span>{{ node.name }}</span>
+        <div *ngIf="treeIntents.length === 0" class="tree-empty">
+          <p>Run a search to populate the tree.</p>
+        </div>
+        <div class="tree-scroll" *ngIf="treeIntents.length > 0">
+          <div class="tree-node" *ngFor="let intent of treeIntents">
+            <div class="tree-node-header" (click)="toggleIntent(intent)">
+              <i class="fas" [ngClass]="intent.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+              <span>{{ intent.name }}</span>
+              <span class="badge">{{ intent.types.length }} types</span>
             </div>
-            <div class="tree-children" *ngIf="node.expanded">
-              <div class="tree-item child" *ngFor="let child of node.children" (click)="selectNode(child)">
-                <i class="fas fa-file"></i>
-                <span>{{ child.name }}</span>
+            <div class="tree-children" *ngIf="intent.expanded">
+              <div class="tree-node level-1" *ngFor="let type of intent.types">
+                <div class="tree-node-header" (click)="toggleType(intent, type)">
+                  <i class="fas" [ngClass]="type.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                  <span>{{ type.name }}</span>
+                  <span class="badge">{{ type.versions.length }} version{{ type.versions.length === 1 ? '' : 's' }}</span>
+                </div>
+                <div class="tree-children" *ngIf="type.expanded">
+                  <div class="tree-node level-2" *ngFor="let version of type.versions">
+                    <div class="tree-node-header" (click)="toggleVersion(type, version)">
+                      <i class="fas" [ngClass]="version.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                      <span>Version {{ version.version }}</span>
+                      <span class="badge">{{ version.contexts.length }} context{{ version.contexts.length === 1 ? '' : 's' }}</span>
+                    </div>
+                    <div class="tree-children" *ngIf="version.expanded">
+                      <div class="tree-context-card" *ngFor="let ctx of version.contexts" (click)="selectTreeContext(ctx)" [class.active]="selectedTreeContext?.id === ctx.id">
+                        <div class="context-title">
+                          <strong>{{ ctx.PromptCode }}</strong>
+                          <span class="status" *ngIf="ctx.Latest">Latest</span>
+                          <span class="status default" *ngIf="ctx.Default">Default</span>
+                        </div>
+                        <p class="context-meta">Intent: {{ ctx.Intent || 'N/A' }} • Type: {{ ctx.Type || 'N/A' }}</p>
+                        <p class="context-meta">Updated: {{ formatDate(ctx.ModifiedOn || ctx.CreatedOn) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div id="treeDetailPanel" *ngIf="selectedNode" class="tree-detail">
-          <h4>{{ selectedNode.name }}</h4>
-          <p><strong>Type:</strong> {{ selectedNode.type }}</p>
-          <p><strong>Description:</strong> {{ selectedNode.description }}</p>
-        </div>
+      </div>
+
+      <div class="tree-detail-panel">
+        <ng-container *ngIf="selectedTreeContext; else treePlaceholder">
+          <div class="tree-detail-card">
+            <div class="detail-header">
+              <div>
+                <h3>{{ selectedTreeContext.PromptCode }}</h3>
+                <p>Agent: {{ selectedTreeContext.AgentCode }} • Intent: {{ selectedTreeContext.Intent }}</p>
+              </div>
+              <div class="detail-badges">
+                <span class="status" *ngIf="selectedTreeContext?.Latest">Latest</span>
+                <span class="status default" *ngIf="selectedTreeContext?.Default">Default</span>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Context Code</label>
+                <input [(ngModel)]="selectedTreeContext.PromptCode" [ngModelOptions]="{standalone: true}" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Parent Context Code</label>
+                <input [(ngModel)]="selectedTreeContext.ParentPromptCode" [ngModelOptions]="{standalone: true}" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Type</label>
+                <input [(ngModel)]="selectedTreeContext.Type" [ngModelOptions]="{standalone: true}" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Intent</label>
+                <input [(ngModel)]="selectedTreeContext.Intent" [ngModelOptions]="{standalone: true}" class="form-control" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Version ID</label>
+                <input [(ngModel)]="selectedTreeContext.VersionId" [ngModelOptions]="{standalone: true}" class="form-control" />
+              </div>
+              <div class="form-group toggle-input">
+                <label>Context Version</label>
+                <input [(ngModel)]="selectedTreeContext.ContextVersion" [ngModelOptions]="{standalone: true}" class="form-control"
+                       [readonly]="!selectedTreeContextUpdateVersion" />
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="selectedTreeContextUpdateVersion" [ngModelOptions]="{standalone: true}">
+                  <span>Update Context Version</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Content</label>
+              <textarea [(ngModel)]="selectedTreeContext.Content" [ngModelOptions]="{standalone: true}" rows="6" class="form-control"></textarea>
+            </div>
+
+            <div class="filters">
+              <div class="filters-header">
+                <strong>Filters</strong>
+                <button type="button" class="link-btn" (click)="addEntityRow(selectedTreeContext)">
+                  <i class="fas fa-plus"></i>
+                  Add Filter
+                </button>
+              </div>
+              <div class="entity-row" *ngFor="let entity of selectedTreeContext?.Entity; let eIdx = index">
+                <input placeholder="Key" [(ngModel)]="entity.Key" [ngModelOptions]="{standalone: true}" />
+                <input placeholder="Value" [(ngModel)]="entity.Value" [ngModelOptions]="{standalone: true}" />
+                <button type="button" class="link-btn danger" (click)="removeEntityRow(selectedTreeContext!, eIdx)">Remove</button>
+              </div>
+              <p *ngIf="!selectedTreeContext?.Entity?.length" class="empty-note">No filters configured</p>
+            </div>
+
+            <div class="detail-actions">
+              <label class="toggle">
+                <input type="checkbox" [(ngModel)]="selectedTreeContext.Default" [ngModelOptions]="{standalone: true}">
+                <span>Default</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" [(ngModel)]="selectedTreeContext.Latest" [ngModelOptions]="{standalone: true}">
+                <span>Latest</span>
+              </label>
+              <span class="timestamps">Updated {{ formatDate(selectedTreeContext.ModifiedOn || selectedTreeContext.CreatedOn) }}</span>
+            </div>
+
+            <div class="action-buttons">
+              <button class="btn" (click)="saveContext(selectedTreeContext!, selectedTreeContextUpdateVersion)">Save</button>
+              <button class="btn btn-danger" (click)="deleteContext(selectedTreeContext!)">Delete</button>
+              <button class="btn" style="padding: 6px 12px; font-size: 12px;" (click)="testContext(selectedTreeContext!)">
+                <i class="fas fa-flask"></i> Test
+              </button>
+              <button class="btn-history" (click)="openHistoryModal(selectedTreeContext.PromptCode || '')">
+                <i class="fas fa-history"></i>
+                History
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #treePlaceholder>
+          <div class="tree-placeholder">
+            <i class="fas fa-arrow-left"></i>
+            <p>Select a context from the tree to view its details.</p>
+          </div>
+        </ng-template>
       </div>
     </div>
 
     <!-- Search Results -->
-    <div id="searchResults" style="margin-top: 24px;" *ngIf="!loading && contexts.length > 0">
-      <div class="result-card" *ngFor="let context of contexts">
+    <div id="searchResults" style="margin-top: 24px;" *ngIf="!loading && contexts.length > 0 && !showTreeView">
+      <div class="result-card" *ngFor="let context of contexts; let i = index; trackBy: trackByContextId">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-          <p><strong>ID:</strong> {{ context.id }}</p>
-          <p><strong>Context Code:</strong> {{ context.PromptCode }}</p>
-          <p><strong>Parent Context Code:</strong> {{ context.ParentPromptCode || 'None' }}</p>
-          <p><strong>Agent Code:</strong> {{ context.AgentCode }}</p>
-          <p><strong>Type:</strong> {{ context.Type }}</p>
-          <p><strong>Intent:</strong> {{ context.Intent }}</p>
-          <p><strong>Version ID:</strong> {{ context.VersionId }}</p>
-          <p><strong>Default:</strong> {{ context.Default ? '✅' : '❌' }}</p>
-          <p><strong>Latest:</strong> {{ context.Latest ? '✅' : '❌' }}</p>
+          <div class="form-group compact">
+            <label>ID</label>
+            <input [value]="context.id" readonly class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Context Code</label>
+            <input [(ngModel)]="context.PromptCode" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Parent Context Code</label>
+            <input [(ngModel)]="context.ParentPromptCode" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Agent Code</label>
+            <input [(ngModel)]="context.AgentCode" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Type</label>
+            <input [(ngModel)]="context.Type" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Intent</label>
+            <input [(ngModel)]="context.Intent" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="form-group compact">
+            <label>Version ID</label>
+            <input [(ngModel)]="context.VersionId" [ngModelOptions]="{standalone: true}" class="form-control" />
+          </div>
+          <div class="toggle-group">
+            <label class="toggle">
+              <input type="checkbox" [(ngModel)]="context.Default" [ngModelOptions]="{standalone: true}">
+              <span>Default</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" [(ngModel)]="context.Latest" [ngModelOptions]="{standalone: true}">
+              <span>Latest</span>
+            </label>
+          </div>
         </div>
         <div style="margin-bottom:12px;">
           <strong>Context Version:</strong>
@@ -87,8 +242,9 @@
             type="text" 
             [(ngModel)]="context.ContextVersion"
             [ngModelOptions]="{standalone: true}"
-            readonly
-            style="width: 100%; margin-top: 8px; padding: 10px; background-color: #f5f5f5; cursor: not-allowed; border: 1px solid #ddd; border-radius: 4px;" />
+            [readonly]="!updateContextVersion[i]"
+            [class.editable]="updateContextVersion[i]"
+            style="width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
         </div>
         <div style="margin-bottom:12px;">
           <strong>Content:</strong>
@@ -99,15 +255,33 @@
             style="width: 100%; margin-top: 8px; height: 350px;"
             class="form-control"></textarea>
         </div>
-        <div style="margin-bottom:12px;">
-          <strong>Filter:</strong>
-          <ul style="margin-top:4px; margin-left:20px;">
-            <li *ngFor="let entity of context.Entity">{{ entity.Key }}: {{ entity.Value }}</li>
-            <li *ngIf="!context.Entity || context.Entity.length === 0">None</li>
-          </ul>
+        <div class="filters" style="margin-bottom:12px;">
+          <div class="filters-header">
+            <strong>Filters</strong>
+            <button type="button" class="link-btn" (click)="addEntityRow(context)">
+              <i class="fas fa-plus"></i>
+              Add Filter
+            </button>
+          </div>
+          <div class="entity-row" *ngFor="let entity of context.Entity; let eIdx = index">
+            <input placeholder="Key" [(ngModel)]="entity.Key" [ngModelOptions]="{standalone: true}" />
+            <input placeholder="Value" [(ngModel)]="entity.Value" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="link-btn danger" (click)="removeEntityRow(context, eIdx)">Remove</button>
+          </div>
+          <p *ngIf="!context.Entity || context.Entity.length === 0" class="empty-note">No filters configured</p>
+        </div>
+        <div class="version-toggle">
+          <label>
+            <input type="checkbox" [(ngModel)]="updateContextVersion[i]" [ngModelOptions]="{standalone: true}">
+            <span>Update Context Version</span>
+          </label>
+          <div class="update-version-warning" *ngIf="updateContextVersion[i]">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Context Version field is editable. Please update before saving.</span>
+          </div>
         </div>
         <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
-          <button class="btn" (click)="updateContext(context)">
+          <button class="btn" (click)="saveContext(context, updateContextVersion[i], i)">
             <i class="fas fa-save"></i> Save
           </button>
           <button class="btn btn-danger" (click)="deleteContext(context)">
@@ -115,6 +289,10 @@
           </button>
           <button class="btn" style="padding: 6px 12px; font-size: 12px;" (click)="testContext(context)">
             <i class="fas fa-flask"></i> Test
+          </button>
+          <button class="btn-history" (click)="openHistoryModal(context.PromptCode)">
+            <i class="fas fa-history"></i>
+            History
           </button>
         </div>
       </div>
@@ -126,5 +304,127 @@
     </div>
 
     <app-loader *ngIf="loading" size="large" message="Loading contexts..."></app-loader>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal-overlay" *ngIf="historyModalVisible">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3>Context History</h3>
+          <p>Prompt Code: {{ historyPromptCode }}</p>
+        </div>
+        <button class="close-btn" (click)="closeHistoryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <app-loader *ngIf="historyLoading" size="medium" message="Fetching history..."></app-loader>
+        <ng-container *ngIf="!historyLoading">
+          <div *ngIf="historyContexts.length > 0; else noHistory">
+            <div class="history-entry" *ngFor="let history of historyContexts">
+              <div class="history-meta">
+                <strong>Version:</strong> {{ history.ContextVersion || 'N/A' }}
+                <span class="status" *ngIf="history.Latest">Latest</span>
+                <span class="status default" *ngIf="history.Default">Default</span>
+              </div>
+              <p><strong>Updated:</strong> {{ formatDate(history.ModifiedOn || history.CreatedOn) }}</p>
+              <p><strong>Content Preview:</strong> {{ history.Content | slice:0:120 }}{{ history.Content && history.Content.length > 120 ? '…' : '' }}</p>
+            </div>
+          </div>
+          <ng-template #noHistory>
+            <p class="empty-note">No history available for this prompt code.</p>
+          </ng-template>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST MODAL -->
+  <div *ngIf="showTestModal" class="modal-overlay" (click)="closeTestModal()">
+    <div class="modal-content-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-flask"></i>
+          Test Context
+        </h2>
+        <button class="close-btn" (click)="closeTestModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="test-info-box" *ngIf="currentTestContext">
+          <strong>Testing Context:</strong>
+          <div style="margin-top: 8px;">
+            Agent: <strong>{{ currentTestContext.AgentCode }}</strong> | 
+            Intent: <strong>{{ currentTestContext.Intent }}</strong> | 
+            Version: <strong>{{ currentTestContext.VersionId }}</strong>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h3 class="test-section-title">
+            <i class="fas fa-info-circle"></i>
+            Test Configuration
+          </h3>
+          
+          <div class="test-field-group">
+            <div class="test-field">
+              <label>Agent Code *</label>
+              <input type="text" [(ngModel)]="testAgentCode" placeholder="Enter agent code" required />
+            </div>
+            <div class="test-field">
+              <label>Intent *</label>
+              <input type="text" [(ngModel)]="testIntent" placeholder="Enter intent" required />
+            </div>
+          </div>
+
+          <div class="test-field-group">
+            <div class="test-field">
+              <label>Version ID</label>
+              <input type="text" [(ngModel)]="testVersionId" placeholder="Enter version ID" />
+            </div>
+            <div class="test-field">
+              <label>Model</label>
+              <input type="text" [(ngModel)]="testModel" placeholder="Enter model" />
+            </div>
+          </div>
+
+          <div class="test-field">
+            <label>User Message *</label>
+            <textarea [(ngModel)]="testUserMsg" rows="4" placeholder="Enter test message" required></textarea>
+          </div>
+
+          <div class="test-field-group">
+            <div class="test-field">
+              <label>User ID</label>
+              <input type="text" [(ngModel)]="testUserId" placeholder="Enter user ID" />
+            </div>
+            <div class="test-field">
+              <label>Top Results</label>
+              <input type="number" [(ngModel)]="testTop" min="1" max="20" />
+            </div>
+          </div>
+
+          <div class="test-checkbox-group">
+            <label class="test-checkbox-label">
+              <input type="checkbox" [(ngModel)]="testDefault" />
+              <span>Default</span>
+            </label>
+            <label class="test-checkbox-label">
+              <input type="checkbox" [(ngModel)]="testLatest" />
+              <span>Latest</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="test-actions">
+          <button class="btn btn-primary" (click)="executeTest()" [disabled]="loading">
+            <i class="fas fa-play"></i>
+            {{ loading ? 'Executing...' : 'Execute Test' }}
+          </button>
+          <button class="btn btn-cancel" (click)="closeTestModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

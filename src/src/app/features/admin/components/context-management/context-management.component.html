@@ -37,7 +37,14 @@
           <div class="grid-2">
             <div class="form-group">
               <label>Agent Code</label>
-              <input formControlName="agentCode" placeholder="Enter agent code" required/>
+              <select formControlName="agentCode" required>
+                <option value="">Select agent code</option>
+                <option *ngFor="let code of agentCodes" [value]="code">{{ code }}</option>
+              </select>
+              <small *ngIf="loadingAgents" style="color: #999; font-size: 12px;">Loading agents...</small>
+              <small *ngIf="!loadingAgents && agentCodes.length === 0" style="color: #dc3545; font-size: 12px;">
+                No agents found. Please refresh or contact support.
+              </small>
             </div>
             <div class="form-group">
               <label>Version ID (optional)</label>
@@ -296,6 +303,202 @@
                 <button class="btn" style="background-color: #d9534f;" (click)="deleteReflection(reflection)">Delete</button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEST MODAL -->
+<div *ngIf="showTestModal" class="modal-overlay" (click)="closeTestModal()">
+  <div class="modal-content-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-flask"></i>
+        Test Context
+      </h2>
+      <button class="close-btn" (click)="closeTestModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="test-info-box" *ngIf="currentTestContext">
+        <strong>Testing Context:</strong>
+        <div style="margin-top: 8px;">
+          Agent: <strong>{{ currentTestContext.AgentCode }}</strong> | 
+          Intent: <strong>{{ currentTestContext.Intent }}</strong> | 
+          Version: <strong>{{ currentTestContext.VersionId }}</strong>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3 class="test-section-title">
+          <i class="fas fa-info-circle"></i>
+          Test Configuration
+        </h3>
+        
+        <div class="test-field-group">
+          <div class="test-field">
+            <label>Agent Code *</label>
+            <input type="text" [(ngModel)]="testAgentCode" placeholder="Enter agent code" required />
+          </div>
+          <div class="test-field">
+            <label>Intent *</label>
+            <input type="text" [(ngModel)]="testIntent" placeholder="Enter intent" required />
+          </div>
+        </div>
+
+        <div class="test-field-group">
+          <div class="test-field">
+            <label>Version ID</label>
+            <input type="text" [(ngModel)]="testVersionId" placeholder="Enter version ID" />
+          </div>
+          <div class="test-field">
+            <label>Model</label>
+            <input type="text" [(ngModel)]="testModel" placeholder="Enter model" />
+          </div>
+        </div>
+
+        <div class="test-field">
+          <label>User Message *</label>
+          <textarea [(ngModel)]="testUserMsg" rows="4" placeholder="Enter test message" required></textarea>
+        </div>
+
+        <div class="test-field-group">
+          <div class="test-field">
+            <label>User ID</label>
+            <input type="text" [(ngModel)]="testUserId" placeholder="Enter user ID" />
+          </div>
+          <div class="test-field">
+            <label>Top Results</label>
+            <input type="number" [(ngModel)]="testTop" min="1" max="20" />
+          </div>
+        </div>
+
+        <div class="test-checkbox-group">
+          <label class="test-checkbox-label">
+            <input type="checkbox" [(ngModel)]="testDefault" />
+            <span>Default</span>
+          </label>
+          <label class="test-checkbox-label">
+            <input type="checkbox" [(ngModel)]="testLatest" />
+            <span>Latest</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="test-actions">
+        <button class="btn btn-primary" (click)="executeTest()" [disabled]="loading">
+          <i class="fas fa-play"></i>
+          {{ loading ? 'Executing...' : 'Execute Test' }}
+        </button>
+        <button class="btn btn-cancel" (click)="closeTestModal()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div *ngIf="showHistoryModal" class="modal-overlay" (click)="closeHistoryModal()">
+  <div class="modal-content-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-history"></i>
+        Version History
+      </h2>
+      <button class="close-btn" (click)="closeHistoryModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div style="margin-bottom: 20px;">
+        <p style="color: #666; font-size: 14px;">
+          <strong>Context Code:</strong> {{ historyContextCode }}
+        </p>
+        <p style="color: #666; font-size: 14px; margin-top: 8px;">
+          <strong>Total Versions:</strong> {{ getUniqueVersions().length }}
+        </p>
+      </div>
+
+      <h3 style="margin-bottom: 12px;">Available Versions</h3>
+      
+      <div *ngIf="loading" style="text-align: center; padding: 40px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #667eea;"></i>
+        <p style="margin-top: 12px; color: #666;">Loading versions...</p>
+      </div>
+
+      <div *ngIf="!loading && historyData.length === 0" style="text-align: center; padding: 40px; color: #999;">
+        <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px;"></i>
+        <p>No version history found.</p>
+      </div>
+
+      <div class="version-list" *ngIf="!loading && historyData.length > 0">
+        <div class="version-item" *ngFor="let version of getUniqueVersions(); let i = index" 
+             (click)="selectVersion(version)">
+          <div style="flex: 1;">
+            <strong>Context Version {{ version }}</strong>
+            <br>
+            <span style="color: #666; font-size: 12px;">
+              (Modified On: {{ getVersionModifiedOn(version) }})
+            </span>
+            <span style="color: #666; font-size: 12px; margin-left: 8px;">
+              (Modified By: {{ getVersionModifiedBy(version) }})
+            </span>
+            <br>
+            <span style="color: #999; font-size: 12px;">
+              ({{ getVersionItemsCount(version) }} context{{ getVersionItemsCount(version) > 1 ? 's' : '' }})
+            </span>
+          </div>
+          <span class="version-badge">{{ i === 0 ? 'Latest' : version }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="showVersionDetails && selectedVersionData.length > 0" style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+          <h3 style="margin: 0;">Version Details - Context Version {{ selectedVersionData[0].ContextVersion }}</h3>
+          <button class="close-btn" (click)="closeVersionDetails()" title="Close Details">&times;</button>
+        </div>
+
+        <div *ngFor="let item of selectedVersionData" class="version-details">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <p><strong>ID:</strong> {{ item.id || 'N/A' }}</p>
+            <p><strong>Context Code:</strong> {{ item.PromptCode || 'N/A' }}</p>
+            <p><strong>Parent Context Code:</strong> {{ item.ParentPromptCode || 'None' }}</p>
+            <p><strong>Agent Code:</strong> {{ item.AgentCode || 'N/A' }}</p>
+            <p><strong>Type:</strong> {{ item.Type || 'N/A' }}</p>
+            <p><strong>Intent:</strong> {{ item.Intent || 'N/A' }}</p>
+            <p><strong>Version ID:</strong> {{ item.VersionId || 'N/A' }}</p>
+            <p><strong>Context Version:</strong> {{ item.ContextVersion || 'N/A' }}</p>
+            <p>
+              <strong>Default:</strong> 
+              <span *ngIf="item.Default">✅</span>
+              <span *ngIf="!item.Default">❌</span>
+            </p>
+            <p>
+              <strong>Latest:</strong> 
+              <span *ngIf="item.Latest">✅</span>
+              <span *ngIf="!item.Latest">❌</span>
+            </p>
+            <p><strong>Created On:</strong> {{ item.CreatedOn || 'N/A' }}</p>
+            <p><strong>Modified On:</strong> {{ item.ModifiedOn || 'N/A' }}</p>
+            <p><strong>Created By:</strong> {{ item.CreatedBy || 'N/A' }}</p>
+            <p><strong>Modified By:</strong> {{ item.ModifiedBy || 'N/A' }}</p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <strong>Content:</strong>
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 8px; max-height: 300px; overflow-y: auto;">
+              <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 12px; font-family: monospace;">{{ item.Content || 'N/A' }}</pre>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <strong>Filters:</strong>
+            <ul style="margin-top: 4px; margin-left: 20px; font-size: 13px;">
+              <li *ngFor="let e of item.Entity">{{ e.Key }}: {{ e.Value }}</li>
+              <li *ngIf="!item.Entity || item.Entity.length === 0">None</li>
+            </ul>
           </div>
         </div>
       </div>

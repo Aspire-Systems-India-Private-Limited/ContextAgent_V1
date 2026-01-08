@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface CostViolation {
   agent: string;
@@ -6,6 +7,7 @@ interface CostViolation {
   status: string;
   date: string;
   modifiedOn: string | null;
+  threshold: number;
 }
 
 @Component({
@@ -23,7 +25,7 @@ export class ViolationsComponent implements OnInit {
   filterDate: string = 'all';
   filterStatus: string = 'all';
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     this.loadMockData();
@@ -37,14 +39,16 @@ export class ViolationsComponent implements OnInit {
         cost: 12628459,
         status: 'Exceeded',
         date: '2025-12-10',
-        modifiedOn: null
+        modifiedOn: null,
+        threshold: 10000000
       },
       {
         agent: 'attributeextractor',
         cost: 1425340,
         status: 'Resolved',
         date: '2025-12-03',
-        modifiedOn: '12/3/2025, 8:08:44 AM'
+        modifiedOn: '12/3/2025, 8:08:44 AM',
+        threshold: 1500000
       }
     ];
 
@@ -63,6 +67,13 @@ export class ViolationsComponent implements OnInit {
       const dateMatch = this.filterDate === 'all' || violation.date === this.filterDate;
       const statusMatch = this.filterStatus === 'all' || violation.status === this.filterStatus;
       return agentMatch && dateMatch && statusMatch;
+    });
+  }
+
+  navigateToThreshold(agent: string): void {
+    // Navigate to threshold management page with agent parameter
+    this.router.navigate(['/cost-metrics/threshold'], { 
+      queryParams: { agent: agent } 
     });
   }
 }

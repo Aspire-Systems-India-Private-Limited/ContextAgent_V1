@@ -46,6 +46,7 @@
           <tr>
             <th>Agent</th>
             <th>Cost</th>
+            <th>Threshold</th>
             <th>Status</th>
             <th>Date</th>
             <th>Modified On</th>
@@ -55,6 +56,11 @@
           <tr *ngFor="let violation of filteredViolations">
             <td>{{ violation.agent }}</td>
             <td>{{ violation.cost | number:'1.0-0' }}</td>
+            <td>
+              <a class="threshold-link" (click)="navigateToThreshold(violation.agent)">
+                {{ violation.threshold | number:'1.0-0' }}
+              </a>
+            </td>
             <td>
               <span class="status-badge" [ngClass]="{
                 'status-exceeded': violation.status === 'Exceeded',
@@ -67,7 +73,7 @@
             <td>{{ violation.modifiedOn || 'N/A' }}</td>
           </tr>
           <tr *ngIf="filteredViolations.length === 0">
-            <td colspan="5" class="no-data">No violations available</td>
+            <td colspan="6" class="no-data">No violations available</td>
           </tr>
         </tbody>
       </table>

@@ -1,0 +1,130 @@
+<div class="tree-structure-container">
+  <div class="page-header">
+    <h1>Search Context Tree Structure</h1>
+    <p class="subtitle">Visualize your context hierarchy in a tree view</p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="search-card">
+    <form [formGroup]="searchForm" (ngSubmit)="search()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="agentCode">
+            <i class="fas fa-robot"></i> Agent Code
+          </label>
+          <input
+            type="text"
+            id="agentCode"
+            formControlName="agentCode"
+            class="form-control"
+            placeholder="Enter agent code">
+        </div>
+
+        <div class="form-group">
+          <label for="versionId">
+            <i class="fas fa-code-branch"></i> Version ID
+          </label>
+          <input
+            type="text"
+            id="versionId"
+            formControlName="versionId"
+            class="form-control"
+            placeholder="Enter version ID (optional)">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <app-button type="submit" variant="primary" icon="search">
+          Search
+        </app-button>
+        <app-button type="button" variant="secondary" icon="redo" (click)="reset()">
+          Reset
+        </app-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading tree structure..."></app-loader>
+
+  <!-- Results Section -->
+  <div class="results-section" *ngIf="!loading && searched">
+    <div *ngIf="treeData.length === 0" class="no-data">
+      <i class="fas fa-search"></i>
+      <p>No tree structure found for the specified criteria.</p>
+    </div>
+
+    <div class="tree-layout" *ngIf="treeData.length > 0">
+      <!-- Tree View -->
+      <div class="tree-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-sitemap"></i> Context Tree</h3>
+        </div>
+        <div class="tree-content">
+          <ng-container *ngFor="let node of treeData; let i = index">
+            <ng-container *ngTemplateOutlet="treeNodeTemplate; context: {$implicit: node, path: getNodePath(node, i), level: 0}"></ng-container>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Details Panel -->
+      <div class="details-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-info-circle"></i> Node Details</h3>
+        </div>
+        <div class="details-content">
+          <div *ngIf="!selectedNode" class="no-selection">
+            <i class="fas fa-hand-pointer"></i>
+            <p>Select a node from the tree to view details</p>
+          </div>
+          
+          <div *ngIf="selectedNode" class="node-details">
+            <div class="detail-row">
+              <span class="detail-label">Name:</span>
+              <span class="detail-value">{{ selectedNode.name }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Type:</span>
+              <span class="detail-value">
+                <span class="type-badge" [style.background-color]="getTypeColor(selectedNode.type)">
+                  <i class="fas" [ngClass]="getTypeIcon(selectedNode.type)"></i>
+                  {{ selectedNode.type }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-row" *ngIf="selectedNode.description">
+              <span class="detail-label">Description:</span>
+              <span class="detail-value">{{ selectedNode.description }}</span>
+            </div>
+            <div class="detail-row" *ngIf="selectedNode.children">
+              <span class="detail-label">Children:</span>
+              <span class="detail-value">{{ selectedNode.children.length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tree Node Template -->
+<ng-template #treeNodeTemplate let-node let-path="path" let-level="level">
+  <div class="tree-node" [style.padding-left.px]="level * 20">
+    <div class="node-content" (click)="selectNode(node)" [class.selected]="selectedNode === node">
+      <span class="node-toggle" *ngIf="node.children && node.children.length > 0" (click)="toggleNode(node, path); $event.stopPropagation()">
+        <i class="fas" [ngClass]="node.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+      </span>
+      <span class="node-icon" [style.color]="getTypeColor(node.type)">
+        <i class="fas" [ngClass]="getTypeIcon(node.type)"></i>
+      </span>
+      <span class="node-name">{{ node.name }}</span>
+      <span class="node-type">{{ node.type }}</span>
+    </div>
+    
+    <div *ngIf="node.expanded && node.children" class="node-children">
+      <ng-container *ngFor="let child of node.children; let i = index">
+        <ng-container *ngTemplateOutlet="treeNodeTemplate; context: {$implicit: child, path: getNodePath(child, i, path), level: level + 1}"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>

@@ -3977,3 +3977,193 @@ input[type="time"]:invalid:focus {
 /* ============================================
    END DATETIME PICKER STYLES
    ============================================ */
+
+/* ============================================
+   ANGULAR FORM VALIDATION STYLES
+   ============================================ */
+
+/* Required field indicators */
+input.ng-invalid.ng-touched:not(:focus),
+textarea.ng-invalid.ng-touched:not(:focus),
+select.ng-invalid.ng-touched:not(:focus),
+input[required].ng-touched.ng-invalid:not(:focus),
+textarea[required].ng-touched.ng-invalid:not(:focus),
+select[required].ng-touched.ng-invalid:not(:focus) {
+  border-color: #ff6b6b !important;
+  background-color: #fff5f5 !important;
+}
+
+/* Valid field indicators */
+input.ng-valid.ng-touched,
+textarea.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+  border-color: #28a745 !important;
+}
+
+/* Focus states for invalid fields */
+input.ng-invalid.ng-touched:focus,
+textarea.ng-invalid.ng-touched:focus,
+select.ng-invalid.ng-touched:focus {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
+  background-color: #fff !important;
+}
+
+/* Error message styling */
+.error-message,
+.validation-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-message i,
+.validation-error i {
+  font-size: 14px;
+}
+
+/* Required asterisk */
+label .required,
+label.required::after {
+  color: #dc3545;
+  margin-left: 2px;
+}
+
+label.required::after {
+  content: '*';
+}
+
+/* Warning messages */
+.warning-message,
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 0;
+  border: 1px solid #ffeaa7;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-message i,
+.alert-warning i {
+  color: #ff9800;
+  font-size: 18px;
+}
+
+/* Success messages */
+.success-message,
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 0;
+  border: 1px solid #c3e6cb;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-message i,
+.alert-success i {
+  color: #28a745;
+  font-size: 18px;
+}
+
+/* Info messages */
+.info-message,
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 0;
+  border: 1px solid #bee5eb;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-message i,
+.alert-info i {
+  color: #17a2b8;
+  font-size: 18px;
+}
+
+/* Error/Danger messages */
+.error-alert,
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 0;
+  border: 1px solid #f5c6cb;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-alert i,
+.alert-danger i {
+  color: #dc3545;
+  font-size: 18px;
+}
+
+/* ============================================
+   PRE-FORMATTED TEXT STYLING
+   ============================================ */
+
+pre {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+  font-family: 'Geist Mono', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Message pre blocks */
+.message-details pre,
+.message-content pre {
+  max-height: 300px;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  border-left: 4px solid #65336e;
+}
+

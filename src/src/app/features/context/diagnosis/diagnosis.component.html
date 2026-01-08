@@ -1,0 +1,320 @@
+<div class="diagnosis-container">
+  <div class="header">
+    <h2><i class="fas fa-clipboard-list"></i> Inference Logs</h2>
+    <p class="subtitle">View and analyze inference audit logs</p>
+  </div>
+
+  <div class="filters-section">
+    <form [formGroup]="filterForm" class="filter-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDateTime">Start Date & Time (UTC) <span class="required">*</span></label>
+          <input 
+            type="datetime-local" 
+            id="startDateTime" 
+            formControlName="startDateTime" 
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="endDateTime">End Date & Time (UTC) <span class="required">*</span></label>
+          <input 
+            type="datetime-local" 
+            id="endDateTime" 
+            formControlName="endDateTime" 
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="source">Source</label>
+          <select id="source" formControlName="source" class="form-control">
+            <option value="">-- All Sources --</option>
+            <option *ngFor="let src of sources" [value]="src">{{ src }}</option>
+          </select>
+        </div>
+
+        <div class="form-group action-group">
+          <button 
+            type="button" 
+            class="btn btn-primary" 
+            (click)="onFetchLogs()"
+            [disabled]="loading"
+          >
+            <i class="fas fa-search"></i>
+            {{ loading ? 'Fetching...' : 'Fetch Logs' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="error-message" *ngIf="error && !loading">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+
+  <div class="results-section" *ngIf="logs.length > 0">
+    <h3>
+      <i class="fas fa-list"></i>
+      Found {{ logs.length }} Inference Log{{ logs.length !== 1 ? 's' : '' }}
+    </h3>
+
+    <div class="logs-list">
+      <div *ngFor="let log of logs" class="log-item">
+        <div class="log-header" (click)="toggleLogExpansion(log.id)">
+          <div class="log-summary">
+            <span class="badge" [ngClass]="getSourceBadgeClass(log.source)">
+              {{ log.source || 'N/A' }}
+            </span>
+            <span class="log-id"><strong>ID:</strong> {{ log.id }}</span>
+            <span class="log-request"><strong>Request ID:</strong> {{ log.requestId || 'N/A' }}</span>
+            <span class="log-date"><strong>Created:</strong> {{ log.createdOn }}</span>
+          </div>
+          <i 
+            class="fas" 
+            [ngClass]="isLogExpanded(log.id) ? 'fa-chevron-up' : 'fa-chevron-down'"
+          ></i>
+        </div>
+
+        <div class="log-details" *ngIf="isLogExpanded(log.id)">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <strong>Source:</strong>
+              <span>{{ log.source || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Session ID:</strong>
+              <span>{{ log.sessionId || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>User ID:</strong>
+              <span>{{ log.userId || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Request ID:</strong>
+              <span>{{ log.requestId || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Created On:</strong>
+              <span>{{ log.createdOn }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Modified On:</strong>
+              <span>{{ log.modifiedOn || 'N/A' }}</span>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-root-cause" (click)="openRootCauseModal(log)">
+              <i class="fas fa-search"></i>
+              Find Root Cause
+            </button>
+            <button 
+              *ngIf="log.source === 'agent'" 
+              class="btn btn-inference" 
+              (click)="openInferenceModal(log)">
+              <i class="fas fa-sitemap"></i>
+              Load Inference
+            </button>
+          </div>
+
+          <div class="content-section" *ngIf="log.content && log.content.length > 0">
+            <h4><i class="fas fa-code"></i> Content</h4>
+            
+            <div *ngFor="let item of log.content" class="content-block">
+              <h5>Iteration {{ item.iteration }}</h5>
+              
+              <div class="request-response">
+                <div class="request-box" *ngIf="item.request">
+                  <div class="box-header">🟦 Request</div>
+                  <pre>{{ item.request }}</pre>
+                </div>
+                
+                <div class="response-box" *ngIf="item.response">
+                  <div class="box-header">🟩 Response</div>
+                  <pre>{{ item.response }}</pre>
+                </div>
+              </div>
+
+              <div class="meta-info">
+                <div class="meta-grid">
+                  <div class="meta-item">
+                    <strong>Refinement:</strong> {{ item.refinement || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Model:</strong> {{ item.model || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Cost:</strong> {{ item.cost || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Agent Code:</strong> {{ item.agent_code || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>User ID:</strong> {{ item.user_id || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Context Code:</strong> {{ item.context_code || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Token Count:</strong> {{ item.token_count || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>AI Call Time:</strong> {{ item.ai_call_time || 'N/A' }}
+                  </div>
+                  <div class="meta-item">
+                    <strong>Iteration Time:</strong> {{ item.iteration_time || 'N/A' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-data" *ngIf="logs.length === 0 && !loading && filterForm.valid">
+    <i class="fas fa-info-circle"></i>
+    <p>No inference logs found for the specified criteria. Try adjusting the date range or source filter.</p>
+  </div>
+</div>
+
+<!-- Root Cause Modal -->
+<div class="modal-overlay" *ngIf="showRootCauseModal" (click)="closeRootCauseModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-microscope"></i> Find Root Cause Analysis</h3>
+      <button class="close-btn" (click)="closeRootCauseModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="expectedResult">Expected Result</label>
+        <textarea 
+          id="expectedResult" 
+          [(ngModel)]="expectedResult" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Describe what should have happened..."
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label for="problemArea">Problem Area In Context</label>
+        <textarea 
+          id="problemArea" 
+          [(ngModel)]="problemArea" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Describe the issue or unexpected behavior..."
+        ></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="submitRootCause()" [disabled]="!expectedResult || !problemArea">
+          <i class="fas fa-paper-plane"></i>
+          Analyze Root Cause
+        </button>
+        <button class="btn btn-secondary" (click)="closeRootCauseModal()">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inference Tree Modal -->
+<div class="modal-overlay" *ngIf="showInferenceModal" (click)="closeInferenceModal()">
+  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-sitemap"></i> Inference Tree</h3>
+      <button class="close-btn" (click)="closeInferenceModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="inference-info" *ngIf="!loadingInference && inferenceTreeData">
+        <div class="info-row">
+          <strong>Request ID:</strong> <span>{{ currentRequestId }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Source:</strong> <span>{{ currentSourceFilter }}</span>
+        </div>
+        <div class="info-row">
+          <strong>Agent Code:</strong> <span class="badge badge-primary">{{ currentAgentCode }}</span>
+        </div>
+      </div>
+
+      <div class="loading" *ngIf="loadingInference">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading inference tree...</p>
+      </div>
+
+      <div class="tree-container" *ngIf="!loadingInference && inferenceTreeData">
+        <!-- Agent Node -->
+        <div class="tree-node agent-node">
+          <div class="tree-node-item" [class.active]="selectedInferenceLog === inferenceTreeData.agent">
+            <i class="fas fa-calendar"></i>
+            <strong>Agent Log:</strong> {{ inferenceTreeData.agentCode }}
+            <span class="tree-badge">{{ inferenceTreeData.agent?.createdOn }}</span>
+          </div>
+        </div>
+
+        <!-- Inference Nodes -->
+        <div class="tree-section" *ngIf="inferenceTreeData.inference && inferenceTreeData.inference.length > 0">
+          <div class="tree-node-item expandable" (click)="toggleInferenceExpansion()">
+            <i class="fas fa-chevron-right tree-toggle" [class.expanded]="inferenceExpanded"></i>
+            <strong>Inference Logs</strong> ({{ inferenceTreeData.inference.length }})
+          </div>
+          
+          <div class="tree-children" [class.show]="inferenceExpanded">
+            <div 
+              *ngFor="let log of inferenceTreeData.inference; let idx = index" 
+              class="tree-node-item child"
+              [class.active]="selectedInferenceLog === log"
+              (click)="selectInferenceLog(log)">
+              <i class="fas fa-code"></i>
+              <span>Inference {{ idx + 1 }}</span>
+              <span class="tree-badge">{{ log.createdOn }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel" *ngIf="selectedInferenceLog">
+          <div class="detail-header">
+            <h4><i class="fas fa-info-circle"></i> Full Content</h4>
+            <button class="close-detail-btn" (click)="closeDetailPanel()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="detail-body">
+            <div class="detail-item">
+              <strong>Timestamp:</strong> {{ selectedInferenceLog.createdOn }}
+            </div>
+            <div class="detail-item">
+              <strong>Request ID:</strong> {{ selectedInferenceLog.requestId }}
+            </div>
+            <div class="detail-item">
+              <strong>Session ID:</strong> {{ selectedInferenceLog.sessionId }}
+            </div>
+            <div class="detail-item">
+              <strong>Content:</strong>
+              <pre class="code-block">{{ formatLogContent(selectedInferenceLog) }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!inferenceTreeData.inference || inferenceTreeData.inference.length === 0">
+          <i class="fas fa-inbox"></i>
+          <h4>No Inference Logs Found</h4>
+          <p>No separate inference logs exist for this agent execution.</p>
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="inferenceError">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ inferenceError }}
+      </div>
+    </div>
+  </div>
+</div>

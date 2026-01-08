@@ -1,293 +1,153 @@
 <div class="audit-container">
-  <div class="page-header">
-    <h1>Diagnosis - Audit Logs</h1>
-    <p class="subtitle">Search and analyze system audit logs</p>
-  </div>
-
-  <div class="audit-layout">
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-      <h3>Filter Options</h3>
-      <div class="sidebar-menu">
-        <button 
-          class="menu-item"
-          [class.active]="filterMode === 'date'"
-          (click)="setFilterMode('date')">
-          <i class="fas fa-calendar-day"></i>
-          By Date
-        </button>
-
-        <button 
-          class="menu-item"
-          [class.active]="filterMode === 'datetime-range'"
-          (click)="setFilterMode('datetime-range')">
-          <i class="fas fa-calendar-alt"></i>
-          By DateTime Range
-        </button>
-
-        <button 
-          class="menu-item"
-          [class.active]="filterMode === 'minutes'"
-          (click)="setFilterMode('minutes')">
-          <i class="fas fa-clock"></i>
-          Last N Minutes
-        </button>
-
-        <button 
-          class="menu-item"
-          [class.active]="filterMode === 'session'"
-          (click)="setFilterMode('session')">
-          <i class="fas fa-comments"></i>
-          By Session ID
-        </button>
-
-        <button 
-          class="menu-item"
-          [class.active]="filterMode === 'request'"
-          (click)="setFilterMode('request')">
-          <i class="fas fa-exchange-alt"></i>
-          By Request ID
-        </button>
+  <div class="card">
+    <div class="header">
+      <h2>
+        <i class="fas fa-file-medical-alt"></i>
+        Diagnosis - Audit Logs
+      </h2>
+    </div>
+    <div class="filters-section">
+      <form (ngSubmit)="onSearch()" class="filter-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="startDateTime">Start DateTime</label>
+            <input type="datetime-local" id="startDateTime" [(ngModel)]="startDateTime" name="startDateTime" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="endDateTime">End DateTime</label>
+            <input type="datetime-local" id="endDateTime" [(ngModel)]="endDateTime" name="endDateTime" [min]="startDateTime" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="sourceFilter">Source (Optional)</label>
+            <input type="text" id="sourceFilter" [(ngModel)]="sourceFilter" name="sourceFilter" placeholder="e.g., inference, agent" class="form-control">
+          </div>
+          <div class="form-group action-group">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-search'"></i>
+              {{ loading ? 'Searching...' : 'Search Logs' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div *ngIf="loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading audit logs...</p>
+    </div>
+    <div *ngIf="!loading && logs.length > 0" class="log-list">
+      <p class="log-count">Found {{ logs.length }} log(s)</p>
+      <div *ngFor="let log of logs; let i = index" class="log-item">
+        <div *ngIf="Array.isArray(log) && log.length > 0">
+          <strong>Iteration {{ i + 1 }}:</strong>
+          <div *ngFor="let item of log" style="margin-left: 20px;">
+            <div *ngFor="let key of objectKeys(item)">
+              <strong>{{ key }}:</strong> {{ formatValue(item[key]) }}
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!Array.isArray(log)">
+          <div *ngFor="let key of objectKeys(log)">
+            <strong>{{ key }}:</strong> {{ formatValue(log[key]) }}
+          </div>
+        </div>
+        <div class="log-actions">
+          <button class="btn btn-view" (click)="openRootCauseModal(log)">
+            <i class="fas fa-search"></i>
+            Find Root Cause
+          </button>
+          <button *ngIf="log.source === 'agent'" class="btn btn-inference" (click)="openInferenceModal(log)">
+            <i class="fas fa-sitemap"></i>
+            Load Inference
+          </button>
+        </div>
       </div>
-
-      <!-- Export Options -->
-      <div class="export-section" *ngIf="auditLogs.length > 0">
-        <h4>Export Logs</h4>
-        <button class="btn-export" (click)="exportLogs('csv')">
-          <i class="fas fa-file-csv"></i>
-          Export CSV
+    </div>
+    <div *ngIf="!loading && logs.length === 0 && searchPerformed" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <h3>No Audit Logs Found</h3>
+      <p>Try adjusting your search criteria.</p>
+    </div>
+  </div>
+</div>
+<div *ngIf="showRootCauseModal" class="modal-overlay" (click)="closeRootCauseModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-microscope"></i> Find Root Cause</h2>
+      <button class="close-btn" (click)="closeRootCauseModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="expectedResult">Expected Result</label>
+        <textarea id="expectedResult" [(ngModel)]="expectedResult" class="form-control" rows="4" placeholder="Describe the expected behavior..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="problemArea">Problem Area</label>
+        <textarea id="problemArea" [(ngModel)]="problemArea" class="form-control" rows="4" placeholder="Describe the problem area..." required></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="submitRootCause()" [disabled]="!expectedResult || !problemArea">
+          <i class="fas fa-check"></i> Submit Analysis
         </button>
-        <button class="btn-export" (click)="exportLogs('json')">
-          <i class="fas fa-file-code"></i>
-          Export JSON
+        <button class="btn btn-secondary" (click)="closeRootCauseModal()">
+          <i class="fas fa-times"></i> Cancel
         </button>
       </div>
     </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Filter Form -->
-      <app-card [title]="getFilterTitle()">
-        <div class="filter-form">
-          <!-- By Date -->
-          <div class="form-section" *ngIf="filterMode === 'date'">
-            <div class="form-group">
-              <label for="selectedDate">Select Date (UTC)</label>
-              <input 
-                type="date" 
-                id="selectedDate"
-                [(ngModel)]="selectedDate"
-                class="form-control">
-            </div>
-            <p class="form-hint">
-              <i class="fas fa-info-circle"></i>
-              Fetch all logs for the selected date in UTC timezone
-            </p>
+  </div>
+</div>
+<div *ngIf="showInferenceModal" class="modal-overlay" (click)="closeInferenceModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-sitemap"></i> Inference Tree</h2>
+      <button class="close-btn" (click)="closeInferenceModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="loading" class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading inference tree...</p>
+      </div>
+      <div *ngIf="!loading && inferenceTreeData">
+        <div class="inference-info-grid">
+          <div class="info-item"><strong>Request ID:</strong> <span>{{ currentRequestId }}</span></div>
+          <div class="info-item"><strong>Source:</strong> <span class="source-badge">{{ inferenceTreeData.source }}</span></div>
+        </div>
+        <div class="tree-summary">
+          <i class="fas fa-info-circle"></i>
+          <span><strong>Filter:</strong> requestId={{ currentRequestId }}, agentCode={{ currentAgentCode }}</span>
+        </div>
+        <div class="tree-node-item" [class.active]="selectedInferenceLog === inferenceTreeData.agent">
+          <i class="fas fa-calendar"></i>
+          <strong>Agent Log:</strong> {{ inferenceTreeData.agentCode }}
+          <span class="tree-badge">{{ inferenceTreeData.agent.timestamp }}</span>
+        </div>
+        <div class="tree-section">
+          <div class="tree-node-item" (click)="toggleInferenceNode('inference')">
+            <i class="fas fa-chevron-right tree-toggle" [class.expanded]="isNodeExpanded('inference')"></i>
+            <strong>Inference Logs</strong> ({{ inferenceTreeData.inference.length }})
           </div>
-
-          <!-- By DateTime Range -->
-          <div class="form-section" *ngIf="filterMode === 'datetime-range'">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="startDateTime">Start DateTime</label>
-                <input 
-                  type="datetime-local" 
-                  id="startDateTime"
-                  [(ngModel)]="startDateTime"
-                  class="form-control">
-              </div>
-
-              <div class="form-group">
-                <label for="endDateTime">End DateTime</label>
-                <input 
-                  type="datetime-local" 
-                  id="endDateTime"
-                  [(ngModel)]="endDateTime"
-                  class="form-control">
-              </div>
+          <div class="tree-children" [class.show]="isNodeExpanded('inference')">
+            <div *ngFor="let log of inferenceTreeData.inference; let idx = index" class="tree-node-item" [class.active]="selectedInferenceLog === log" (click)="selectInferenceLog(log)">
+              <i class="fas fa-code"></i>
+              <span>Inference {{ idx + 1 }}</span>
+              <span class="tree-badge">{{ log.timestamp }}</span>
             </div>
-
-            <div class="form-group">
-              <label for="sourceFilter">Source (Optional)</label>
-              <input 
-                type="text" 
-                id="sourceFilter"
-                [(ngModel)]="sourceFilter"
-                placeholder="e.g., AUTH_SERVICE, CONTEXT_SERVICE"
-                class="form-control">
-            </div>
-            <p class="form-hint">
-              <i class="fas fa-info-circle"></i>
-              Optionally filter by source/context to narrow results
-            </p>
-          </div>
-
-          <!-- Last N Minutes -->
-          <div class="form-section" *ngIf="filterMode === 'minutes'">
-            <div class="form-group">
-              <label for="minutesFilter">Number of Minutes</label>
-              <input 
-                type="number" 
-                id="minutesFilter"
-                [(ngModel)]="minutesFilter"
-                placeholder="e.g., 30, 60, 120"
-                min="1"
-                class="form-control">
-            </div>
-            <p class="form-hint">
-              <i class="fas fa-info-circle"></i>
-              Fetch logs from the last N minutes
-            </p>
-          </div>
-
-          <!-- By Session ID -->
-          <div class="form-section" *ngIf="filterMode === 'session'">
-            <div class="form-group">
-              <label for="sessionIdFilter">Session ID</label>
-              <input 
-                type="text" 
-                id="sessionIdFilter"
-                [(ngModel)]="sessionIdFilter"
-                placeholder="e.g., sess_001"
-                class="form-control">
-            </div>
-            <p class="form-hint">
-              <i class="fas fa-info-circle"></i>
-              Fetch all logs associated with a specific session
-            </p>
-          </div>
-
-          <!-- By Request ID -->
-          <div class="form-section" *ngIf="filterMode === 'request'">
-            <div class="form-group">
-              <label for="requestIdFilter">Request ID</label>
-              <input 
-                type="text" 
-                id="requestIdFilter"
-                [(ngModel)]="requestIdFilter"
-                placeholder="e.g., req_001"
-                class="form-control">
-            </div>
-            <p class="form-hint">
-              <i class="fas fa-info-circle"></i>
-              Fetch all logs associated with a specific request
-            </p>
-          </div>
-
-          <!-- Search Button -->
-          <div class="form-actions">
-            <app-button 
-              variant="primary"
-              icon="search"
-              [loading]="loading"
-              (clicked)="onSearch()">
-              Search Logs
-            </app-button>
-
-            <app-button 
-              variant="secondary"
-              icon="times"
-              (clicked)="clearFilters()">
-              Clear
-            </app-button>
           </div>
         </div>
-      </app-card>
-
-      <!-- Loading State -->
-      <app-loader *ngIf="loading" size="large" message="Searching audit logs..."></app-loader>
-
-      <!-- Audit Logs Results -->
-      <div class="logs-section" *ngIf="!loading && auditLogs.length > 0">
-        <div class="logs-header">
-          <h3>Audit Logs ({{ auditLogs.length }})</h3>
-        </div>
-
-        <div class="logs-list">
-          <div 
-            class="log-card"
-            *ngFor="let log of auditLogs"
-            [class.expanded]="isLogExpanded(log.id)">
-            
-            <!-- Log Header -->
-            <div class="log-header" (click)="toggleLogExpansion(log.id)">
-              <div class="log-info">
-                <div class="log-id">
-                  <i class="fas fa-file-alt"></i>
-                  <strong>{{ log.id }}</strong>
-                </div>
-                <div class="log-preview">
-                  {{ truncateContent(log.content, 100) }}
-                </div>
-                <div class="log-meta">
-                  <span class="badge source" *ngIf="log.source">
-                    <i class="fas fa-server"></i>
-                    {{ log.source }}
-                  </span>
-                  <span class="meta-item">
-                    <i class="fas fa-calendar"></i>
-                    {{ formatDate(log.createdOn) }}
-                  </span>
-                </div>
-              </div>
-              <i class="fas" [ngClass]="isLogExpanded(log.id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-            </div>
-
-            <!-- Log Details (Expanded) -->
-            <div class="log-details" *ngIf="isLogExpanded(log.id)">
-              <div class="detail-section">
-                <h4>Full Content</h4>
-                <div class="detail-content">
-                  <pre>{{ log.content }}</pre>
-                </div>
-              </div>
-
-              <div class="detail-grid">
-                <div class="detail-item">
-                  <label>Log ID</label>
-                  <span>{{ log.id }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <label>Created On</label>
-                  <span>{{ formatDate(log.createdOn) }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <label>Modified On</label>
-                  <span>{{ formatDate(log.modifiedOn) }}</span>
-                </div>
-
-                <div class="detail-item" *ngIf="log.source">
-                  <label>Source</label>
-                  <span class="badge source">{{ log.source }}</span>
-                </div>
-
-                <div class="detail-item" *ngIf="log.session_id">
-                  <label>Session ID</label>
-                  <span class="badge session">{{ log.session_id }}</span>
-                </div>
-
-                <div class="detail-item" *ngIf="log.user_id">
-                  <label>User ID</label>
-                  <span class="badge user">{{ log.user_id }}</span>
-                </div>
-
-                <div class="detail-item" *ngIf="log.request_id">
-                  <label>Request ID</label>
-                  <span class="badge request">{{ log.request_id }}</span>
-                </div>
-              </div>
-            </div>
+        <div *ngIf="selectedInferenceLog" class="detail-panel">
+          <h4>Full Content</h4>
+          <div class="detail-item"><strong>Timestamp:</strong> {{ selectedInferenceLog.timestamp }}</div>
+          <div class="detail-item"><strong>Request ID:</strong> {{ selectedInferenceLog.request_id }}</div>
+          <div class="detail-item"><strong>Session ID:</strong> {{ selectedInferenceLog.session_id }}</div>
+          <div class="detail-item">
+            <strong>Content:</strong>
+            <pre class="code-block">{{ formatLogContent(selectedInferenceLog.content) }}</pre>
           </div>
         </div>
       </div>
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="!loading && auditLogs.length === 0">
-        <i class="fas fa-search"></i>
-        <h3>No Audit Logs Found</h3>
-        <p>Use the filter options in the sidebar to search for audit logs</p>
+      <div *ngIf="!loading && !inferenceTreeData" class="empty-state">
+        <i class="fas fa-exclamation-circle"></i>
+        <h3>No Inference Data Available</h3>
+        <p>Unable to load inference tree for this log.</p>
       </div>
     </div>
   </div>

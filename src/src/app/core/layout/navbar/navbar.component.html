@@ -6,8 +6,13 @@
       <span class="brand-text">Operations <span class="brand-highlight">Portal</span></span>
     </div>
 
+    <!-- Mobile Menu Toggle
+    <button class="mobile-menu-toggle" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+      <i class="fas" [ngClass]="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button> -->
+
     <!-- Navigation Links -->
-    <div class="navbar-links">
+    <div class="navbar-links" [class.mobile-open]="mobileMenuOpen">
       <!-- Home -->
       <a 
         routerLink="/admin" 
@@ -51,6 +56,15 @@
           <a routerLink="/context/search" class="dropdown-item">
             <i class="fas fa-search"></i>
             Search Context
+          </a>
+          
+          <a routerLink="/context/test-reports" class="dropdown-item">
+            <i class="fas fa-file-medical-alt"></i>
+            Test Reports
+          </a>
+          <a routerLink="/context/diagnosis" class="dropdown-item">
+            <i class="fas fa-stethoscope"></i>
+            Diagnosis
           </a>
           <a routerLink="/context/create-reflection" class="dropdown-item">
             <i class="fas fa-lightbulb"></i>
@@ -111,29 +125,25 @@
         </div>
       </div>
 
-      <!-- Diagnosis (Dropdown) -->
+      <!-- Governance (Dropdown) -->
       <div class="nav-dropdown" 
-           (mouseenter)="showDropdown('diagnosis', $event)" 
-           (mouseleave)="hideDropdown('diagnosis')">
+           (mouseenter)="showDropdown('governance', $event)" 
+           (mouseleave)="hideDropdown('governance')">
         <a class="nav-link" 
-           [class.active]="isDiagnosisActive()"
-           (click)="toggleDropdown('diagnosis', $event)">
-          <i class="fas fa-stethoscope" aria-hidden="true"></i>
-          <span>Diagnosis</span>
+           [class.active]="isGovernanceActive()"
+           (click)="toggleDropdown('governance', $event)">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i>
+          <span>Governance</span>
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </a>
         <div class="dropdown-menu" 
-             *ngIf="activeDropdown === 'diagnosis'"
+             *ngIf="activeDropdown === 'governance'"
              [style.top.px]="dropdownPosition.top"
              [style.left.px]="dropdownPosition.left">
           <a routerLink="/cost-metrics" class="dropdown-item">
             <i class="fas fa-chart-bar"></i>
             Metrics - Cost and Performance
           </a>
-          <!-- <a routerLink="/audit" class="dropdown-item">
-            <i class="fas fa-clipboard-list"></i>
-            Diagnostics
-          </a> -->
         </div>
       </div>
     </div>

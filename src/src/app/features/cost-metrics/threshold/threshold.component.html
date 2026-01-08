@@ -1,0 +1,116 @@
+<div class="threshold-container">
+  <div class="page-header">
+    <h1>Agent Thresholds</h1>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Filter by Agent:</label>
+        <select [(ngModel)]="filterAgent" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Agents</option>
+          <option *ngFor="let agent of uniqueAgents" [value]="agent">{{ agent }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Threshold Type:</label>
+        <select [(ngModel)]="filterType" class="form-select">
+          <option value="Agent">Agent</option>
+          <option value="User">User</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading thresholds..."></app-loader>
+
+  <!-- Threshold Configuration Section -->
+  <div class="results-section" *ngIf="!loading">
+    <h3>Agent Thresholds Configuration</h3>
+    
+    <div class="table-container">
+      <table class="threshold-table">
+        <thead>
+          <tr>
+            <th>Agent Code</th>
+            <th>User Daily Cost Limit</th>
+            <th>User Monthly Cost Limit</th>
+            <th>Agent Threshold</th>
+            <th>Owner</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let threshold of filteredThresholds; let i = index">
+            <ng-container *ngIf="editingIndex !== i">
+              <td><strong>{{ threshold.agentCode }}</strong></td>
+              <td class="cost-cell green">{{ formatCurrency(threshold.userDailyCostLimit) }}</td>
+              <td class="cost-cell red">{{ formatCurrency(threshold.userMonthlyCostLimit) }}</td>
+              <td class="cost-cell pink">{{ formatCurrency(threshold.agentThreshold) }}</td>
+              <td>{{ threshold.owner }}</td>
+              <td>
+                <button class="btn btn-primary btn-sm" (click)="editThreshold(i)">
+                  Update
+                </button>
+              </td>
+            </ng-container>
+
+            <ng-container *ngIf="editingIndex === i">
+              <td [formGroup]="editForm">
+                <input 
+                  type="text" 
+                  formControlName="agentCode"
+                  class="form-control form-control-sm"
+                  readonly>
+              </td>
+              <td [formGroup]="editForm">
+                <input 
+                  type="number" 
+                  formControlName="userDailyCostLimit"
+                  class="form-control form-control-sm"
+                  step="0.01"
+                  min="0">
+              </td>
+              <td [formGroup]="editForm">
+                <input 
+                  type="number" 
+                  formControlName="userMonthlyCostLimit"
+                  class="form-control form-control-sm"
+                  step="0.01"
+                  min="0">
+              </td>
+              <td [formGroup]="editForm">
+                <input 
+                  type="number" 
+                  formControlName="agentThreshold"
+                  class="form-control form-control-sm"
+                  step="1"
+                  min="0">
+              </td>
+              <td [formGroup]="editForm">
+                <input 
+                  type="text" 
+                  formControlName="owner"
+                  class="form-control form-control-sm">
+              </td>
+              <td>
+                <button class="btn btn-success btn-sm" (click)="updateThreshold(i)">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </td>
+            </ng-container>
+          </tr>
+          <tr *ngIf="filteredThresholds.length === 0">
+            <td colspan="6" class="no-data">No thresholds available</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

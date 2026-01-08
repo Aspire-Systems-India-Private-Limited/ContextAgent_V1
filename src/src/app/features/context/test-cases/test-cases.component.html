@@ -1,0 +1,177 @@
+<div class="test-cases-container">
+  <div class="page-header">
+    <h1>Test Cases</h1>
+    <p class="subtitle">Manage and view test cases for your context agent</p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="search-card">
+    <form [formGroup]="searchForm" (ngSubmit)="search()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="agentCode">
+            <i class="fas fa-robot"></i> Agent Code
+          </label>
+          <input
+            type="text"
+            id="agentCode"
+            formControlName="agentCode"
+            class="form-control"
+            placeholder="Enter agent code">
+        </div>
+
+        <div class="form-group">
+          <label for="versionId">
+            <i class="fas fa-code-branch"></i> Version ID
+          </label>
+          <input
+            type="text"
+            id="versionId"
+            formControlName="versionId"
+            class="form-control"
+            placeholder="Enter version ID (optional)">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <app-button type="submit" variant="primary" icon="search">
+          Search
+        </app-button>
+        <app-button type="button" variant="secondary" icon="redo" (click)="reset()">
+          Reset
+        </app-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <app-loader *ngIf="loading" size="large" message="Loading test cases..."></app-loader>
+
+  <!-- Results Section -->
+  <div class="results-section" *ngIf="!loading && searched">
+    <!-- Stats Cards -->
+    <div class="stats-cards" *ngIf="testCases.length > 0">
+      <div class="stat-card total">
+        <div class="stat-icon"><i class="fas fa-flask"></i></div>
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Tests</div>
+      </div>
+      <div class="stat-card passed">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-value">{{ stats.passed }}</div>
+        <div class="stat-label">Passed</div>
+      </div>
+      <div class="stat-card failed">
+        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-value">{{ stats.failed }}</div>
+        <div class="stat-label">Failed</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-value">{{ stats.pending }}</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card pass-rate">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-value">{{ stats.passRate }}%</div>
+        <div class="stat-label">Pass Rate</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card" *ngIf="testCases.length > 0">
+      <div class="filter-group">
+        <label>Filter by Status:</label>
+        <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Status</option>
+          <option value="Passed">Passed</option>
+          <option value="Failed">Failed</option>
+          <option value="Pending">Pending</option>
+          <option value="Skipped">Skipped</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Filter by Category:</label>
+        <select [(ngModel)]="filterCategory" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Categories</option>
+          <option *ngFor="let category of uniqueCategories" [value]="category">{{ category }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Filter by Priority:</label>
+        <select [(ngModel)]="filterPriority" (ngModelChange)="applyFilters()" class="form-select">
+          <option value="all">All Priorities</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- No Data -->
+    <div *ngIf="testCases.length === 0" class="no-data">
+      <i class="fas fa-flask"></i>
+      <p>No test cases found for the specified criteria.</p>
+    </div>
+
+    <!-- Test Cases Table -->
+    <div class="table-card" *ngIf="filteredTestCases.length > 0">
+      <div class="table-container">
+        <table class="test-cases-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Execution Time</th>
+              <th>Last Run</th>
+              <th>Author</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let testCase of filteredTestCases">
+              <td><strong>{{ testCase.id }}</strong></td>
+              <td>
+                <div class="test-name">{{ testCase.name }}</div>
+                <div class="test-description">{{ testCase.description }}</div>
+              </td>
+              <td>
+                <span class="category-badge">{{ testCase.category }}</span>
+              </td>
+              <td>
+                <span class="priority-badge" [ngClass]="testCase.priority.toLowerCase()">
+                  <i class="fas" [ngClass]="getPriorityIcon(testCase.priority)"></i>
+                  {{ testCase.priority }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="testCase.status.toLowerCase()">
+                  <i class="fas" [ngClass]="getStatusIcon(testCase.status)"></i>
+                  {{ testCase.status }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="testCase.executionTime">{{ testCase.executionTime }}s</span>
+                <span *ngIf="!testCase.executionTime" class="text-muted">-</span>
+              </td>
+              <td>
+                <span *ngIf="testCase.lastRun">{{ testCase.lastRun }}</span>
+                <span *ngIf="!testCase.lastRun" class="text-muted">Not run</span>
+              </td>
+              <td>{{ testCase.author }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="testCases.length > 0 && filteredTestCases.length === 0" class="no-data">
+      <i class="fas fa-filter"></i>
+      <p>No test cases match the selected filters.</p>
+    </div>
+  </div>
+</div>

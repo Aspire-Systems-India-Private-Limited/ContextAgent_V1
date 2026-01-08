@@ -10,6 +10,7 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { ViolationsComponent } from './violations/violations.component';
 import { PerformanceComponent } from './performance/performance.component';
 import { DiagnosisComponent } from './diagnosis/diagnosis.component';
+import { ThresholdComponent } from './threshold/threshold.component';
 
 const routes: Routes = [
   {
@@ -22,19 +23,23 @@ const routes: Routes = [
       },
       {
         path: 'agent',
-        component: AgentAggregatedComponent  // Aggregated Cost > Agent (aggregated monthly costs)
+        component: AgentAggregatedComponent  // Cost Governance > Agent (aggregated monthly costs)
       },
       {
         path: 'user',
-        component: UserCostComponent  // Aggregated Cost > User (monthly user costs)
+        component: UserCostComponent  // Cost Governance > User (monthly user costs)
       },
       {
         path: 'notifications',
-        component: NotificationsComponent  // Aggregated Cost > Notifications
+        component: NotificationsComponent  // Cost Governance > Notifications
       },
       {
         path: 'violations',
-        component: ViolationsComponent  // Aggregated Cost > Violations
+        component: ViolationsComponent  // Cost Governance > Violations
+      },
+      {
+        path: 'threshold',
+        component: ThresholdComponent  // Cost Governance > Threshold
       },
       {
         path: 'performance',
@@ -57,7 +62,8 @@ const routes: Routes = [
     NotificationsComponent,
     ViolationsComponent,
     PerformanceComponent,
-    DiagnosisComponent
+    DiagnosisComponent,
+    ThresholdComponent
   ],
   imports: [
     SharedModule,

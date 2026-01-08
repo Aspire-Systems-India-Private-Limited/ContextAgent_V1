@@ -34,6 +34,28 @@ export class ContextManagementComponent implements OnInit {
   agentCodes: string[] = [];
   loadingAgents: boolean = false;
 
+  // Test Modal
+  showTestModal: boolean = false;
+  currentTestContext: Context | null = null;
+  testAgentCode: string = '';
+  testIntent: string = '';
+  testUserMsg: string = '';
+  testUserId: string = 'admin';
+  testSessionId: string = '';
+  testRequestId: string = '';
+  testVersionId: string = '';
+  testModel: string = 'gpt-4o-mini';
+  testTop: number = 5;
+  testDefault: boolean = false;
+  testLatest: boolean = false;
+
+  // History Modal
+  showHistoryModal: boolean = false;
+  historyContextCode: string = '';
+  historyData: Context[] = [];
+  selectedVersionData: Context[] = [];
+  showVersionDetails: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private contextService: ContextService,
@@ -161,14 +183,217 @@ export class ContextManagementComponent implements OnInit {
     });
   }
 
-  openTestModal(context: Context): void {
-    this.toastr.info(`Test functionality for ${context.AgentCode} - Version ${context.VersionId}`, 'Info');
-    // TODO: Implement test modal
+  /**
+   * Open test modal with full functionality matching admin.html openTestModal
+   * Reference: admin.html line 4478
+   */
+  async openTestModal(context: Context): Promise<void> {
+    console.log('Opening test modal for context:', context);
+    
+    // Set current test context
+    this.currentTestContext = context;
+    const agentCode = context.AgentCode || '';
+    
+    try {
+      // Fetch all contexts for this agent to populate version sets
+      // This allows testing multiple versions at once
+      const allContexts = await this.contextService.searchContexts(agentCode).toPromise();
+      
+      // Find target context by VersionId or Latest flag
+      let targetContext = context;
+      if (allContexts && allContexts.length > 0) {
+        const found = allContexts.find((ctx: Context) => 
+          ctx.VersionId === context.VersionId || 
+          (ctx.ContextVersion === context.ContextVersion)
+        );
+        if (found) {
+          targetContext = found;
+        } else {
+          // Fallback to Latest context
+          const latestContext = allContexts.find((ctx: Context) => ctx.Latest === true);
+          if (latestContext) {
+            targetContext = latestContext;
+          }
+        }
+      }
+      
+      // Set Agent Code from the target context
+      this.testAgentCode = targetContext.AgentCode || agentCode;
+      
+      // Populate Intent dropdown dynamically (if you have an API endpoint)
+      // For now, use the context's intent
+      this.testIntent = targetContext.Intent || '';
+      
+      // Set User ID
+      this.testUserId = 'admin';
+      
+      // Generate Session ID with admin_datetime format (hidden field)
+      const now = new Date();
+      const datetime = now.toISOString().replace(/[-:]/g, '').replace('T', '_').split('.')[0];
+      this.testSessionId = `admin_${datetime}`;
+      
+      // Set Request ID
+      this.testRequestId = `req_${Date.now()}`;
+      
+      // Set Model (default fallback)
+      this.testModel = 'gpt-4o-mini';
+      
+      // Set Version ID
+      this.testVersionId = targetContext.VersionId || 'v1';
+      
+      // Show the modal
+      this.showTestModal = true;
+      console.log('Test modal opened successfully:', {
+        agentCode: this.testAgentCode,
+        intent: this.testIntent,
+        versionId: this.testVersionId,
+        sessionId: this.testSessionId
+      });
+      
+    } catch (error) {
+      console.error('Error opening test modal:', error);
+      this.toastr.error('Failed to load test context', 'Error');
+    }
+  }
+
+  closeTestModal(): void {
+    this.showTestModal = false;
+    this.currentTestContext = null;
+  }
+
+  /**
+   * Execute test functionality matching admin.html executeMultipleContextTests
+   * Calls the /validate_multiple_output endpoint
+   */
+  async executeTest(): Promise<void> {
+    if (!this.testAgentCode || !this.testIntent || !this.testUserMsg) {
+      this.toastr.warning('Please fill in Agent Code, Intent, and User Message', 'Warning');
+      return;
+    }
+
+    this.loading = true;
+
+    try {
+      // Build the payload matching the admin.html structure
+      const testPayload = {
+        versionSets: [{
+          model: this.testModel,
+          contexts: [this.testAgentCode], // Context codes array
+          images: [], // Image URLs or base64 data
+          versionId: this.testVersionId
+        }],
+        userMsg: this.testUserMsg,
+        userId: this.testUserId,
+        sessionId: this.testSessionId,
+        requestId: this.testRequestId,
+        topK: this.testTop,
+        default: this.testDefault,
+        latest: this.testLatest,
+        agentCode: this.testAgentCode,
+        intent: this.testIntent
+      };
+
+      console.log('Executing test with payload:', testPayload);
+
+      // Call the test API endpoint
+      this.contextService.testContext(testPayload).subscribe({
+        next: (response) => {
+          console.log('Test results:', response);
+          this.toastr.success('✅ Test executed successfully', 'Success');
+          
+          // You can display results in the modal or a separate section
+          // For now, just log the results
+          console.log('Test response:', response);
+        },
+        error: (error) => {
+          console.error('Test execution error:', error);
+          const errorMessage = error.error?.detail || error.message || 'Test execution failed';
+          this.toastr.error(`❌ ${errorMessage}`, 'Error');
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+
+    } catch (error) {
+      console.error('Test execution error:', error);
+      this.toastr.error('Failed to execute test', 'Error');
+      this.loading = false;
+    }
   }
 
   openHistoryModal(promptCode: string): void {
-    this.toastr.info(`History for ${promptCode}`, 'Info');
-    // TODO: Implement history modal
+    console.log('Opening history modal for promptCode:', promptCode);
+    this.historyContextCode = promptCode;
+    this.showHistoryModal = true;
+    console.log('History modal should be visible now:', this.showHistoryModal);
+    this.loadHistoryData(promptCode);
+  }
+
+  closeHistoryModal(): void {
+    this.showHistoryModal = false;
+    this.historyData = [];
+    this.selectedVersionData = [];
+    this.showVersionDetails = false;
+  }
+
+  loadHistoryData(contextCode: string): void {
+    this.loading = true;
+    this.contextService.getContextHistory(contextCode).subscribe({
+      next: (data: Context[]) => {
+        this.historyData = data;
+        this.loading = false;
+        if (data.length === 0) {
+          this.toastr.info('No version history found', 'Info');
+        }
+      },
+      error: (error) => {
+        console.error('History load error:', error);
+        this.loading = false;
+        this.toastr.error('Failed to load version history', 'Error');
+        this.historyData = [];
+      }
+    });
+  }
+
+  getUniqueVersions(): string[] {
+    const versions = [...new Set(this.historyData.map(item => item.ContextVersion || 'Unknown'))];
+    return versions.sort((a, b) => {
+      const numA = parseFloat(a);
+      const numB = parseFloat(b);
+      if (!isNaN(numA) && !isNaN(numB)) return numB - numA;
+      return b.localeCompare(a);
+    });
+  }
+
+  getVersionItemsCount(version: string): number {
+    return this.historyData.filter(item => item.ContextVersion === version).length;
+  }
+
+  getVersionModifiedOn(version: string): string {
+    const items = this.historyData.filter(item => item.ContextVersion === version);
+    if (items.length > 0 && items[0].ModifiedOn) {
+      return items[0].ModifiedOn.toString();
+    }
+    return 'N/A';
+  }
+
+  getVersionModifiedBy(version: string): string {
+    const items = this.historyData.filter(item => item.ContextVersion === version);
+    if (items.length > 0 && items[0].ModifiedBy) {
+      return items[0].ModifiedBy;
+    }
+    return 'N/A';
+  }
+
+  selectVersion(contextVersion: string): void {
+    this.selectedVersionData = this.historyData.filter(item => item.ContextVersion === contextVersion);
+    this.showVersionDetails = true;
+  }
+
+  closeVersionDetails(): void {
+    this.showVersionDetails = false;
+    this.selectedVersionData = [];
   }
 
   // Search Reflections

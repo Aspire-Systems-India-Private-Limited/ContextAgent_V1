@@ -2,7 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { AuditService, AuditLog, AuditSearchParams } from '../../core/services/audit.service';
 import { ToastrService } from 'ngx-toastr';
 
-type FilterMode = 'date' | 'datetime-range' | 'minutes' | 'session' | 'request';
+type FilterMode = 'datetime-range';
+
+interface InferenceTreeData {
+  agent: any;
+  agentCode: string;
+  inference: any[];
+  source: string;
+}
 
 @Component({
   selector: 'app-audit-log',
@@ -11,18 +18,30 @@ type FilterMode = 'date' | 'datetime-range' | 'minutes' | 'session' | 'request';
 })
 export class AuditLogComponent implements OnInit {
   auditLogs: AuditLog[] = [];
+  logs: any[] = [];
   loading: boolean = false;
-  filterMode: FilterMode = 'date';
+  filterMode: FilterMode = 'datetime-range';
   expandedLogId: string | null = null;
+  searchPerformed: boolean = false;
 
-  // Filter inputs
-  selectedDate: string = '';
+  // Filter inputs - datetime range only
   startDateTime: string = '';
   endDateTime: string = '';
   sourceFilter: string = '';
-  minutesFilter: number | null = null;
-  sessionIdFilter: string = '';
-  requestIdFilter: string = '';
+
+  // Root Cause Modal
+  showRootCauseModal: boolean = false;
+  rootCauseLog: any = null;
+  expectedResult: string = '';
+  problemArea: string = '';
+
+  // Inference Tree Modal
+  showInferenceModal: boolean = false;
+  inferenceTreeData: InferenceTreeData | null = null;
+  expandedInferenceNodes: Set<string> = new Set();
+  currentRequestId: string = '';
+  currentAgentCode: string = '';
+  selectedInferenceLog: any = null;
 
   constructor(
     private auditService: AuditService,
@@ -30,67 +49,36 @@ export class AuditLogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadMockAuditLogs();
+    this.initializeDateTimes();
   }
 
-  setFilterMode(mode: FilterMode): void {
-    this.filterMode = mode;
-    this.clearFilters();
+  // Initialize with current time and 1 hour ago
+  initializeDateTimes(): void {
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    
+    this.startDateTime = this.formatDateTimeLocal(oneHourAgo);
+    this.endDateTime = this.formatDateTimeLocal(now);
+  }
+
+  formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   clearFilters(): void {
-    this.selectedDate = '';
-    this.startDateTime = '';
-    this.endDateTime = '';
+    this.initializeDateTimes();
     this.sourceFilter = '';
-    this.minutesFilter = null;
-    this.sessionIdFilter = '';
-    this.requestIdFilter = '';
     this.auditLogs = [];
   }
 
   onSearch(): void {
     this.loading = true;
-
-    switch (this.filterMode) {
-      case 'date':
-        this.searchByDate();
-        break;
-      case 'datetime-range':
-        this.searchByDateTimeRange();
-        break;
-      case 'minutes':
-        this.searchByMinutes();
-        break;
-      case 'session':
-        this.searchBySessionId();
-        break;
-      case 'request':
-        this.searchByRequestId();
-        break;
-    }
-  }
-
-  private searchByDate(): void {
-    if (!this.selectedDate) {
-      this.toastr.warning('Please select a date', 'Validation Error');
-      this.loading = false;
-      return;
-    }
-
-    this.auditService.getAuditByDate(this.selectedDate).subscribe({
-      next: (logs: AuditLog[]) => {
-        this.auditLogs = logs;
-        this.loading = false;
-        this.toastr.success(`Found ${logs.length} audit logs`, 'Success');
-      },
-      error: (error) => {
-        console.error('Error fetching audit logs:', error);
-        this.toastr.error('Failed to fetch audit logs. Using mock data.', 'Error');
-        this.loading = false;
-        this.loadMockAuditLogs();
-      }
-    });
+    this.searchByDateTimeRange();
   }
 
   private searchByDateTimeRange(): void {
@@ -109,82 +97,201 @@ export class AuditLogComponent implements OnInit {
     this.auditService.getAuditByDateTimeRange(params).subscribe({
       next: (logs: AuditLog[]) => {
         this.auditLogs = logs;
+        this.logs = logs;
+        this.searchPerformed = true;
         this.loading = false;
         this.toastr.success(`Found ${logs.length} audit logs`, 'Success');
       },
       error: (error) => {
         console.error('Error fetching audit logs:', error);
-        this.toastr.error('Failed to fetch audit logs. Using mock data.', 'Error');
+        this.toastr.error('Failed to fetch audit logs', 'Error');
         this.loading = false;
-        this.loadMockAuditLogs();
       }
     });
+  }
+
+  // Root Cause Modal Methods
+  openRootCauseModal(log: any): void {
+    this.rootCauseLog = log;
+    this.expectedResult = '';
+    this.problemArea = '';
+    this.showRootCauseModal = true;
+  }
+
+  closeRootCauseModal(): void {
+    this.showRootCauseModal = false;
+    this.rootCauseLog = null;
+  }
+
+  submitRootCause(): void {
+    if (!this.expectedResult.trim() || !this.problemArea.trim()) {
+      this.toastr.warning('Please fill in both fields', 'Validation');
+      return;
+    }
+
+    console.log('Root Cause Analysis Submitted:', {
+      logId: this.rootCauseLog?.id,
+      logContent: this.rootCauseLog,
+      expectedResult: this.expectedResult,
+      problemArea: this.problemArea,
+      timestamp: new Date().toISOString()
+    });
+
+    this.toastr.success('Root Cause analysis submitted successfully!', 'Success');
+    this.closeRootCauseModal();
+  }
+
+  // Inference Tree Modal Methods
+  openInferenceModal(log: any): void {
+    this.currentRequestId = log.requestId || log.request_id || '';
+    this.currentAgentCode = this.extractAgentCodeFromLog(log);
+    
+    console.log(`Opening inference modal for requestId=${this.currentRequestId}, agentCode=${this.currentAgentCode}`);
+    
+    this.showInferenceModal = true;
+    this.loading = true;
+    
+    // Calculate time range (±12 hours from the log's creation time)
+    const baseTime = new Date(log.createdOn);
+    const startTime = new Date(baseTime.getTime() - 12 * 60 * 60 * 1000).toISOString();
+    const endTime = new Date(baseTime.getTime() + 12 * 60 * 60 * 1000).toISOString();
+    
+    this.fetchInferenceLogsByRequestIdAndAgentCode(this.currentRequestId, this.currentAgentCode, startTime, endTime, log);
+  }
+
+  closeInferenceModal(): void {
+    this.showInferenceModal = false;
+    this.inferenceTreeData = null;
+    this.expandedInferenceNodes.clear();
+    this.selectedInferenceLog = null;
+  }
+
+  extractAgentCodeFromLog(log: any): string {
+    if (!log || !log.content) return '';
+    
+    if (Array.isArray(log.content)) {
+      if (log.content.length > 0 && log.content[0].agent_code) {
+        return log.content[0].agent_code;
+      }
+      
+      for (let i = 0; i < log.content.length; i++) {
+        if (log.content[i].agent_code) {
+          return log.content[i].agent_code;
+        }
+      }
+    }
+    
+    if (typeof log.content === 'object' && log.content.agent_code) {
+      return log.content.agent_code;
+    }
+    
+    if (typeof log.content === 'string') {
+      try {
+        const parsed = JSON.parse(log.content);
+        if (parsed.agent_code) return parsed.agent_code;
+      } catch (e) {}
+    }
+    
+    return '';
+  }
+
+  async fetchInferenceLogsByRequestIdAndAgentCode(requestId: string, agentCode: string, startTime: string, endTime: string, agentLog: any): Promise<void> {
+    try {
+      const start = encodeURIComponent(startTime);
+      const end = encodeURIComponent(endTime);
+      
+      const inferenceUrl = `/logs-by-datetime-source?start_time=${start}&end_time=${endTime}&source=inference`;
+      
+      // Call through audit service
+      const params: AuditSearchParams = {
+        start: startTime,
+        end: endTime,
+        source: 'inference'
+      };
+      
+      this.auditService.getAuditByDateTimeRange(params).subscribe({
+        next: (inferenceLogs: any[]) => {
+          console.log(`Total inference logs fetched: ${inferenceLogs.length}`);
+          console.log(`Filtering for requestId: ${requestId}, agentCode: ${agentCode}`);
+          
+          const filteredInference = inferenceLogs.filter(log => {
+            const logRequestId = log.requestId || log.request_id || '';
+            const logAgentCode = this.extractAgentCodeFromLog(log);
+            return logRequestId === requestId && logAgentCode === agentCode;
+          });
+          
+          console.log(`Filtered inferences: Found ${filteredInference.length} logs`);
+          
+          this.buildInferenceTree({ inference: filteredInference }, agentLog);
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching inference logs:', error);
+          this.toastr.error('Failed to fetch inference logs', 'Error');
+          this.loading = false;
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching inference logs:', error);
+      this.loading = false;
+    }
+  }
+
+  buildInferenceTree(logs: any, agentLog: any): void {
+    this.inferenceTreeData = {
+      agent: agentLog,
+      agentCode: this.currentAgentCode,
+      source: agentLog.source || 'agent',
+      inference: logs.inference.map((log: any) => ({
+        ...log,
+        parsedContent: this.tryParseJSON(log.content),
+        agentCode: this.extractAgentCodeFromLog(log)
+      }))
+    };
+    
+    // Sort inference logs by timestamp
+    if (this.inferenceTreeData) {
+      this.inferenceTreeData.inference.sort((a, b) => 
+        new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime()
+      );
+    }
+  }
+
+  tryParseJSON(str: any): any {
+    if (typeof str !== 'string') return str;
+    try {
+      return JSON.parse(str);
+    } catch {
+      return str;
+    }
+  }
+
+  toggleInferenceNode(nodeId: string): void {
+    if (this.expandedInferenceNodes.has(nodeId)) {
+      this.expandedInferenceNodes.delete(nodeId);
+    } else {
+      this.expandedInferenceNodes.add(nodeId);
+    }
+  }
+
+  isNodeExpanded(nodeId: string): boolean {
+    return this.expandedInferenceNodes.has(nodeId);
+  }
+
+  selectInferenceLog(log: any, type: string = 'inference'): void {
+    this.selectedInferenceLog = { ...log, type };
   }
 
   private searchByMinutes(): void {
-    if (!this.minutesFilter || this.minutesFilter <= 0) {
-      this.toastr.warning('Please enter a valid number of minutes', 'Validation Error');
-      this.loading = false;
-      return;
-    }
-
-    this.auditService.getAuditByMinutes(this.minutesFilter).subscribe({
-      next: (logs: AuditLog[]) => {
-        this.auditLogs = logs;
-        this.loading = false;
-        this.toastr.success(`Found ${logs.length} audit logs`, 'Success');
-      },
-      error: (error) => {
-        console.error('Error fetching audit logs:', error);
-        this.toastr.error('Failed to fetch audit logs. Using mock data.', 'Error');
-        this.loading = false;
-        this.loadMockAuditLogs();
-      }
-    });
+    // Removed - not needed
   }
 
   private searchBySessionId(): void {
-    if (!this.sessionIdFilter) {
-      this.toastr.warning('Please enter a session ID', 'Validation Error');
-      this.loading = false;
-      return;
-    }
-
-    this.auditService.getAuditBySessionId(this.sessionIdFilter).subscribe({
-      next: (logs: AuditLog[]) => {
-        this.auditLogs = logs;
-        this.loading = false;
-        this.toastr.success(`Found ${logs.length} audit logs`, 'Success');
-      },
-      error: (error) => {
-        console.error('Error fetching audit logs:', error);
-        this.toastr.error('Failed to fetch audit logs. Using mock data.', 'Error');
-        this.loading = false;
-        this.loadMockAuditLogs();
-      }
-    });
+    // Removed - not needed
   }
 
   private searchByRequestId(): void {
-    if (!this.requestIdFilter) {
-      this.toastr.warning('Please enter a request ID', 'Validation Error');
-      this.loading = false;
-      return;
-    }
-
-    this.auditService.getAuditByRequestId(this.requestIdFilter).subscribe({
-      next: (logs: AuditLog[]) => {
-        this.auditLogs = logs;
-        this.loading = false;
-        this.toastr.success(`Found ${logs.length} audit logs`, 'Success');
-      },
-      error: (error) => {
-        console.error('Error fetching audit logs:', error);
-        this.toastr.error('Failed to fetch audit logs. Using mock data.', 'Error');
-        this.loading = false;
-        this.loadMockAuditLogs();
-      }
-    });
+    // Removed - not needed
   }
 
   toggleLogExpansion(logId: string): void {
@@ -223,111 +330,45 @@ export class AuditLogComponent implements OnInit {
   }
 
   getFilterTitle(): string {
-    const titles: Record<FilterMode, string> = {
-      'date': 'Filter by Date',
-      'datetime-range': 'Filter by DateTime Range',
-      'minutes': 'Filter by Last N Minutes',
-      'session': 'Filter by Session ID',
-      'request': 'Filter by Request ID'
-    };
-    return titles[this.filterMode];
+    return 'Filter by DateTime Range';
   }
 
-  private loadMockAuditLogs(): void {
-    this.auditLogs = [
-      {
-        id: 'audit_001',
-        content: 'User authentication successful. User ID: user_123 logged in from IP: 192.168.1.100',
-        createdOn: '2024-12-09T09:00:00Z',
-        modifiedOn: '2024-12-09T09:00:00Z',
-        source: 'AUTH_SERVICE',
-        session_id: 'sess_001',
-        user_id: 'user_123',
-        request_id: 'req_001'
-      },
-      {
-        id: 'audit_002',
-        content: 'Context created: PromptCode="WELCOME_MESSAGE", AgentCode="CS-BOT-001", Type="System"',
-        createdOn: '2024-12-09T09:15:00Z',
-        modifiedOn: '2024-12-09T09:15:00Z',
-        source: 'CONTEXT_SERVICE',
-        session_id: 'sess_001',
-        user_id: 'user_123',
-        request_id: 'req_002'
-      },
-      {
-        id: 'audit_003',
-        content: 'API rate limit warning: User user_456 approaching limit (850/1000 requests)',
-        createdOn: '2024-12-09T09:30:00Z',
-        modifiedOn: '2024-12-09T09:30:00Z',
-        source: 'API_GATEWAY',
-        user_id: 'user_456',
-        request_id: 'req_003'
-      },
-      {
-        id: 'audit_004',
-        content: 'Session started: session_id=sess_002, user=jane.smith@example.com, agent=SALES-BOT-001',
-        createdOn: '2024-12-09T10:00:00Z',
-        modifiedOn: '2024-12-09T10:00:00Z',
-        source: 'SESSION_SERVICE',
-        session_id: 'sess_002',
-        user_id: 'user_456',
-        request_id: 'req_004'
-      },
-      {
-        id: 'audit_005',
-        content: 'Memory saved: user_id=user_123, session_id=sess_001, context="Customer Support - Communication Preference"',
-        createdOn: '2024-12-09T10:30:00Z',
-        modifiedOn: '2024-12-09T10:30:00Z',
-        source: 'MEMORY_SERVICE',
-        session_id: 'sess_001',
-        user_id: 'user_123',
-        request_id: 'req_005'
-      },
-      {
-        id: 'audit_006',
-        content: 'Failed authentication attempt from IP: 203.0.113.42, username: admin',
-        createdOn: '2024-12-09T11:00:00Z',
-        modifiedOn: '2024-12-09T11:00:00Z',
-        source: 'AUTH_SERVICE',
-        request_id: 'req_006'
-      },
-      {
-        id: 'audit_007',
-        content: 'Context updated: PromptCode="WELCOME_MESSAGE", VersionId="v2.0.1", changes={Content: modified}',
-        createdOn: '2024-12-09T11:30:00Z',
-        modifiedOn: '2024-12-09T11:30:00Z',
-        source: 'CONTEXT_SERVICE',
-        user_id: 'user_123',
-        request_id: 'req_007'
-      },
-      {
-        id: 'audit_008',
-        content: 'Database backup completed successfully. Backup size: 245 MB, duration: 45 seconds',
-        createdOn: '2024-12-09T12:00:00Z',
-        modifiedOn: '2024-12-09T12:00:00Z',
-        source: 'DATABASE_SERVICE',
-        request_id: 'req_008'
-      },
-      {
-        id: 'audit_009',
-        content: 'Agent configuration updated: AgentCode="TECH-BOT-001", model changed from gpt-3.5-turbo to gpt-4',
-        createdOn: '2024-12-09T12:30:00Z',
-        modifiedOn: '2024-12-09T12:30:00Z',
-        source: 'AGENT_SERVICE',
-        user_id: 'user_789',
-        request_id: 'req_009'
-      },
-      {
-        id: 'audit_010',
-        content: 'Session ended: session_id=sess_002, duration=32 minutes, messages_exchanged=8',
-        createdOn: '2024-12-09T13:00:00Z',
-        modifiedOn: '2024-12-09T13:00:00Z',
-        source: 'SESSION_SERVICE',
-        session_id: 'sess_002',
-        user_id: 'user_456',
-        request_id: 'req_010'
-      }
-    ];
+  formatLogContent(log: any): string {
+    if (Array.isArray(log.content)) {
+      return log.content.map((item: any, idx: number) => {
+        let text = `\n=== Iteration ${idx + 1} ===\n`;
+        if (typeof item === 'object') {
+          for (const [key, value] of Object.entries(item)) {
+            text += `${key}: ${JSON.stringify(value, null, 2)}\n`;
+          }
+        } else {
+          text += JSON.stringify(item, null, 2);
+        }
+        return text;
+      }).join('\n' + '='.repeat(60) + '\n\n');
+    } else if (typeof log.parsedContent === 'object') {
+      return JSON.stringify(log.parsedContent, null, 2);
+    } else {
+      return JSON.stringify(log.content, null, 2);
+    }
   }
+
+  // Helper methods for template
+  isObject(value: any): boolean {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  objectKeys(obj: any): string[] {
+    return Object.keys(obj || {});
+  }
+
+  formatValue(value: any): string {
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+    return String(value);
+  }
+
+  // For template access
+  Array = Array;
 }
