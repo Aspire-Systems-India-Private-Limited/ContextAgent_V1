@@ -33,7 +33,7 @@
       </div>
 
       <!-- Diagnosis Section -->
-      <div class="nav-section">
+      <!-- <div class="nav-section">
         <a 
           routerLink="/cost-metrics/diagnosis"
           routerLinkActive="active"
@@ -43,16 +43,16 @@
             <span>Diagnosis</span>
           </div>
         </a>
-      </div>
+      </div> -->
 
-      <!-- Aggregated Cost Section -->
+      <!-- Cost Governance Section -->
       <div class="nav-section">
         <a 
           class="nav-item collapsible"
           (click)="toggleAggregatedCost()">
           <div class="nav-item-content">
             <i class="fas fa-coins"></i>
-            <span>Aggregated Cost</span>
+            <span>Cost Governance</span>
           </div>
           <i class="fas fa-chevron-right toggle-icon" [class.expanded]="aggregatedCostExpanded"></i>
         </a>
@@ -84,6 +84,13 @@
             class="nav-subitem">
             <i class="fas fa-exclamation-triangle"></i>
             <span>Violations</span>
+          </a>
+          <a 
+            routerLink="/cost-metrics/threshold" 
+            routerLinkActive="active"
+            class="nav-subitem">
+            <i class="fas fa-sliders-h"></i>
+            <span>Threshold</span>
           </a>
         </div>
       </div>
